@@ -1,0 +1,337 @@
+{
+    "env_name": "SuburbNeighborhood_Day",
+    "env_bin": "UnrealZoo_UE5_5_Win64_v1.0.2/UnrealZoo_UE5_5_Win64_v1.0.2/UnrealZoo_UE5_5/Binaries/Win64/UnrealZoo_UE5_5.exe",
+    "env_map": "SuburbNeighborhood_Day",
+    "env_bin_win": "UnrealZoo_UE5_5_Win64_v1.0.2\\UnrealZoo_UE5_5_Win64_v1.0.2\\UnrealZoo_UE5_5\\Binaries\\Win64\\UnrealZoo_UE5_5.exe",
+    "env_bin_mac": "UnrealZoo_UE5_5_Win64_v1.0.2/UnrealZoo_UE5_5_Win64_v1.0.2/UnrealZoo_UE5_5/Binaries/Win64/UnrealZoo_UE5_5.exe",
+    "third_cam": {
+        "cam_id": 0,
+        "pitch": -90,
+        "yaw": 0,
+        "roll": 0,
+        "height_top_view": 1395.0,
+        "fov": 90
+    },
+    "height": 395.0,
+    "interval": 1000,
+    "agents": {
+        "player": {
+            "name": [
+                "BP_Character_C_1"
+            ],
+            "cam_id": [
+                2
+            ],
+            "class_name": [
+                "bp_character_C"
+            ],
+            "internal_nav": true,
+            "scale": [
+                1,
+                1,
+                1
+            ],
+            "relative_location": [
+                20,
+                0,
+                0
+            ],
+            "relative_rotation": [
+                0,
+                0,
+                0
+            ],
+            "head_action_continuous": {
+                "high": [
+                    15,
+                    15,
+                    15
+                ],
+                "low": [
+                    -15,
+                    -15,
+                    -15
+                ]
+            },
+            "head_action": [
+                [
+                    0,
+                    0,
+                    0
+                ],
+                [
+                    0,
+                    30,
+                    0
+                ],
+                [
+                    0,
+                    -30,
+                    0
+                ]
+            ],
+            "animation_action": [
+                "stand",
+                "jump",
+                "crouch"
+            ],
+            "move_action": [
+                [
+                    0,
+                    100
+                ],
+                [
+                    0,
+                    -100
+                ],
+                [
+                    15,
+                    50
+                ],
+                [
+                    -15,
+                    50
+                ],
+                [
+                    30,
+                    0
+                ],
+                [
+                    -30,
+                    0
+                ],
+                [
+                    0,
+                    0
+                ]
+            ],
+            "move_action_continuous": {
+                "high": [
+                    30,
+                    100
+                ],
+                "low": [
+                    -30,
+                    -100
+                ]
+            }
+        },
+        "drone": {
+            "name": [
+                "BP_Drone01_C_1"
+            ],
+            "cam_id": [
+                3
+            ],
+            "class_name": [
+                "BP_drone01_C"
+            ],
+            "internal_nav": false,
+            "scale": [
+                0.1,
+                0.1,
+                0.1
+            ],
+            "relative_location": [
+                0,
+                0,
+                0
+            ],
+            "relative_rotation": [
+                0,
+                0,
+                0
+            ],
+            "move_action": [
+                [
+                    0.5,
+                    0,
+                    0,
+                    0
+                ],
+                [
+                    -0.5,
+                    0,
+                    0,
+                    0
+                ],
+                [
+                    0,
+                    0.5,
+                    0,
+                    0
+                ],
+                [
+                    0,
+                    -0.5,
+                    0,
+                    0
+                ],
+                [
+                    0,
+                    0,
+                    0.5,
+                    0
+                ],
+                [
+                    0,
+                    0,
+                    -0.5,
+                    0
+                ],
+                [
+                    0,
+                    0,
+                    0,
+                    1
+                ],
+                [
+                    0,
+                    0,
+                    0,
+                    -1
+                ],
+                [
+                    0,
+                    0,
+                    0,
+                    0
+                ]
+            ],
+            "move_action_continuous": {
+                "high": [
+                    1,
+                    1,
+                    1,
+                    1
+                ],
+                "low": [
+                    -1,
+                    -1,
+                    -1,
+                    -1
+                ]
+            }
+        }
+    },
+    "safe_start": [
+        [
+            770.0,
+            240.016,
+            98.15
+        ],
+        [
+            1320.395,
+            1969.547,
+            125.0
+        ],
+        [
+            217.078,
+            -1267.548,
+            100.785
+        ],
+        [
+            1244.772,
+            1344.0,
+            395.0
+        ],
+        [
+            330.0,
+            1206.0,
+            100.0
+        ],
+        [
+            -1087.412,
+            864.921,
+            79.09
+        ],
+        [
+            1168.804,
+            878.544,
+            75.0
+        ],
+        [
+            1540.626,
+            -627.513,
+            68.80799999999999
+        ],
+        [
+            2337.885,
+            -415.795,
+            74.725
+        ],
+        [
+            1522.87,
+            -1338.601,
+            102.956
+        ],
+        [
+            1703.578,
+            648.299,
+            70.452
+        ]
+    ],
+    "reset_area": [
+        -1087.412,
+        2337.885,
+        -1338.601,
+        1969.547,
+        68.80799999999999,
+        395.0
+    ],
+    "random_init": false,
+    "env": {
+        "interactive_door": [
+            "BP_Door_main10",
+            "BP_Door_main11",
+            "BP_Door_main12",
+            "BP_Door_main13",
+            "BP_Door_main14",
+            "BP_Door_main15",
+            "BP_Door_main16",
+            "BP_Door_main17",
+            "BP_Door_main18",
+            "BP_Door_main19",
+            "BP_Door_main2",
+            "BP_Door_main20",
+            "BP_Door_main21",
+            "BP_Door_main22",
+            "BP_Door_main23_18",
+            "BP_Door_main24",
+            "BP_Door_main25",
+            "BP_Door_main26",
+            "BP_Door_main27",
+            "BP_Door_main3_2",
+            "BP_Door_main4",
+            "BP_Door_main5",
+            "BP_Door_main6_5",
+            "BP_Door_main7_2",
+            "BP_Door_main8_5",
+            "BP_Door_main9_2",
+            "BP_Door_main_1",
+            "BP_Door_garage2_5",
+            "BP_Door_garage3_5",
+            "BP_Door_garage4_9",
+            "BP_Door_garage_14"
+        ]
+    },
+    "obj_num": 2498,
+    "size": 154680.0948,
+    "area": 22915.5696,
+    "bbox": [
+        209.16,
+        109.56,
+        6.75
+    ],
+        "vehicle_zones":{
+        "car": [
+            [[-3500, -170], [-3500, 170], [1600, 170], [1600, -170]]
+        ]
+        },
+    "height_bias":{
+        "car": 0,
+        "animal": [160,300,150],
+        "drone": 300
+    },
+    "max_steps": 50
+}

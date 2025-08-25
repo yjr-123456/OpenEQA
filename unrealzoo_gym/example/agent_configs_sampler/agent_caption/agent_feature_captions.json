@@ -1,0 +1,66 @@
+{
+    "player": {
+        "1": "A man wearing sunglasses, dark green long-sleeve shirt, light cargo pants, black gloves, and brown boots",
+        "2": "A woman with short dark hair, light skin, wearing a green shirt, grey cargo pants, dark gloves, and brown shoes.",
+        "3": "A woman with medium skin, dark hair in a bun, wearing a dark V-neck shirt, light pants, and brown boots",
+        "4": "A woman with fair skin, wearing a white and blue shirt, blue pants, dark boots, a gray bandana, and a utility belt with pouches",
+        "5": "A female soldier wearing green tactical uniform, backpack, and black boots. Hair is tied back. She carries a utility vest and accessories.",
+        "6": "A female soldier with light skin, wearing a black beanie, tactical vest, black shirt, pants, and boots, with a white scarf and communication gear.",
+        "7": "A bald man with glasses, dark complexion, wearing a black turtleneck, suit, and shoes",
+        "8": "A bald man with brown skin, wearing a gray suit, dark red turtleneck, and brown shoes.",
+        "9": "A man with medium skin tone, wearing a navy blue polo shirt, black pants, and blue shoes, with a dark watch on his wrist and black hair.",
+        "10": "A man with medium skin, wearing sunglasses, maroon polo shirt, beige pants, brown shoes, and a watch",
+        "11": "A man with short black hair, wearing a white button-up shirt, dark pants, and black shoes. Light skin tone.",
+        "12": "A man wearing a gray suit, dark shirt, and brown shoes with short dark hair.",
+        "13": "A man with short dark hair, medium skin, wearing a light blue shirt, dark vest, matching pants, and brown shoes",
+        "15": "A bald man with medium skin, wearing a brown turtleneck, dark pants, and brown shoes.",
+        "16": "A man with dark skin, wearing a black fedora, black turtleneck, black pants, and black shoes.",
+        "17": "A man with dark skin, beige turtleneck, blue pants, brown shoes",
+        "19": "A man with dark skin, wearing a black turtleneck, pants, and shoes."
+    },
+    "animal": {
+        "0": "Beagle with tricolor coat, floppy ears, and a wagging tail",
+        "1": "Sleek black Great Dane with muscular build, cropped ears, and expressive eyes.",
+        "2": "Black and brown dog with slender body, long legs, and a pointed muzzle",
+        "3": "Gray tabby cat with white markings, sleek body, and a curved tail",
+        "6": "Water buffalo with large curved horns, dark coat, stocky build.",
+        "10": "Large Komodo dragon with rugged scales, powerful limbs, and a long tail",
+        "11": "Large domestic pig with pinkish skin, floppy ears, and a stocky build",
+        "12": "Brown tarantula with eight legs, hairy body, large abdomen",
+        "14": "Bactrian camel with two humps, tan fur, and long legs",
+        "15": "Brown and white paint horse with distinct markings, long mane, and tail",
+        "16": "Extinct saber-toothed puma with muscular build, speckled coat, and large canine teeth",
+        "19": "Erect-crested penguin with yellow crest, black head, and white belly",
+        "20": "Rhinoceros with two horns, gray skin, robust body, and short tail",
+        "21": "Saber-toothed tiger with long fangs, striped fur, muscular build, and powerful limbs.",
+        "22": "Zebra with black and white stripes, standing on four legs, distinctive mane and tail.",
+        "23": "African elephant with large ears, long trunk, and prominent tusks",
+        "25": "Aldabra giant tortoise with dark patterned, domed shell and sturdy legs",
+        "26": "Prehistoric turtle with a domed shell and spiked tail, robust limbs, likely an ancient species.",
+        "27": "Toucan with a large orange beak, black feathers, and spread wings in flight."
+    },
+    "drone": {
+        "0": "Aerial drone with a black and white frame, dual rotors, and a streamlined design."
+    },
+    "car": {
+        "BP_Hatchback_child_base_C": "Grey car, compact, four-door, SUV style, modern structure",
+        "BP_Hatchback_child_extras_C": "White compact car with black grille, sleek design, and four doors",
+        "BP_Sedan_child_base_C": "Orange car, sedan style, sleek shape, visible headlights and taillights",
+        "BP_Sedan_child_extras_C": "Yellow vehicle with black stripes, modern style, compact structure",
+        "0": "Grey car, compact, four-door, SUV style, modern structure",
+        "1": "White compact car with black grille, sleek design, and four doors",
+        "2": "Orange car, sedan style, sleek shape, visible headlights and taillights",
+        "3": "Yellow vehicle with black stripes, modern style, compact structure"
+    },
+    "motorbike": {
+        "0": "Red and white sport motorcycle, aerodynamic design, sleek body, dual exhaust, rider in black gear.",
+        "1": "Red and white sport motorcycle with rider, aerodynamic shape, dual exhausts, racing style design.",
+        "2": "Red and white sport motorcycle with a rider in yellow gear, sleek design, dual exhausts",
+        "3": "Red scooter with sleek design, rider in black and white gear, reflective helmet, modern styling",
+        "4": "Red scooter with sleek design, black seat, and rider in matching red gear and helmet",
+        "5": "Red scooter with a sleek design, accompanied by a rider in yellow gear and helmet.",
+        "6": "Red dirt bike with rider in full gear, sleek design, off-road style, prominent front plate.",
+        "7": "Red motocross bike with rider, wearing matching gear, sleek design, rugged tires, number 99 on front.",
+        "8": "Motorbike with rider in yellow gear, red and black bike, sporty and streamlined design"
+    }
+}

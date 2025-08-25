@@ -1,0 +1,58 @@
+{
+    "player": {
+        "1": "the_man_in_light_pants_and_sunglasses",
+        "2": "the_man_in_green_sweater",
+        "3": "the_woman_in_deep_V_top",
+        "4": "the_woman_in_floral_shirt",
+        "5": "the_woman_in_camo_vest",
+        "6": "the_woman_in_black_vest",
+        "7": "the_bald_man_in_glasses",
+        "8": "the_bald_man_in_burgundy_sweaters_and_grey_suit",
+        "9": "the_man_in_blue_polo",
+        "10": "the_man_in_burgundy_polo_and_light_pants",
+        "11": "the_man_in_white_shirt",
+        "12": "the_man_in_grey_suit",
+        "13": "the_man_in_blue_vest",
+        "15": "the_bald_man_in_brown_sweater_and_black_pants",
+        "16": "the_man_in_fedora_hat",
+        "17": "the_man_in_blue_plaid_pants_and_light_brown_turtleneck_sweater",
+        "19": "the_man_in_black_turleneck_sweater"
+    },
+    "animal": {
+        "0": "Beagle_Dog",
+        "1": "Great_Dane", 
+        "2": "Doberman_Pinscher",
+        "3": "Tabby_Cat",
+        "6": "Water_Buffalo",  
+        "10": "Komodo_Dragon", 
+        "11": "Pig",             
+        "12": "Spider",       
+        "14": "Camel",
+        "15": "Horse",
+        "16": "Puma",
+        "19": "Penguin",
+        "20": "Rhinoceros",
+        "21": "Tiger",
+        "22": "Zebra",
+        "23": "Elephant",
+        "25": "Turtle",
+        "26": "Snapping_Turtles",
+        "27": "Toucan"
+    },
+    "drone": {
+        "0": "White_Drone"
+    },
+    "car": {
+        "0": "Grey_SUV",
+        "1": "White_Compact_Car",
+        "2": "Orange_Sedan_Car",
+        "3": "Yellow_Car",
+        "BP_Hatchback_child_base_C": "Grey_SUV",
+        "BP_Hatchback_child_extras_C": "White_Compact_Car",
+        "BP_Sedan_child_base_C": "Orange_Sedan_Car",
+        "BP_Sedan_child_extras_C": "Yellow_Car"
+    },
+    "motorbike": {
+        "0": "Red_Motorbike"
+    }
+}

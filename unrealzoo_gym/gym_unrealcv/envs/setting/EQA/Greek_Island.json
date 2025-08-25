@@ -1,0 +1,472 @@
+{
+    "env_name": "Greek_Island",
+    "env_bin": "UnrealZoo_UE5_5_Win64_v1.0.2/UnrealZoo_UE5_5_Win64_v1.0.2/UnrealZoo_UE5_5/Binaries/Win64/UnrealZoo_UE5_5.exe",
+    "env_map": "Greek_Island",
+    "env_bin_win": "UnrealZoo_UE5_5_Win64_v1.0.2\\UnrealZoo_UE5_5_Win64_v1.0.2\\UnrealZoo_UE5_5\\Binaries\\Win64\\UnrealZoo_UE5_5.exe",
+    "env_bin_mac": "UnrealZoo_UE5_5_Win64_v1.0.2/UnrealZoo_UE5_5_Win64_v1.0.2/UnrealZoo_UE5_5/Binaries/Win64/UnrealZoo_UE5_5.exe",
+    "third_cam": {
+        "cam_id": 0,
+        "pitch": -90,
+        "yaw": 0,
+        "roll": 0,
+        "height_top_view": 1310.9560000000001,
+        "fov": 90
+    },
+    "height": 310.956,
+    "interval": 1000,
+    "agents": {
+        "player": {
+            "name": [
+                "BP_Character_C_1"
+            ],
+            "cam_id": [
+                3
+            ],
+            "class_name": [
+                "bp_character_C"
+            ],
+            "internal_nav": true,
+            "scale": [
+                1,
+                1,
+                1
+            ],
+            "relative_location": [
+                20,
+                0,
+                0
+            ],
+            "relative_rotation": [
+                0,
+                0,
+                0
+            ],
+            "head_action_continuous": {
+                "high": [
+                    15,
+                    15,
+                    15
+                ],
+                "low": [
+                    -15,
+                    -15,
+                    -15
+                ]
+            },
+            "head_action": [
+                [
+                    0,
+                    0,
+                    0
+                ],
+                [
+                    0,
+                    30,
+                    0
+                ],
+                [
+                    0,
+                    -30,
+                    0
+                ]
+            ],
+            "animation_action": [
+                "stand",
+                "jump",
+                "crouch"
+            ],
+            "move_action": [
+                [
+                    0,
+                    100
+                ],
+                [
+                    0,
+                    -100
+                ],
+                [
+                    30,
+                    0
+                ],
+                [
+                    -30,
+                    0
+                ],
+                [
+                    0,
+                    0
+                ]
+            ],
+            "move_action_continuous": {
+                "high": [
+                    30,
+                    100
+                ],
+                "low": [
+                    -30,
+                    -100
+                ]
+            }
+        },
+        "animal": {
+            "name": [
+                "BP_animal_C_1"
+            ],
+            "cam_id": [
+                1
+            ],
+            "class_name": [
+                "BP_animal_C"
+            ],
+            "internal_nav": true,
+            "scale": [
+                1,
+                1,
+                1
+            ],
+            "relative_location": [
+                20,
+                0,
+                0
+            ],
+            "relative_rotation": [
+                0,
+                0,
+                0
+            ],
+            "move_action": [
+                [
+                    0,
+                    200
+                ],
+                [
+                    0,
+                    -200
+                ],
+                [
+                    15,
+                    100
+                ],
+                [
+                    -15,
+                    100
+                ],
+                [
+                    30,
+                    0
+                ],
+                [
+                    -30,
+                    0
+                ],
+                [
+                    0,
+                    0
+                ]
+            ],
+            "move_action_continuous": {
+                "high": [
+                    30,
+                    200
+                ],
+                "low": [
+                    -30,
+                    -200
+                ]
+            }
+        },
+        "drone": {
+            "name": [
+                "BP_Drone01_C_1"
+            ],
+            "cam_id": [
+                4
+            ],
+            "class_name": [
+                "BP_drone01_C"
+            ],
+            "internal_nav": false,
+            "scale": [
+                0.1,
+                0.1,
+                0.1
+            ],
+            "relative_location": [
+                0,
+                0,
+                0
+            ],
+            "relative_rotation": [
+                0,
+                0,
+                0
+            ],
+            "move_action": [
+                [
+                    0.5,
+                    0,
+                    0,
+                    0
+                ],
+                [
+                    -0.5,
+                    0,
+                    0,
+                    0
+                ],
+                [
+                    0,
+                    0.5,
+                    0,
+                    0
+                ],
+                [
+                    0,
+                    -0.5,
+                    0,
+                    0
+                ],
+                [
+                    0,
+                    0,
+                    0.5,
+                    0
+                ],
+                [
+                    0,
+                    0,
+                    -0.5,
+                    0
+                ],
+                [
+                    0,
+                    0,
+                    0,
+                    1
+                ],
+                [
+                    0,
+                    0,
+                    0,
+                    -1
+                ],
+                [
+                    0,
+                    0,
+                    0,
+                    0
+                ]
+            ],
+            "move_action_continuous": {
+                "high": [
+                    1,
+                    1,
+                    1,
+                    1
+                ],
+                "low": [
+                    -1,
+                    -1,
+                    -1,
+                    -1
+                ]
+            }
+        },
+        "car": {
+            "name": [
+                "BP_Hatchback_child_base_C_1"
+            ],
+            "cam_id": [
+                5
+            ],
+            "class_name": [
+                "BP_Hatchback_child_base_C"
+            ],
+            "internal_nav": true,
+            "scale": [
+                1,
+                1,
+                1
+            ],
+            "relative_location": [
+                0,
+                0,
+                0
+            ],
+            "relative_rotation": [
+                0,
+                0,
+                0
+            ],
+            "move_action": [
+                [
+                    1,
+                    0
+                ],
+                [
+                    -0.3,
+                    0
+                ],
+                [
+                    0.5,
+                    1
+                ],
+                [
+                    0.5,
+                    -1
+                ],
+                [
+                    0,
+                    0
+                ]
+            ],
+            "move_action_continuous": {
+                "high": [
+                    1,
+                    1
+                ],
+                "low": [
+                    0,
+                    -1
+                ]
+            }
+        },
+        "motorbike": {
+            "name": [
+                "BP_BaseBike_C_1"
+            ],
+            "cam_id": [
+                2
+            ],
+            "class_name": [
+                "BP_BaseBike_C"
+            ],
+            "internal_nav": true,
+            "scale": [
+                1,
+                1,
+                1
+            ],
+            "relative_location": [
+                0,
+                0,
+                0
+            ],
+            "relative_rotation": [
+                0,
+                0,
+                0
+            ],
+            "move_action": [
+                [
+                    1,
+                    0
+                ],
+                [
+                    -0.3,
+                    0
+                ],
+                [
+                    0.5,
+                    1
+                ],
+                [
+                    0.5,
+                    -1
+                ],
+                [
+                    0,
+                    0
+                ]
+            ],
+            "move_action_continuous": {
+                "high": [
+                    1,
+                    1
+                ],
+                "low": [
+                    0,
+                    -1
+                ]
+            }
+        }
+    },
+    "safe_start": [
+    [-10560.185, 11129.262, 3721.692],
+    [-10601.510, 11794.237, 3730.194],
+    [-11392.398, 10933.279, 3730.194],
+    [-11111.456, 10019.244, 3721.681],
+    [-9551.008, 11154.073, 3721.690],
+    [-11199.263, 13066.182, 3969.165],
+    [-12551.337, 11962.576, 3953.078],
+    [-12681.741, 11326.808, 3948.210],
+    [-12151.033, 13750.270, 3984.316],
+    [-13369.407, 14530.438, 3984.331],
+    [-14116.400, 14304.501, 3984.327],
+    [-12817.695, 12889.832, 3975.328],
+    [-12172.732, 13373.694, 3983.957],
+    [-13714.735, 10830.546, 3721.698],
+    [-14439.831, 10601.941, 3748.757],
+    [-11951.492, 9630.512, 3721.552]
+    ],
+    "reset_area": [
+        -3980.699,
+        -1079.07,
+        -11399.999,
+        -8219.015,
+        104.949,
+        310.956
+    ],
+    "random_init": false,
+    "env": {
+        "interactive_door": [],
+        "Extra_Vehicles": {
+            "car": [
+                "BP_Hatchback_child_extras_C",
+                "BP_Hatchback_child_police_C",
+                "BP_Hatchback_child_taxi_C",
+                "BP_Sedan_child_base_C",
+                "BP_Sedan_child_extras_C",
+                "BP_Sedan_child_police_C",
+                "BP_Sedan_child_taxi_C",
+                "BP_SUV_child_base_C",
+                "BP_SUV_child_extras_C",
+                "BP_SUV_child_police_C",
+                "BP_SUV_child_taxi_C"
+            ],
+            "motorbike": [
+                "BP_Custom_Base_C",
+                "BP_Custom_Extras_C",
+                "BP_Custom_Police_C",
+                "BP_Enduro_Base_C",
+                "BP_Enduro_Extras_C",
+                "BP_Enduro_Police_C",
+                "BP_Naked_Base_C",
+                "BP_Naked_Extras_C",
+                "BP_Naked_Police_C",
+                "BP_BaseBike_TwoPassengers_C"
+            ]
+        },
+        "Pickable_object": {
+            "class_name": "BP_GrabMoveDrop_C"
+        }
+    },
+    "obj_num": 3176,
+    "size": 26169815.430719998,
+    "area": 353168.8992,
+    "bbox": [
+        533.52,
+        661.96,
+        74.1
+    ],
+    "max_steps": 100,
+    "sample_region": [
+        [-15376, -8303],
+        [7532, 16577]
+    ],
+        "vehicle_zones":{
+        "car": [
+            [[-11400, 10000], [-11400, 12000], [-9000, 12000], [-9000, 10000]]
+        ]
+        }
+}

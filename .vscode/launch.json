@@ -1,0 +1,28 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python 调试程序: 当前文件目录",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "cwd": "${fileDirname}",  
+            "args": ["--resume", "--model", "openai"],
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}",
+                "OPENAI_API_KEY": "${env:ARK_API_KEY}"
+            },
+            "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "name": "Python 调试程序: 包含参数的当前文件",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "cwd": "${fileDirname}",  
+            "args": "${command:pickArgs}"
+        }
+    ]
+}

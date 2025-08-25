@@ -1,0 +1,106 @@
+{
+    "player": {
+        "1": {
+            "Gender": "man",
+            "Skin_color": "light",
+            "Bald_or_not": false,
+            "Wearing_glasses_or_not": true
+        },
+        "2": {
+            "Gender": "man",
+            "Skin_color": "medium",
+            "Bald_or_not": false,
+            "Wearing_glasses_or_not": false
+        },
+        "3": {
+            "Gender": "woman",
+            "Skin_color": "light",
+            "Bald_or_not": false,
+            "Wearing_glasses_or_not": false
+        },
+        "4": {
+            "Gender": "woman",
+            "Skin_color": "light",
+            "Bald_or_not": false,
+            "Wearing_glasses_or_not": false
+        },
+        "5": {
+            "Gender": "woman",
+            "Skin_color": "light",
+            "Bald_or_not": false,
+            "Wearing_glasses_or_not": false
+        },
+        "6": {
+            "Gender": "woman",
+            "Skin_color": "light",
+            "Bald_or_not": false,
+            "Wearing_glasses_or_not": false
+        },
+        "7": {
+            "Gender": "man",
+            "Skin_color": "medium",
+            "Bald_or_not": true,
+            "Wearing_glasses_or_not": true
+        },
+        "8": {
+            "Gender": "man",
+            "Skin_color": "medium",
+            "Bald_or_not": true,
+            "Wearing_glasses_or_not": false
+        },
+        "9": {
+            "Gender": "man",
+            "Skin_color": "black",
+            "Bald_or_not": false,
+            "Wearing_glasses_or_not": false
+        },
+        "10": {
+            "Gender": "man",
+            "Skin_color": "black",
+            "Bald_or_not": false,
+            "Wearing_glasses_or_not": true
+        },
+        "11": {
+            "Gender": "man",
+            "Skin_color": "medium",
+            "Bald_or_not": false,
+            "Wearing_glasses_or_not": false
+        },
+        "12": {
+            "Gender": "man",
+            "Skin_color": "medium",
+            "Bald_or_not": false,
+            "Wearing_glasses_or_not": false
+        },
+        "13": {
+            "Gender": "man",
+            "Skin_color": "medium",
+            "Bald_or_not": false,
+            "Wearing_glasses_or_not": false
+        },
+        "15": {
+            "Gender": "man",
+            "Skin_color": "medium",
+            "Bald_or_not": true,
+            "Wearing_glasses_or_not": false
+        },
+        "16": {
+            "Gender": "man",
+            "Skin_color": "black",
+            "Bald_or_not": false,
+            "Wearing_glasses_or_not": false
+        },
+        "17": {
+            "Gender": "man",
+            "Skin_color": "black",
+            "Bald_or_not": false,
+            "Wearing_glasses_or_not": false
+        },
+        "19": {
+            "Gender": "man",
+            "Skin_color": "black",
+            "Bald_or_not": true,
+            "Wearing_glasses_or_not": false
+        }
+    }
+}

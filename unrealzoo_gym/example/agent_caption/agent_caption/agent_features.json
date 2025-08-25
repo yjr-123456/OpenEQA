@@ -1,0 +1,12 @@
+{
+    "car": {
+        "BP_Hatchback_child_base_C": "Grey car, compact, four-door, SUV style, modern structure",
+        "BP_Hatchback_child_extras_C": "White compact car with black grille, sleek design, and four doors",
+        "BP_Hatchback_child_police_C": "Black and gray police SUV with protective front bar, side 'POLICE' logo",
+        "BP_Hatchback_child_taxi_C": "Black and blue car with modern design, taxi sign on roof, four doors",
+        "BP_Sedan_child_base_C": "Orange car, sedan style, sleek shape, visible headlights and taillights",
+        "BP_Sedan_child_extras_C": "Yellow vehicle with black stripes, modern style, compact structure",
+        "BP_Sedan_child_police_C": "Dark blue emergency vehicle with 'EMERGENCY' text, rugged style, four wheels",
+        "BP_Sedan_child_taxi_C": "Black sedan with sleek design, chrome grille, and yellow side stripe"
+    }
+}

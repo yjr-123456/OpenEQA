@@ -1,0 +1,26 @@
+# Python 缓存
+__pycache__/
+*.pyc
+
+# 虚拟环境
+.venv/
+gym_unrealzoo_E034/
+unrealzoo_gym/gym_unrealcv/envs/UnrealEnv/
+unrealzoo_gym/example/YOLO-World/
+unrealzoo_gym/example/point_cloud/
+unrealzoo_gym/example/logs/
+unrealzoo_gym/example/depth_image/
+unrealzoo_gym/example/datacollection/
+unrealzoo_gym/example/GT_info/
+unrealzoo_gym/example/QA_Data/
+# 数据文件
+*.npy
+*.csv
+*.log
+*.zip
+*.env
+*.msc
+*.mv
+
+# macOS 系统文件
+.DS_Store

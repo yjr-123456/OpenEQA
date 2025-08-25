@@ -1,0 +1,40 @@
+{
+  "models": {
+    "doubao": {
+      "base_url": "https://ark.cn-beijing.volces.com/api/v3",
+      "api_key_env": "ARK_API_KEY",
+      "model_name": "doubao-seed-1-6-thinking-250615",
+      "max_tokens": 50,
+      "temperature": 0.3
+    },
+    "openai_gpt4_1": {
+      "base_url": "https://xiaoai.plus/v1",
+      "api_key_env": "OPENAI_API_KEY",
+      "model_name": "gpt-4.1",
+      "max_tokens": 10000,
+      "temperature": 0.3
+    },
+    "openai_gpt4o_2024_11_20": {
+      "base_url": "https://xiaoai.plus/v1",
+      "api_key_env": "OPENAI_API_KEY",
+      "model_name": "gpt-4o-2024-11-20",
+      "max_tokens": 10000,
+      "temperature": 0.3
+    },
+    "gemini_pro": {
+      "base_url": "https://xiaoai.plus/v1",
+      "api_key_env": "OPENAI_API_KEY",
+      "model_name": "gemini-2.5-pro-preview-03-25",
+      "max_tokens": 10000,
+      "temperature": 0.3
+    },
+    "claude": {
+      "base_url": "https://api.anthropic.com/v1",
+      "api_key_env": "ANTHROPIC_API_KEY",
+      "model_name": "claude-3-haiku-20240307",
+      "max_tokens": 50,
+      "temperature": 0.3
+    }
+  },
+  "default_model": "doubao"
+}
