@@ -25,7 +25,7 @@ import math
 from dotenv import load_dotenv
 from openai import OpenAI
 load_dotenv()
-os.environ["ARK_API_KEY"] = "1da99d32-75da-4384-b943-b2e240c2e8bb" # 设置 API Key
+
 client = OpenAI(
     # 此为默认路径，您可根据业务所在地域进`行配置
     base_url="https://ark.cn-beijing.volces.com/api/v3",
@@ -187,9 +187,7 @@ class HybridAgent:
                     return self.foreward
 
 def compare_answers_with_api(agent_answer, ground_truth, question_stem="", question_type=""):
-    """
-    使用模型API比较agent回答和标准答案是否一致
-    """
+
     if agent_answer is None or ground_truth is None:
         return False
     
@@ -204,9 +202,7 @@ def compare_answers_with_api(agent_answer, ground_truth, question_stem="", quest
     return call_api_for_answer_comparison(agent_answer_str, ground_truth_str, question_stem, question_type)
 
 def call_api_for_answer_comparison(agent_answer, ground_truth, question_stem="", question_type=""):
-    """
-    调用模型API判断答案是否正确
-    """
+
     # 构建系统提示
     system_prompt = """You are an expert evaluator for question-answering tasks. Your job is to determine if an agent's answer equals to the ground truth answer.
         Return only "CORRECT" if the answers match or "INCORRECT" if they don't match.
@@ -221,11 +217,11 @@ def call_api_for_answer_comparison(agent_answer, ground_truth, question_stem="",
         """
 
     try:
-        # 调用API
+
         response = client.chat.completions.create(
-            model='doubao-seed-1-6-thinking-250615',  # 或者使用您偏好的模型
-            max_tokens=50,  # 只需要很少的token来返回判断结果
-            temperature=0.3,  # 设置为0以获得一致的结果
+            model='doubao-seed-1-6-thinking-250615',  
+            max_tokens=50,  
+            temperature=0.3,  
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt}
@@ -515,10 +511,6 @@ def find_nearest_car(player_pos, car_positions):
     return nearest_car_idx, min_distance
 
 def adjust_player_position_near_car(car_position, car_rotation):
-    """
-    根据car的位置和旋转角度计算player的新位置
-    将player放置在car旁边250单位距离处
-    """
     car_loca = car_position[:3]  # [x, y, z]
     cat_rot = car_rotation[3:]   # [roll, pitch, yaw]
     
@@ -537,9 +529,7 @@ def adjust_player_position_near_car(car_position, car_rotation):
     return new_position
 
 def process_in_vehicle_players(config_data):
-    """
-    处理配置数据，调整in_vehicle状态的player位置
-    """
+
     target_configs = config_data["target_configs"]
     
     # 检查是否有player和car数据
@@ -849,7 +839,7 @@ if __name__ == '__main__':
         if 'env' in locals():
             env.close()
             print("Environment closed due to error.")
-        raise e  # 重新抛出异常以便调试
+        raise e  
     finally:
         if 'env' in locals():
             env.close()
