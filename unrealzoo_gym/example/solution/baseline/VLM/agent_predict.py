@@ -38,19 +38,38 @@ def sanitize_filename(filename):
     return sanitized
 
 
-def setup_logging(log_dir="logs", env_name=None, question_type=None):
+def setup_logging(logger_base_dir="logs", env_name=None, question_type=None, batch_id=None):
     """
     按环境名和问题类型创建日志文件
     """
     # 创建日志目录（支持多级目录）
+            
+    if logger_base_dir:
+        log_base_dir = f"{logger_base_dir}/experiment_results/logs"
+    else:
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        log_base_dir = os.path.join(base_dir, "experiment_results","logs")
+    os.makedirs(log_base_dir, exist_ok=True)        
+    if env_name and question_type and batch_id:
+    # 按环境名和问题类型创建子目录
+        log_dir = os.path.join(log_base_dir, env_name, question_type, batch_id)
+    elif env_name and question_type:
+        log_dir = os.path.join(log_base_dir, env_name, question_type)
+    elif env_name:
+        log_dir = os.path.join(log_base_dir, env_name)
+    else:
+        log_dir = log_base_dir
     os.makedirs(log_dir, exist_ok=True)
     safe_env_name = sanitize_filename(env_name) if env_name else "unknown"
     safe_question_type = sanitize_filename(question_type) if question_type else "general"
+    safe_batch_id = sanitize_filename(batch_id) if batch_id else None
     
     # 生成日志文件名
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    
-    if env_name and question_type:
+    if env_name and question_type and batch_id:
+        log_filename = os.path.join(log_dir, f"agent_{safe_env_name}_{safe_question_type}_{safe_batch_id}_{timestamp}.log")
+        logger_name = f"agent_{safe_env_name}_{safe_question_type}_{safe_batch_id}"
+    elif env_name and question_type:
         log_filename = os.path.join(log_dir, f"agent_{safe_env_name}_{safe_question_type}_{timestamp}.log")
         logger_name = f"agent_{safe_env_name}_{safe_question_type}"
     elif env_name:
@@ -898,27 +917,13 @@ class agent:
         if logger is None or hasattr(self, '_current_env_type') and self._current_env_type != (env_name, question_type):
             # 保存当前环境和问题类型组合
             self._current_env_type = (env_name, question_type)
-            
-            # 创建日志文件路径
-            if logger_base_dir:
-                log_base_dir = f"{logger_base_dir}/experiment_results/logs"
-            else:
-                base_dir = os.path.dirname(os.path.abspath(__file__))
-                log_base_dir = os.path.join(base_dir, "experiment_results","logs")
-            os.makedirs(log_base_dir, exist_ok=True)        
-            if env_name and question_type:
-                # 按环境名和问题类型创建子目录
-                log_dir = os.path.join(log_base_dir, env_name, question_type)
-            elif env_name:
-                log_dir = os.path.join(log_base_dir, env_name)
-            else:
-                log_dir = log_base_dir
-            
+                        
             # 重新设置日志系统
             logger = setup_logging(
-                log_dir=log_dir,
+                logger_base_dir=logger_base_dir,
                 env_name=env_name,
-                question_type=question_type
+                question_type=question_type,
+                batch_id=batch_id
             )
         
         logger.info(f"[RESET] Resetting agent for new question: {question}")

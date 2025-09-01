@@ -26,6 +26,8 @@ from dotenv import load_dotenv
 from openai import OpenAI
 load_dotenv()
 
+# os.environ["UnrealEnv"] = "/Volumes/KINGSTON/UnrealEnv"
+
 client = OpenAI(
     # 此为默认路径，您可根据业务所在地域进`行配置
     base_url="https://ark.cn-beijing.volces.com/api/v3",
