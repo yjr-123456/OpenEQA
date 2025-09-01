@@ -362,7 +362,7 @@ class Character_API(UnrealCv_API):
         # The goal should be reachable in the environment.
         x, y, z = loc
         cmd = f'vbp {obj} nav_to_goal_bypath {x} {y} {z}'
-        res = self.client.request(cmd, -1)
+        res = self.client.request(cmd)
         return res
     def nav_to_random(self, obj, radius, loop): # navigate the agent to a random location
         # Agent randomly selects a point within its own radius range for navigation.

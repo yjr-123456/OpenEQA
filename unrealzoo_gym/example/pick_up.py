@@ -14,12 +14,16 @@ from datetime import datetime
 import time
 import numpy as np
 
+def calculate_distance(pos1, pos2):
+    """计算两个位置之间的欧几里得距离"""
+    return np.sqrt((pos1[0] - pos2[0])**2 + (pos1[1] - pos2[1])**2 + (pos1[2] - pos2[2])**2)
+
 
 if __name__ == '__main__':
     # env name
-    env_name = "Map_ChemicalPlant_1"
+    env_name = "SuburbNeighborhood_Day"
     parser = argparse.ArgumentParser(description=None)
-    parser.add_argument("-e", "--env_id", nargs='?', default=f'UnrealCvEQA_general-{env_name}-DiscreteColorMask-v0',
+    parser.add_argument("-e", "--env_id", nargs='?', default=f'UnrealCv_base-{env_name}-DiscreteColorMask-v0',
                         help='Select the environment to run')
     parser.add_argument("-r", '--render', dest='render', action='store_true', help='show env using cv2')
     parser.add_argument("-s", '--seed', dest='seed', default=0, help='random seed')
@@ -40,7 +44,7 @@ if __name__ == '__main__':
     animation = 'pick_up'  # 'crouch', 'liedown', 'pick_up', 'in_vehicle'
     obs_name = "BP_Character_C_1"
     action = [-1]
-    # work_dir = "/home/yjr/UnrealZoo/gym_unrealzoo-E034/example/random"
+   
     # env wrappers
     if int(args.time_dilation) > 0:  # -1 means no time_dilation
         env = time_dilation.TimeDilationWrapper(env, int(args.time_dilation))
@@ -50,28 +54,30 @@ if __name__ == '__main__':
         env = monitor.DisplayWrapper(env)
     
     # agent sample pre-define
+    env = augmentation.RandomPopulationWrapper(env, num_min=3, num_max=3, agent_category=agents_category)
     agent_categories = ['player']      
     env = configUE.ConfigUEWrapper(env, offscreen=False)
     save_cnt = 0
+    env.reset()
+    loc1 = [-533,-1413, 98]
+    loc2 = [-749,-915, 98]
+    loc3 = [-927,-149, 98]
+    bias = [50,50,0]
+    loc1 = [loc1[0]+bias[0], loc1[1]+bias[1], loc1[2]+bias[2]]
+    loc2 = [loc2[0]+bias[0], loc2[1]+bias[1], loc2[2]+bias[2]]
+    time.sleep(10)
     try:
-        env.reset()
-        unwrapped_env = env.unwrapped
-        # set location
-        unwrapped_env.unrealcv.set_obj_location(obs_name, [3986, -1954, -12707])
-        unwrapped_env.unrealcv.set_obj_rotation(obs_name, [0, 26.519, 0.000])
-        # set animation
-        # pick_up_class = "BP_GrabMoveDrop_C"
-        # unwrapped_env.unrealcv.new_obj(pick_up_class,f"{pick_up_class}_1", [415, 355,45], [0,0,0])
-        # unwrapped_env.unrealcv.set_obj_scale(f"{pick_up_class}_1", [0.2, 0.2, 0.2])
-        time.sleep(3)
-        unwrapped_env.unrealcv.set_animation(obs_name, animation)
-        time.sleep(3)
-        env.step([-2])
-        unwrapped_env.unrealcv.set_animation(obs_name, animation)
+        path = env.unwrapped.unrealcv.nav_to_goal_bypath("BP_Character_C_1", loc1)
+        print(path)
+        time.sleep(300)
+        # env.unwrapped.unrealcv.set_obj_location("BP_Character_C_1", loc3)
+        # path = env.unwrapped.unrealcv.nav_to_goal_bypath("BP_Character_C_2", loc2)
+        # print(path)
 
     except KeyboardInterrupt:
         env.close()
     finally:
+        env.close()
         if args.render:
             cv2.destroyAllWindows()
 

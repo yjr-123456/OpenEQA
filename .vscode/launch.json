@@ -8,7 +8,7 @@
             "program": "${file}",
             "console": "integratedTerminal",
             "cwd": "${fileDirname}",  
-            "args": ["--resume", "--model", "openai"],
+            "args": ["--model", "gemini_pro"],
             "env": {
                 "PYTHONPATH": "${workspaceFolder}",
                 "OPENAI_API_KEY": "${env:ARK_API_KEY}"

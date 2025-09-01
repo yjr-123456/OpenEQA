@@ -111,17 +111,6 @@ def load_model_config(config_path="model_config.json"):
         print(f"模型配置文件 {config_path} 格式错误")
         return None
 
-def load_model_config(config_path="model_config.json"):
-    """加载模型配置文件"""
-    try:
-        with open(config_path, 'r', encoding='utf-8') as f:
-            return json.load(f)
-    except FileNotFoundError:
-        print(f"模型配置文件 {config_path} 不存在，使用默认配置")
-        return None
-    except json.JSONDecodeError:
-        print(f"模型配置文件 {config_path} 格式错误")
-        return None
 
 def create_client(model_name="doubao", config_path="model_config.json"):
     """根据模型名称创建OpenAI客户端"""
@@ -254,7 +243,7 @@ def action_planner(sys_prompt, usr_prompt, last_action, mem_info ,base64_image_l
     # print(f"[VLM RESPONSE] {respon}")
     return respon
 
-def answer_question(sys_prompt, usr_prompt, clue_list, base64_image_list):
+def answer_question(sys_prompt, usr_prompt, clue_list, rgb_base64_image_list, depth_base64_image_list):
     """
     Call the VLM API with the given prompt and image.
     """
@@ -268,15 +257,21 @@ def answer_question(sys_prompt, usr_prompt, clue_list, base64_image_list):
             ]
             }
     ]
-    for i, (base64_image, clue_info) in enumerate(zip(base64_image_list, clue_list)):
-        prompt = f"Key Frame {i+1} - Relevance: {clue_info['relevance']:.3f}"
+    for i, (rgb_base64_image, depth_base64_image, clue_info) in enumerate(zip(rgb_base64_image_list, depth_base64_image_list, clue_list)):
+        prompt = f"Key Frame {i+1}(rgb observation and depth observation) - Relevance: {clue_info['relevance']:.3f}"
         messages.append({
             "role": "user", 
             "content": [
+                {   
+                    "type": "image_url",
+                    "image_url": {
+                        "url": f"data:image/jpeg;base64,{rgb_base64_image}",
+                    }
+                },
                 {
                     "type": "image_url",
                     "image_url": {
-                        "url": f"data:image/jpeg;base64,{base64_image}",
+                        "url": f"data:image/jpeg;base64,{depth_base64_image}",
                     }
                 },
                 {
@@ -339,6 +334,7 @@ class agent:
         # Create buffers for actions and observations
         self.action_buffer = []
         self.obs_buffer = []
+        self.depth_buffer = []
         self.confidence_buffer = []
         self.relevance_buffer = []
         self.clue_buffer = []
@@ -362,7 +358,7 @@ class agent:
 
         # Store the current observation and info
         self.obs_rgb = obs_rgb
-        self.obs_depth = obs_depth
+        self.obs_depth, _ = self.convert_depth_to_8bit(obs_depth, method='inverse')
         self.info = info
         self.current_step += 1
         # Start the main logic chain if no pending actions
@@ -419,11 +415,13 @@ class agent:
 
     def _handle_search_phase(self):
         self.obs_buffer.append(self.obs_rgb.copy())
+        self.depth_buffer.append(self.obs_depth.copy())
         # relevance
         relevance = self._question_image_relevance()
         
         # collect clues
-        clue_flag, clue = self._clue_collection()
+        depth_flag = self.ask_need_for_depth()
+        clue_flag, clue = self._clue_collection(depth_flag)
         self.clue_buffer.append({
             "relevance": relevance,
             "clue_flag": clue_flag,
@@ -477,23 +475,37 @@ class agent:
         # print(f"[CURRENR ANSWER] {answer}")
         # self.info['final_answer'] = self.final_answer
         return answer
-    
-    # def _retrieve_top_k_frames(self, k):        
-    #     print(f"[RETRIEVAL] Selecting top {k} frames from {len(self.obs_buffer)} observations")
-    #     print(len(self.obs_buffer), len(self.relevance_buffer))
-    #     assert len(self.obs_buffer) == len(self.relevance_buffer)
-    #     paired_data = list(zip(self.obs_buffer, self.relevance_buffer))
-    #     sorted_pairs = sorted(
-    #         paired_data, 
-    #         key=lambda x: float(x[1]) if x[1] is not None else 0.0, 
-    #         reverse=True
-    #     )
-    #     top_k_frames = []
-    #     for i in range(min(k, len(sorted_pairs))):
-    #         obs, relevance = sorted_pairs[i]
-    #         top_k_frames.append(obs.copy())
-    #         print(f"top {i+1} frame relevance: {relevance}")
-    #     return top_k_frames
+
+    def ask_need_for_depth(self):
+        sys_prompt = ask_for_depth(self.question, self.target_list)
+        usr_prompt = "Based on the question, please answer yes or no."
+        max_retries = 5
+        logger.info(f"[DEPTH] Starting depth necessity analysis")
+        for attempt in range(max_retries):
+            try:
+                res = call_api_vlm(sys_prompt=sys_prompt, usr_prompt=usr_prompt, base64_image_list=[self.encode_image_array(self.obs_rgb), self.encode_image_array(self.obs_depth)])
+                pattern = re.compile(r'<a>(.*?)</a>', re.DOTALL | re.IGNORECASE)
+                match = pattern.search(res)
+                if match:
+                    result = match.group(1).strip().lower()
+                    if "yes" in result:
+                        logger.info(f"[DEPTH] Depth needed based for current clues collection: {result}")
+                        return True
+                    else:
+                        logger.info(f"[DEPTH] No depth needed for current clues collection: {result}")
+                        return False
+                else:
+                    logger.info(f"[DEPTH] No XML match found in response: {res[:200]}...")
+                    continue
+                    
+            except Exception as e:
+                logger.info(f"[DEPTH] API call failed (attempt {attempt+1}/{max_retries}): {e}")
+                if attempt == max_retries - 1:
+                    logger.info("[DEPTH] All attempts failed, using default clue 'none'")
+                    return False
+                continue
+        logger.info("[DEPTH] Unexpected path, using default clue 'none'")
+        return False
 
     def _retrieve_top_k_frames(self, k):        
         logger.info(f"[RETRIEVAL] Selecting top {k} frames from {len(self.obs_buffer)} observations")
@@ -502,14 +514,15 @@ class agent:
         assert len(self.obs_buffer) == len(self.clue_buffer), \
             f"Buffer length mismatch: obs={len(self.obs_buffer)}, clue={len(self.clue_buffer)}"
         
-        paired_data = list(zip(self.obs_buffer, self.clue_buffer, range(len(self.obs_buffer))))
+        paired_data = list(zip(self.obs_buffer, self.depth_buffer, self.clue_buffer, range(len(self.obs_buffer))))
         
         clue_frames = []
         no_clue_frames = []
         
-        for obs, clue_data, idx in paired_data:
+        for rgb_obs, depth_obs, clue_data, idx in paired_data:
             frame_info = {
-                'obs': obs,
+                'rgb_obs': rgb_obs,
+                'depth_obs': depth_obs,
                 'clue_data': clue_data,
                 'index': idx,
                 'relevance': clue_data.get('relevance', 0.0),
@@ -547,8 +560,8 @@ class agent:
                 logger.info(f"  Selected no-clue frame {selected_count}: Relevance {frame_info['relevance']:.3f}")
         
         # 提取图像数据
-        top_k_frames = [(frame_info['obs'].copy(),frame_info['index']) for frame_info in selected_frames]
-        
+        top_k_frames = [(frame_info['rgb_obs'].copy(),frame_info['depth_obs'].copy(), frame_info['index']) for frame_info in selected_frames]
+
         logger.info(f"[RETRIEVAL] Final selection: {len(top_k_frames)} frames")
         return top_k_frames
 
@@ -587,8 +600,8 @@ class agent:
                 continue
         logger.info("[RELEVANCE] Unexpected path, using default relevance 0.2")
         return 0.2
-    
-    def _clue_collection(self):
+
+    def _clue_collection(self, depth_flag):
         sys_prompt = key_clue_collection(self.question, self.target_list)
         usr_prompt = "Based on the question and the current observation, please collect the clues for the question.If there are no The image is provided in base64 format."
         max_retries = 5
@@ -597,7 +610,10 @@ class agent:
         
         for attempt in range(max_retries):
             try:
-                res = call_api_vlm(sys_prompt=sys_prompt, usr_prompt=usr_prompt, base64_image_list=[self.encode_image_array(self.obs_rgb)])
+                base64_image_list=[self.encode_image_array(self.obs_rgb)]
+                if depth_flag:
+                    base64_image_list.append(self.encode_image_array(self.obs_depth))
+                res = call_api_vlm(sys_prompt=sys_prompt, usr_prompt=usr_prompt, base64_image_list=base64_image_list)
                 pattern = re.compile(r'<a>(.*?)</a>\s*<b>(.*?)</b>', re.DOTALL | re.IGNORECASE)
                 match = pattern.search(res)
                 if match:
@@ -677,8 +693,9 @@ class agent:
         if not key_frames:
             self.info['confidence'] = 0.0
             return "No relevant information found."
-        images = [self.encode_image_array(frame[0]) for frame in key_frames]
-        clue_list = [self.clue_buffer[frame[1]] for frame in key_frames]
+        rgb_images = [self.encode_image_array(frame[0]) for frame in key_frames]
+        depth_images = [self.encode_image_array(frame[1]) for frame in key_frames]
+        clue_list = [self.clue_buffer[frame[2]] for frame in key_frames]
         # if len(images) == 1:
         #     combined_image = images[0]
         # else:
@@ -689,7 +706,7 @@ class agent:
         max_retries = 3
         for attempt in range(max_retries):
             try:
-                response = answer_question(sys_prompt=answer_prompt, usr_prompt=usr_prompt, clue_list=clue_list,base64_image_list=images)
+                response = answer_question(sys_prompt=answer_prompt, usr_prompt=usr_prompt, clue_list=clue_list,rgb_base64_image_list=rgb_images, depth_base64_image_list=depth_images)
                 pattern = re.compile(r'<a>(.*?)</a>\s*<b>(.*?)</b>\s*<c>(.*?)</c>', re.DOTALL | re.IGNORECASE)
                 match = pattern.search(response)
                 if match:
@@ -733,23 +750,6 @@ class agent:
             logger.info(f"[ACTION] Unrecognized action: {action}")
             return [-1]
     
-    
-    # def analyse_initial_image(self):
-    #     prompt = initial_image_prompt()
-    #     max_retries = 3
-    #     for attempt in range(max_retries):
-    #         try:
-    #             res = call_api_vlm(sys_prompt=prompt, base64_image=self.encode_image_array(self.image_clue))
-    #             self.person_text = res
-    #             print(res)
-    #             return True
-
-    #         except Exception as e:
-    #             if attempt == max_retries - 1:
-    #                 raise ValueError(f"[IMAGE ANALYSE] Failed after {max_retries} attempts: {str(e)}")
-
-    #     return False
-
     def _get_memory_context(self):
         if not self.exploration_memory:
             return "Start exploration phase, no history available."
@@ -780,6 +780,90 @@ class agent:
 
         return img_str
 
+    def convert_depth_to_8bit(
+        self,
+        depth_array, 
+        method='linear',
+        min_val=None,
+        max_val=None,
+        invert=False,
+        gamma=1.0,
+        log_scale=False,
+        clip_percentile=None
+    ):
+
+        import numpy as np
+        
+        # 复制数组防止修改原数据
+        depth = depth_array.copy()
+        
+        # 保存原始信息
+        original_min = float(depth.min())
+        original_max = float(depth.max())
+        
+        # 应用倒数处理
+        if method == 'inverse':
+            # 避免除零
+            depth = 1.0 / (depth + 1e-8)
+        
+        # 过滤无效值
+        valid_mask = ~np.isnan(depth) & ~np.isinf(depth) & (depth > 0)
+        valid_min = depth[valid_mask].min() if valid_mask.any() else 0
+        valid_max = depth[valid_mask].max() if valid_mask.any() else 1
+        
+        # 使用指定的范围或有效数据范围
+        min_val = valid_min if min_val is None else min_val
+        max_val = valid_max if max_val is None else max_val
+        
+        # 应用百分比截断
+        if clip_percentile is not None:
+            low, high = clip_percentile
+            if valid_mask.any():
+                p_low = np.percentile(depth[valid_mask], low)
+                p_high = np.percentile(depth[valid_mask], high)
+                depth = np.clip(depth, p_low, p_high)
+                min_val = p_low
+                max_val = p_high
+        
+        # 应用对数缩放
+        if log_scale and valid_mask.any():
+            depth[valid_mask] = np.log1p(depth[valid_mask] - min_val + 1e-8)
+            max_log = np.log1p(max_val - min_val + 1e-8)
+            depth = depth / max_log
+        else:
+            # 线性归一化
+            depth_range = max_val - min_val
+            if depth_range > 0:
+                depth = (depth - min_val) / depth_range
+            else:
+                depth = np.zeros_like(depth)
+        
+        # 应用gamma校正
+        if gamma != 1.0:
+            depth = np.power(depth, gamma)
+        
+        # 反转（如果需要）
+        if invert:
+            depth = 1.0 - depth
+        
+        # 转换为8位
+        depth_8bit = (depth * 255).astype(np.uint8)
+        
+        # 创建元数据
+        metadata = {
+            'original_min': original_min,
+            'original_max': original_max,
+            'process_min': float(min_val),
+            'process_max': float(max_val),
+            'method': method,
+            'gamma': gamma,
+            'log_scale': log_scale,
+            'invert': invert,
+            'clip_percentile': clip_percentile
+        }
+        
+        return depth_8bit, metadata
+
     def concatenate_images(self, image_list):
         height, width, channels = image_list[0].shape
 
@@ -805,7 +889,9 @@ class agent:
         cv2.line(image_copy, (line2, 0), (line2, h), line_color, line_thickness)
         return image_copy
 
-    def reset(self, question, obs_rgb, obs_depth, target_type, question_type='general', answer_list=None, batch_id=None, question_answer=None, env_name=None):
+    def reset(self, question, obs_rgb, obs_depth, target_type, 
+              question_type='general', answer_list=None, batch_id=None,
+              question_answer=None, env_name=None, logger_base_dir=None):
         global logger
         
         # 为每个环境和问题类型组合创建独立的日志文件
@@ -814,8 +900,12 @@ class agent:
             self._current_env_type = (env_name, question_type)
             
             # 创建日志文件路径
-            log_base_dir = "E:/EQA/unrealzoo_gym/example/experiment_results/logs"
-            
+            if logger_base_dir:
+                log_base_dir = f"{logger_base_dir}/experiment_results/logs"
+            else:
+                base_dir = os.path.dirname(os.path.abspath(__file__))
+                log_base_dir = os.path.join(base_dir, "experiment_results","logs")
+            os.makedirs(log_base_dir, exist_ok=True)        
             if env_name and question_type:
                 # 按环境名和问题类型创建子目录
                 log_dir = os.path.join(log_base_dir, env_name, question_type)
@@ -851,7 +941,7 @@ class agent:
         
         self.target_type[index] = "person"
         self.obs_rgb = obs_rgb
-        self.obs_depth = obs_depth
+        self.obs_depth, _ = self.convert_depth_to_8bit(obs_depth, method='inverse')
         self.info = {}
         
         
@@ -866,6 +956,7 @@ class agent:
 
         self.action_buffer = []
         self.obs_buffer = []
+        self.depth_buffer = []
         self.confidence_buffer = []
         self.relevance_buffer = []
         self.clue_buffer = []

@@ -36,6 +36,7 @@ class UnrealCv_base(gym.Env):
                  setting_file,  # the setting file to define the task
                  action_type='Discrete',  # 'discrete', 'continuous'
                  observation_type='Color',  # 'color', 'depth', 'rgbd', 'Gray'
+                 reward_type='distance',  # 'sparse', 'dense'
                  resolution=(1080, 1080),
                  reset_type=0,
                  docker=False
@@ -246,7 +247,7 @@ class UnrealCv_base(gym.Env):
             #     print("location of obj:", name, "is", self.unrealcv.get_obj_location(name))
             
             self.unrealcv.set_obj_rotation(obj, init_poses[i][-3:])
-            if self.agents[obj]['agent_type'] in ['animal','car','drone']:
+            if self.agents[obj]['agent_type'] in ['animal','car','drone','player']:
                 self.unrealcv.set_phy(obj, 1)
                 time.sleep(0.8)
                 self.unrealcv.set_phy(obj, 0)

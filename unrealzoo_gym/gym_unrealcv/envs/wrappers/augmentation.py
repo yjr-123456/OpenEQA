@@ -145,13 +145,14 @@ class ConfigGenerator:
             raise ValueError(f"Unknown agent type: {agent_type}")
 
 class RandomPopulationWrapper(Wrapper):
-    def __init__(self, env, num_min=2, num_max=10, agent_category=None, random_target=False, random_tracker=False):
+    def __init__(self, env, num_min=2, num_max=10, height_bias=0,agent_category=None, random_target=False, random_tracker=False):
         super().__init__(env)
         self.min_num = num_min
         self.max_num = num_max
         self.random_target_id = random_target
         self.random_tracker_id = random_tracker
         self.agent_category = agent_category
+        self.height_bias = height_bias
 
     def step(self, action):
         obs, reward, termination,truncation, info = self.env.step(action)
@@ -184,8 +185,11 @@ class RandomPopulationWrapper(Wrapper):
                 agent_config2add = ConfigGenerator.add_agent_type(agent_type)
                 env.agent_configs = env.agent_configs | agent_config2add
                 env.refer_agents = env.refer_agents | misc.convert_dict(agent_config2add)
-        
-        env.target_agents = misc.convert_dict(env.target_configs)
+        # add height bias to all agents
+        target_agents = misc.convert_dict(env.target_configs)
+        for agent_name, agent in target_agents.items():
+            target_agents[agent_name]['start_pos'][2] += self.height_bias
+        env.target_agents = target_agents
         env.set_population(env.num_agents)
 
         if self.random_tracker_id:

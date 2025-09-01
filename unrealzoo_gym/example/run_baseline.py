@@ -492,7 +492,6 @@ def get_completed_stats_for_scenario(state_data, scenario_name, qa_dict):
     
     return completed_count, correct_count, scenario_results
 
-
 def calculate_distance(pos1, pos2):
     """计算两个位置之间的欧几里得距离"""
     return math.sqrt((pos1[0] - pos2[0])**2 + (pos1[1] - pos2[1])**2 + (pos1[2] - pos2[2])**2)
@@ -601,7 +600,7 @@ if __name__ == '__main__':
         "ModularVictorianCity",
         "Map_ChemicalPlant_1"
     ]
-    question_type_folders = ["relative_distance", "relative_location", "state","counting"] 
+    question_type_folders = ["counting", "relative_location", "state", "relative_distance"]
     try:
         for env_name in env_list:
             question_type = None
@@ -714,14 +713,14 @@ if __name__ == '__main__':
                     unwrapped_env.refer_agents_category = refer_agents_category_config
                     unwrapped_env.target_configs = target_configs
                     unwrapped_env.is_eval = True
-                    env = augmentation.RandomPopulationWrapper(env, num_min=agent_num + 1, num_max=agent_num + 1)
+                    
+                    env = augmentation.RandomPopulationWrapper(env, num_min=agent_num + 1, num_max=agent_num + 1, height_bias=100)
+                    
                     env = configUE.ConfigUEWrapper(env, resolution=(512,512), offscreen=False)
 
                     print(f"Resetting environment for file: {os.path.basename(file_path)}")
                     states, info = env.reset()
-                    obs = states[0][...,3].squeeze()
-                    obs = cv2.cvtColor(obs, cv2.COLOR_BGR2RGB)
-                    
+                    obs_rgb, obs_depth = obs_transform(states)
                     for question_id, question_data in QA_dict.items():
                         # 检查单个问题是否已完成
                         if args.resume and is_question_completed(state_data, scenario_folder_name, question_id):
@@ -743,17 +742,17 @@ if __name__ == '__main__':
                         if not question_stem or not question_answer:
                             print(f"Warning: Question stem is not complete in {file_path}, skipping.")
                             continue
-                    
-                        AG.reset(question=question_stem, obs=obs, target_type=refer_agents_category_config,
-                                question_type=question_type, answer_list=question_options, batch_id = scenario_folder_name,question_answer=question_answer, env_name=env_name)
+                        log_base_path = os.path.dirname(__file__)
+                        AG.reset(question=question_stem, obs_rgb=obs_rgb, obs_depth=obs_depth, target_type=refer_agents_category_config,
+                                question_type=question_type, answer_list=question_options, batch_id = scenario_folder_name,
+                                question_answer=question_answer, env_name=env_name,logger_base_dir=log_base_path)
 
                         max_step = AG.max_step
                         answer = None
                         cur_step = 0
                         
                         for cur_step in range(0, max_step+1):
-                            action = AG.predict(obs_rgb, info)
-                            print(action)
+                            action = AG.predict(obs_rgb, obs_depth,info)
                             actions = action + [-1]*agent_num
                             print(actions)
                             obs, reward, termination, truncation, info = env.step(actions)

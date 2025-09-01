@@ -334,11 +334,12 @@
     },
         "target_configs":{
         "player":{
-            "name":["player_1"],
-            "app_id":[1],
-            "animation":["stand"],
+            "name":["player_1","player_2"],
+            "app_id":[1,2],
+            "animation":["stand","stand"],
             "start_pos":[
-                [-850,-100, 150,0, -90, 0]
+                [-533,-1413, 98,0, 0, 0],
+                [-749,-915, 98,0, 0, 0]
                     ]
         },
         "animal":{
@@ -375,7 +376,7 @@
         }
     },
     "safe_start": [
-        [-8773,1865, 98,0, 180, 0]
+        [-927,-149, 98,0, 180, 0]
     ],
     "reset_area": [
         -1177.151,

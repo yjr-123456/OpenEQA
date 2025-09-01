@@ -72,6 +72,26 @@ def relavance_prompt(question):
     """
     return p
 
+
+def ask_for_depth(question, target_object):
+    target_object = ', '.join(target_object) if isinstance(target_object, list) else target_object
+    p = f"""
+        You are an intelligent vision analysis robot.
+        Your task is to analyze the current observation and determine if depth image is needed for collecting clues for the question:{question}.
+
+        [input]:
+        1. question:"{question}"
+        2. target object:{target_object}
+        2. current observation, which will be provided in a format of base64 encoded image.
+        [note]:
+        1. clues: visual information that may help answer the question
+        2. depth img: which will be provided in a format of base64 encoded image(jpeg).
+        [output format]:
+        `Use **XML tags** to output results in the following format:
+        <a>yes or no</a>\n
+    """
+    return p
+
 def key_clue_collection(question,target_object):
     target_object = ', '.join(target_object) if isinstance(target_object, list) else target_object
     p = f"""
@@ -81,7 +101,7 @@ def key_clue_collection(question,target_object):
         [input]:
         1. question:"{question}"
         2. target object:{target_object}
-        2. current observation, which will be provided in a format of base64 encoded image.
+        3. current observation, which will be provided in a format of base64 encoded image.We will provide you with a RGB image.By the way,a depth image will probably be provided to you if needed.
 
         [note]:
         1. Key clues are the decisive evidence that help you answer the question.**If there are no obvious clues,return "none" in <b>key clues</b>**
@@ -89,7 +109,11 @@ def key_clue_collection(question,target_object):
         3. Pay attention to the **relative location** of objects in the question.**For example,"Where is A relative to B", always describe A's position with respect to B as the reference point**. Do not describe B's position relative to A, and do not use the observer's perspective unless explicitly asked.
            That means, firstly, you should determine the orientation of object B in your view.
            Then, estimate the direction of object A relative to object B's orientation.
-        
+        4. Explanation of depth image:
+            -1. You can qualitatively determine the distance between objects and you by using the depth map. 
+            -2. In the picture, the darker areas are farther from you, while the lighter areas are closer to you.
+            -3. You can also combine the depth information with the RGB observation to get a more comprehensive understanding of the scene such as object grounding, spatial relationships, and occlusions.
+
         [thinking steps]:
         1. Analyze the question find out the type of objects relationship in the question, such as "which is closer", "how many", etc
         2. According to the target objects can you find whrere the targets object are in the current observation?
@@ -196,8 +220,8 @@ def question_answer_prompt(question, target_object):
 
         [input]:
         1. question:"{question}"
-        2. key observations, which will be provided in a format of base64 encoded image.
-        2. exploration clues, which will be provided together with the key observations.
+        2. key observations, which will be provided in a format of base64 encoded image.Both RGB and depth images will be provided.
+        3. exploration clues, which will be provided together with the key observations.
 
         [thinking steps]:
         1. Analyze the question find out the type of objects relationship in the question, such as "which is closer", "how many", etc
