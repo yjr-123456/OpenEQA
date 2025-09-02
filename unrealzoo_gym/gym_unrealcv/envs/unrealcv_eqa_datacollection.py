@@ -51,8 +51,8 @@ class UnrealCvEQA_DATA(UnrealCvEQA_general):
         
         return obs, rewards, termination, truncation,info
     
-    def reset(self):
-        obs, info = super(UnrealCvEQA_DATA, self).reset()
+    def reset(self,seed=None, options=None):
+        obs, info = super(UnrealCvEQA_DATA, self).reset(seed=seed, options=options)
         #obs, reward, termination, truncation, info = super(UnrealCvEQA_DATA, self).step([[0,0]])
         #get obj_names
         

@@ -1,8 +1,7 @@
 import sys
-sys.path.append('/home/yjr/UnrealZoo/unrealcv-5.2')
+
 import numpy as np
 from gym_unrealcv.envs.unrealcv_EQA_general import UnrealCvEQA_general
-import quaternion
 import cv2
 from scipy.spatial.transform import Rotation as R
 from PIL import ImageDraw,ImageFont
@@ -49,6 +48,6 @@ class UnrealCvEQA_DATA(UnrealCvEQA_general):
         
         return obs, rewards, termination, truncation,info
     
-    def reset(self):
-        obs, info = super(UnrealCvEQA_DATA, self).reset()
-        return obs, self.info
+    def reset(self,seed=None, options=None):
+        obs, info = super(UnrealCvEQA_DATA, self).reset(seed=seed,options=options)
+        return obs, info

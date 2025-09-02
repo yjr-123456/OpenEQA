@@ -43,9 +43,9 @@ class Rescue(UnrealCv_base):
             done = True
         return obs, rewards, done, info
 
-    def reset(self):
+    def reset(self,seed=None, options=None):
         # initialize the environment
-        states = super(Rescue, self).reset()
+        states = super(Rescue, self).reset(seed=seed, options=options)
         super(Rescue, self).random_app()
         if self.injured_agent is None:
             # add the injured person

@@ -115,9 +115,9 @@ class Navigation(UnrealCv_base):
 
         return obs, info['Reward'], info['Done'], info
 
-    def reset(self, ):
+    def reset(self, seed=None, options=None):
         # double check the resetpoint, it is necessary for random reset type
-        observations = super(Navigation, self).reset()
+        observations = super(Navigation, self).reset(seed=seed,options=options)
 
         current_pose = self.unrealcv.get_pose(self.cam_id[self.protagonist_id])
         self.targets_pos = self.unrealcv.build_pose_dic(self.target_list)

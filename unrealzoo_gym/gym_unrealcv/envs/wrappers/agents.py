@@ -1,7 +1,5 @@
 import time
-
-import gym
-from gym import Wrapper
+from gymnasium import Wrapper
 import numpy as np
 from gym_unrealcv.envs.tracking.baseline import RandomAgent, Nav2GoalAgent, InternalNavAgent
 

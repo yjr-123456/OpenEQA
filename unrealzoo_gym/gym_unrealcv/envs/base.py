@@ -1,7 +1,7 @@
 import warnings
-import gym
+import gymnasium as gym
 import numpy as np
-from gym import spaces
+from gymnasium import spaces
 from gym_unrealcv.envs.utils import misc
 from unrealcv.launcher import RunUnreal
 from gym_unrealcv.envs.agent.character import Character_API
@@ -171,7 +171,8 @@ class UnrealCv_Random_base(gym.Env):
         observations = None
         return observations, self.info['Reward'], self.info['Termination'], self.info['Truncation'], self.info
 
-    def reset(self):
+    def reset(self,seed=None, options=None):
+        super().reset(seed=seed)
         if not self.launched:  # first time to launch
             self.launched = self.launch_ue_env()
             self.init_agents()

@@ -39,8 +39,8 @@ class Rendezvous(UnrealCv_base):
             done = True
         return obs, rewards, done, info
 
-    def reset(self):
-        states = super(Rendezvous, self).reset()
+    def reset(self, seed=None, options=None):
+        states = super(Rendezvous, self).reset(seed=seed, options=options)
         super(Rendezvous, self).random_app()
         self.count_meet = 0
         return states

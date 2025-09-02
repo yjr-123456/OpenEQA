@@ -1,5 +1,4 @@
-import gym
-from gym import Wrapper
+from gymnasium import Wrapper
 from example.agent_configs_sampler import AgentSampler, GraphBasedSampler
 import random
 from gym_unrealcv.envs.utils import misc

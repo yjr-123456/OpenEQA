@@ -1,5 +1,4 @@
-import gym
-from gym import Wrapper
+from gymnasium import Wrapper
 import json
 def load_json_file(file_path):
     """

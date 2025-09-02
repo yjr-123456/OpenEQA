@@ -92,9 +92,9 @@ class UnrealCvEQA_general(UnrealCv_base):
         #print("pose: ", info['Pose'])
         return obs, info['Reward'], info['termination'],info['truncation'], info
 
-    def reset(self, ):
+    def reset(self, seed=None, options=None):
         # double check the resetpoint, it is necessary for random reset type
-        observations,info = super(UnrealCvEQA_general, self).reset()
+        observations,info = super(UnrealCvEQA_general, self).reset(seed=seed,options=options)
 
         current_pose = self.unrealcv.get_pose(self.cam_id[self.protagonist_id])
         #print("current_pose: ", current_pose)

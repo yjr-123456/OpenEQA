@@ -1,5 +1,4 @@
-import gym
-from gym import Wrapper
+from gymnasium import Wrapper
 import time
 import cv2
 

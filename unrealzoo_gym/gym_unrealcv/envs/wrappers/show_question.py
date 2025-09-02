@@ -1,9 +1,7 @@
 import os.path
 import cv2
-import gym
 
-
-from gym import Wrapper
+from gymnasium import Wrapper
 
 class ShowQuestionWrapper(Wrapper):
     def __init__(self, env, question_stem, question_options=None, question_answer=None): # Modified to take stem and options separately

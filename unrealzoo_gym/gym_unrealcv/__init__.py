@@ -1,5 +1,5 @@
 __version__ = "2.0.3"
-from gym.envs.registration import register
+from gymnasium.envs.registration import register
 import logging
 import os
 from gym_unrealcv.envs.utils.misc import load_env_setting
@@ -11,113 +11,113 @@ use_docker = False  # True: use nvidia docker   False: do not use nvidia-docker
 # ------------------------------------------------------------------
 # Robot Arm
 # "CRAVES: Controlling Robotic Arm With a Vision-Based Economic System", CVPR 2019
-for action in ['Discrete', 'Continuous']:  # action type
-    for obs in ['Pose', 'Color', 'Depth', 'Rgbd']:
-        for i in range(3):
-            register(
-                    id='UnrealArm-{action}{obs}-v{version}'.format(action=action, obs=obs, version=i),
-                    entry_point='gym_unrealcv.envs:UnrealCvRobotArm_reach',
-                    kwargs={'setting_file': os.path.join('robotarm', 'robotarm_reach.json'),
-                            'action_type': action,
-                            'observation_type': obs,
-                            'docker': use_docker,
-                            'version': i
-                            },
-                    max_episode_steps=100
-                        )
+# for action in ['Discrete', 'Continuous']:  # action type
+#     for obs in ['Pose', 'Color', 'Depth', 'Rgbd']:
+#         for i in range(3):
+#             register(
+#                     id='UnrealArm-{action}{obs}-v{version}'.format(action=action, obs=obs, version=i),
+#                     entry_point='gym_unrealcv.envs:UnrealCvRobotArm_reach',
+#                     kwargs={'setting_file': os.path.join('robotarm', 'robotarm_reach.json'),
+#                             'action_type': action,
+#                             'observation_type': obs,
+#                             'docker': use_docker,
+#                             'version': i
+#                             },
+#                     max_episode_steps=100
+#                         )
 
 # -----------------------------------------------------------------------
 # Tracking
 # "End-to-end Active Object Tracking via Reinforcement Learning", ICML 2018
-for env in ['City1', 'City2']:
-    for target in ['Malcom', 'Stefani']:
-        for action in ['Discrete', 'Continuous']:  # action type
-            for obs in ['Color', 'Depth', 'Rgbd']:  # observation type
-                for path in ['Path1', 'Path2']:  # observation type
-                    for i, reset in enumerate(['Static', 'Random']):
-                        register(
-                            id='UnrealTrack-{env}{target}{path}-'
-                               '{action}{obs}-v{reset}'.format(env=env, target=target, path=path,
-                                                               action=action, obs=obs, reset=i),
-                            entry_point='gym_unrealcv.envs:UnrealCvTracking_spline',
-                            kwargs={'setting_file': os.path.join('tracking', 'v0', f'{env}{target}{path}.json'),
-                                    'reset_type': reset,
-                                    'action_type': action,
-                                    'observation_type': obs,
-                                    'reward_type': 'distance',
-                                    'docker': use_docker,
-                                    },
-                            max_episode_steps=3000
-                            )
+# for env in ['City1', 'City2']:
+#     for target in ['Malcom', 'Stefani']:
+#         for action in ['Discrete', 'Continuous']:  # action type
+#             for obs in ['Color', 'Depth', 'Rgbd']:  # observation type
+#                 for path in ['Path1', 'Path2']:  # observation type
+#                     for i, reset in enumerate(['Static', 'Random']):
+#                         register(
+#                             id='UnrealTrack-{env}{target}{path}-'
+#                                '{action}{obs}-v{reset}'.format(env=env, target=target, path=path,
+#                                                                action=action, obs=obs, reset=i),
+#                             entry_point='gym_unrealcv.envs:UnrealCvTracking_spline',
+#                             kwargs={'setting_file': os.path.join('tracking', 'v0', f'{env}{target}{path}.json'),
+#                                     'reset_type': reset,
+#                                     'action_type': action,
+#                                     'observation_type': obs,
+#                                     'reward_type': 'distance',
+#                                     'docker': use_docker,
+#                                     },
+#                             max_episode_steps=3000
+#                             )
 
 
 # "Pose-Assisted Multi-Camera Collaboration for Active Object Tracking", AAAI 2020
-for env in ['MCRoom', 'Garden', 'UrbanTree']:
-    for i in range(7):  # reset type
-        for action in ['Discrete', 'Continuous']:  # action type
-            for obs in ['Color', 'Depth', 'Rgbd', 'Gray']:  # observation type
-                for nav in ['Random', 'Goal', 'Internal', 'None',
-                            'RandomInterval', 'GoalInterval', 'InternalInterval', 'NoneInterval']:
-                    name = 'Unreal{env}-{action}{obs}{nav}-v{reset}'.format(env=env, action=action, obs=obs, nav=nav, reset=i)
-                    setting_file = os.path.join('tracking', 'multicam', f'{env}.json')
-                    register(
-                        id=name,
-                        entry_point='gym_unrealcv.envs:UnrealCvMC',
-                        kwargs={'setting_file': setting_file,
-                                'reset_type': i,
-                                'action_type': action,
-                                'observation_type': obs,
-                                'reward_type': 'distance',
-                                'docker': use_docker,
-                                'nav': nav
-                                },
-                        max_episode_steps=500
-                    )
+# for env in ['MCRoom', 'Garden', 'UrbanTree']:
+#     for i in range(7):  # reset type
+#         for action in ['Discrete', 'Continuous']:  # action type
+#             for obs in ['Color', 'Depth', 'Rgbd', 'Gray']:  # observation type
+#                 for nav in ['Random', 'Goal', 'Internal', 'None',
+#                             'RandomInterval', 'GoalInterval', 'InternalInterval', 'NoneInterval']:
+#                     name = 'Unreal{env}-{action}{obs}{nav}-v{reset}'.format(env=env, action=action, obs=obs, nav=nav, reset=i)
+#                     setting_file = os.path.join('tracking', 'multicam', f'{env}.json')
+#                     register(
+#                         id=name,
+#                         entry_point='gym_unrealcv.envs:UnrealCvMC',
+#                         kwargs={'setting_file': setting_file,
+#                                 'reset_type': i,
+#                                 'action_type': action,
+#                                 'observation_type': obs,
+#                                 'reward_type': 'distance',
+#                                 'docker': use_docker,
+#                                 'nav': nav
+#                                 },
+#                         max_episode_steps=500
+#                     )
 
-for env in ['FlexibleRoom', 'Garden', 'UrbanTree']:
-    for i in range(7):  # reset type
-        for action in ['Discrete', 'Continuous']:  # action type
-            for obs in ['Color', 'Depth', 'Rgbd', 'Gray']:  # observation type
-                for nav in ['Random', 'Goal', 'Internal', 'None',
-                            'RandomInterval', 'GoalInterval', 'InternalInterval']:
-                    name = 'UnrealMC{env}-{action}{obs}{nav}-v{reset}'.format(env=env, action=action, obs=obs, nav=nav, reset=i)
-                    setting_file = os.path.join('tracking', 'mcmt', f'{env}.json')
-                    register(
-                        id=name,
-                        entry_point='gym_unrealcv.envs:UnrealCvMultiCam',
-                        kwargs={'setting_file': setting_file,
-                                'reset_type': i,
-                                'action_type': action,
-                                'observation_type': obs,
-                                'reward_type': 'distance',
-                                'docker': use_docker,
-                                'nav': nav
-                                },
-                        max_episode_steps=500
-                    )
+# for env in ['FlexibleRoom', 'Garden', 'UrbanTree']:
+#     for i in range(7):  # reset type
+#         for action in ['Discrete', 'Continuous']:  # action type
+#             for obs in ['Color', 'Depth', 'Rgbd', 'Gray']:  # observation type
+#                 for nav in ['Random', 'Goal', 'Internal', 'None',
+#                             'RandomInterval', 'GoalInterval', 'InternalInterval']:
+#                     name = 'UnrealMC{env}-{action}{obs}{nav}-v{reset}'.format(env=env, action=action, obs=obs, nav=nav, reset=i)
+#                     setting_file = os.path.join('tracking', 'mcmt', f'{env}.json')
+#                     register(
+#                         id=name,
+#                         entry_point='gym_unrealcv.envs:UnrealCvMultiCam',
+#                         kwargs={'setting_file': setting_file,
+#                                 'reset_type': i,
+#                                 'action_type': action,
+#                                 'observation_type': obs,
+#                                 'reward_type': 'distance',
+#                                 'docker': use_docker,
+#                                 'nav': nav
+#                                 },
+#                         max_episode_steps=500
+#                     )
 
 ########nav_datacollection
-for env in ['SuburbNeighborhood_Day', 'SuburbNeighborhood_Night']:
-    for i in range(7):  # reset type
-        for action in ['Discrete', 'Continuous']:  # action type
-            for obs in ['Color', 'Depth', 'Rgbd', 'Gray', 'ColorMask']:  # observation type
-                for nav in ['Random', 'Goal', 'Internal', 'None',
-                            'RandomInterval', 'GoalInterval', 'InternalInterval']:
-                    name = 'Nav_Data-{env}-{action}{obs}-{nav}-v{reset}'.format(env=env, action=action, obs=obs,nav=nav, reset=i)
-                    setting_file = os.path.join('Navigation', f'{env}.json')
-                    register(
-                            id=name,
-                            entry_point='gym_unrealcv.envs:Nav_Data',
-                            kwargs={'setting_file': setting_file,
-                                    'reset_type': i,
-                                    'action_type': action,
-                                    'observation_type': obs,
-                                    'reward_type': 'distance',
-                                    'docker': use_docker,
-                                    'nav': nav
-                                    },
-                            max_episode_steps=500
-                    )
+# for env in ['SuburbNeighborhood_Day', 'SuburbNeighborhood_Night']:
+#     for i in range(7):  # reset type
+#         for action in ['Discrete', 'Continuous']:  # action type
+#             for obs in ['Color', 'Depth', 'Rgbd', 'Gray', 'ColorMask']:  # observation type
+#                 for nav in ['Random', 'Goal', 'Internal', 'None',
+#                             'RandomInterval', 'GoalInterval', 'InternalInterval']:
+#                     name = 'Nav_Data-{env}-{action}{obs}-{nav}-v{reset}'.format(env=env, action=action, obs=obs,nav=nav, reset=i)
+#                     setting_file = os.path.join('Navigation', f'{env}.json')
+#                     register(
+#                             id=name,
+#                             entry_point='gym_unrealcv.envs:Nav_Data',
+#                             kwargs={'setting_file': setting_file,
+#                                     'reset_type': i,
+#                                     'action_type': action,
+#                                     'observation_type': obs,
+#                                     'reward_type': 'distance',
+#                                     'docker': use_docker,
+#                                     'nav': nav
+#                                     },
+#                             max_episode_steps=500
+#                     )
 
 #OpenWorld EQA
 for env in ['Map_ChemicalPlant_1', 'Old_Town', 'MiddleEast', 'Demo_Roof', 'UrbanCity','track_train','supermarket','SuburbNeighborhood_Day','SuburbNeighborhood_Night','ContainerYard_Day','ContainerYard_Night','ModularSciFiVillage',
@@ -162,49 +162,49 @@ Observations = ['Color', 'Depth', 'Rgbd', 'Gray', 'CG', 'Mask', 'Pose','MaskDept
 Actions = ['Discrete', 'Continuous', 'Mixed']
 # Env for general purpose active object tracking
 # Base env for general purpose multi-agent interaction
-for env in maps:
-    for i in range(7):  # reset type
-        for action in Actions:  # action type
-            for obs in Observations:  # observation type
-                        name = 'UnrealAgent-{env}-{action}{obs}-v{reset}'.format(env=env, action=action, obs=obs, target=target, reset=i)
-                        setting_file = os.path.join('env_config', f'{env}.json')
-                        register(
-                            id=name,
-                            entry_point='gym_unrealcv.envs:UnrealCv_base',
-                            kwargs={'setting_file': setting_file,
-                                    'action_type': action,
-                                    'observation_type': obs,
-                                    'reset_type': i,
-                                    },
-                            max_episode_steps=500
-                            )
+# for env in maps:
+#     for i in range(7):  # reset type
+#         for action in Actions:  # action type
+#             for obs in Observations:  # observation type
+#                         name = 'UnrealAgent-{env}-{action}{obs}-v{reset}'.format(env=env, action=action, obs=obs, target=target, reset=i)
+#                         setting_file = os.path.join('env_config', f'{env}.json')
+#                         register(
+#                             id=name,
+#                             entry_point='gym_unrealcv.envs:UnrealCv_base',
+#                             kwargs={'setting_file': setting_file,
+#                                     'action_type': action,
+#                                     'observation_type': obs,
+#                                     'reset_type': i,
+#                                     },
+#                             max_episode_steps=500
+#                             )
 # Task-oriented envs
-for env in maps:
-    for i in range(7):  # reset type
-        for action in Actions:  # action type
-            for obs in Observations:  # observation type
-                for task in Tasks:
-                        name = f'Unreal{task}-{env}-{action}{obs}-v{i}'
-                        setting_file = os.path.join(task, f'{env}.json')
-                        if task =='Navigation':
-                            register(
-                                id=name,
-                                entry_point=f'gym_unrealcv.envs:{task}',
-                                kwargs={'env_file': setting_file,
-                                        'action_type': action,
-                                        'observation_type': obs,
-                                        'reset_type': i,
-                                        },
-                                max_episode_steps=1000
-                            )
-                        else:
-                            register(
-                                id=name,
-                                entry_point=f'gym_unrealcv.envs:{task}',
-                                kwargs={'env_file': setting_file,
-                                        'action_type': action,
-                                        'observation_type': obs,
-                                        'reset_type': i,
-                                        },
-                                max_episode_steps=500
-                                )
+# for env in maps:
+#     for i in range(7):  # reset type
+#         for action in Actions:  # action type
+#             for obs in Observations:  # observation type
+#                 for task in Tasks:
+#                         name = f'Unreal{task}-{env}-{action}{obs}-v{i}'
+#                         setting_file = os.path.join(task, f'{env}.json')
+#                         if task =='Navigation':
+#                             register(
+#                                 id=name,
+#                                 entry_point=f'gym_unrealcv.envs:{task}',
+#                                 kwargs={'env_file': setting_file,
+#                                         'action_type': action,
+#                                         'observation_type': obs,
+#                                         'reset_type': i,
+#                                         },
+#                                 max_episode_steps=1000
+#                             )
+#                         else:
+#                             register(
+#                                 id=name,
+#                                 entry_point=f'gym_unrealcv.envs:{task}',
+#                                 kwargs={'env_file': setting_file,
+#                                         'action_type': action,
+#                                         'observation_type': obs,
+#                                         'reset_type': i,
+#                                         },
+#                                 max_episode_steps=500
+#                                 )

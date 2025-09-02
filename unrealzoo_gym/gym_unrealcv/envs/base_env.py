@@ -1,7 +1,7 @@
 import warnings
-import gym
+import gymnasium as gym
 import numpy as np
-from gym import spaces
+from gymnasium import spaces
 from gym_unrealcv.envs.utils import misc
 from unrealcv.launcher import RunUnreal
 from gym_unrealcv.envs.agent.character import Character_API
@@ -123,14 +123,14 @@ class UnrealCv_base(gym.Env):
         # define action space
         self.action_type = action_type
         assert self.action_type in ['Discrete', 'Continuous', 'Mixed']
-        self.action_space = [self.define_action_space(self.action_type, self.agents[obj]) for obj in self.player_list]
+        self.action_space = spaces.Tuple([self.define_action_space(self.action_type, self.agents[obj]) for obj in self.player_list])
 
         # define observation space,
         # color, depth, rgbd,...
         self.observation_type = observation_type
         assert self.observation_type in ['Color', 'Depth', 'Rgbd', 'Gray', 'CG', 'Mask', 'Pose','MaskDepth','ColorMask']
-        self.observation_space = [self.define_observation_space(self.cam_list[i], self.observation_type, resolution)
-                                  for i in range(len(self.player_list))]
+        self.observation_space = spaces.Tuple([self.define_observation_space(self.cam_list[i], self.observation_type, resolution)
+                                  for i in range(len(self.player_list))])
 
         # config unreal env
         if 'linux' in sys.platform:
@@ -204,13 +204,14 @@ class UnrealCv_base(gym.Env):
         #print(self.info['cam_info'])
         return observations, self.info['Reward'], self.info['termination'], self.info['truncation'],self.info
 
-    def reset(self):
+    def reset(self,seed=None, options=None):
         """
         Reset the environment to its initial state.
 
         Returns:
             np.array: Initial observations.
         """
+        super().reset(seed=seed)
         if not self.launched:  # first time to launch
             self.launched = self.launch_ue_env()
             self.init_agents()
@@ -357,7 +358,7 @@ class UnrealCv_base(gym.Env):
         # print(self.info['cam_info'])
         print("agent num:", len(self.target_list))
         return observations,self.info
-    
+
     def update_camera_assignments(self):
         """
         更新所有智能体的相机分配，确保每个智能体使用最近的相机
@@ -750,8 +751,15 @@ class UnrealCv_base(gym.Env):
         self.unrealcv.set_obj_rotation(name, rot)
         if cur_agent_type not in ['car','motorbike']:
             self.unrealcv.set_appearance(name, self.target_agents[name]['app_id'])
-        self.action_space.append(self.define_action_space(self.action_type, agent_info=new_dict))
-        self.observation_space.append(self.define_observation_space(new_dict['cam_id'], self.observation_type, self.resolution))
+        action_spaces = [self.define_action_space(self.action_type, agent_info=self.agents[obj]) 
+                                for obj in self.player_list[:-1]]
+        action_spaces.append(self.define_action_space(self.action_type, agent_info=new_dict))
+        self.action_space = spaces.Tuple(action_spaces)
+        obs_spaces = [self.define_observation_space(self.cam_list[i], self.observation_type, self.resolution) 
+                                for i in range(len(self.player_list))]
+        self.observation_space = spaces.Tuple(obs_spaces)
+        # self.action_space.append(self.define_action_space(self.action_type, agent_info=new_dict))
+        # self.observation_space.append(self.define_observation_space(new_dict['cam_id'], self.observation_type, self.resolution))
         self.unrealcv.set_phy(name, 0)
         return new_dict
 
@@ -774,9 +782,15 @@ class UnrealCv_base(gym.Env):
             self.target_list.remove(name)
             # self.safe_start.pop(agent_index)  # remove the safe start point of the agent   
             self.target_start.pop(target_index) # 1 for the player     
-        self.cam_list = self.remove_cam(name)        
-        self.action_space.pop(agent_index)
-        self.observation_space.pop(agent_index)
+        self.cam_list = self.remove_cam(name)    
+        action_spaces = [self.define_action_space(self.action_type, agent_info=self.agents[obj]) 
+                for obj in self.player_list]
+        self.action_space = spaces.Tuple(action_spaces)
+        obs_spaces = [self.define_observation_space(self.cam_list[i], self.observation_type, self.resolution) 
+                    for i in range(len(self.player_list))]
+        self.observation_space = spaces.Tuple(obs_spaces)
+        # self.action_space.pop(agent_index)
+        # self.observation_space.pop(agent_index)
         self.unrealcv.destroy_obj(name)  # the agent is removed from the scene
         self.agents.pop(name)
         time.sleep(1)
@@ -833,6 +847,7 @@ class UnrealCv_base(gym.Env):
         Returns:
             gym.Space: Defined action space.
         """
+
         if action_type == 'Discrete':
             return spaces.Discrete(len(agent_info["move_action"]))
         elif action_type == 'Continuous':
@@ -863,26 +878,26 @@ class UnrealCv_base(gym.Env):
         """
         if observation_type == 'Pose' or cam_id < 0:
             observation_space = spaces.Box(low=-100, high=100, shape=(6,),
-                                               dtype=np.float16)  # TODO check the range and shape
+                                               dtype=np.float32)  # TODO check the range and shape
         else:
             if observation_type == 'Color' or observation_type == 'CG' or observation_type == 'Mask':
                 img_shape = (resolution[1], resolution[0], 3)
                 observation_space = spaces.Box(low=0, high=255, shape=img_shape, dtype=np.uint8)
             elif observation_type == 'Depth':
                 img_shape = (resolution[1], resolution[0], 1)
-                observation_space = spaces.Box(low=0, high=100, shape=img_shape, dtype=np.float16)
+                observation_space = spaces.Box(low=0, high=100, shape=img_shape, dtype=np.float32)
             elif observation_type == 'Rgbd':
                 s_low = np.zeros((resolution[1], resolution[0], 4))
                 s_high = np.ones((resolution[1], resolution[0], 4))
                 s_high[:, :, -1] = 100.0  # max_depth
                 s_high[:, :, :-1] = 255  # max_rgb
-                observation_space = spaces.Box(low=s_low, high=s_high, dtype=np.float16)
+                observation_space = spaces.Box(low=s_low, high=s_high, dtype=np.float32)
             elif observation_type == 'MaskDepth':
                 s_low = np.zeros((resolution[1], resolution[0], 4))
                 s_high = np.ones((resolution[1], resolution[0], 4))
                 s_high[:, :, -1] = 100.0  # max_depth
                 s_high[:, :, :-1] = 255  # max_rgb
-                observation_space = spaces.Box(low=s_low, high=s_high, dtype=np.float16)
+                observation_space = spaces.Box(low=s_low, high=s_high, dtype=np.float32)
             elif observation_type=='ColorMask':
                 img_shape = (resolution[1], resolution[0], 6)
                 observation_space = spaces.Box(low=0, high=255, shape=img_shape, dtype=np.uint8)

@@ -38,9 +38,9 @@ class Nav_Data(UnrealCv_base):
         
         return obs, rewards, done, info
 
-    def reset(self):
+    def reset(self,seed=None, options=None):
         # initialize the environment
-        states, info = super(Nav_Data, self).reset()
+        states, info = super(Nav_Data, self).reset(seed=seed, options=options)
         print(self.nav_configs)
         self.target_name = self.nav_configs["Target_name"]
         self.start_pose = self.nav_configs["Start_pose"]

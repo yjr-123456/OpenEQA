@@ -1,5 +1,4 @@
-import gym
-from gym import Wrapper
+from gymnasium import Wrapper
 import numpy as np
 from gym_unrealcv.envs.utils import misc
 from dataclasses import dataclass, field
