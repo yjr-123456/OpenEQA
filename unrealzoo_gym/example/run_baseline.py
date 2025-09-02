@@ -6,12 +6,12 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(current_dir)
 sys.path.insert(0, parent_dir)  # Add parent directory to sys.path
 
-import gym
-from gym import wrappers
+import gymnasium as gym
+# from gymnasium import wrappers
 import cv2
 import time
 import numpy as np
-from gym_unrealcv.envs.wrappers import time_dilation, early_done, monitor, configUE, augmentation
+from gym_unrealcv.envs.wrappers import time_dilation, early_done, configUE, augmentation
 import os
 import json
 from example.solution.baseline.VLM.agent_predict import agent, setup_logging
@@ -721,7 +721,7 @@ if __name__ == '__main__':
                     env = configUE.ConfigUEWrapper(env, resolution=(512,512), offscreen=False)
 
                     print(f"Resetting environment for file: {os.path.basename(file_path)}")
-                    states, info = env.reset()
+                    states, info = env.reset(seed=args.seed)
                     obs_rgb, obs_depth = obs_transform(states)
                     for question_id, question_data in QA_dict.items():
                         # 检查单个问题是否已完成

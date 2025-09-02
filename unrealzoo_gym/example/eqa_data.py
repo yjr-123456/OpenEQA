@@ -6,8 +6,8 @@ import sys
 import argparse
 #import gym_unrealcv
 import matplotlib
-import gym
-from gym import wrappers
+import gymnasium as gym
+# from gymnasium import wrappers
 
 import time
 import numpy as np

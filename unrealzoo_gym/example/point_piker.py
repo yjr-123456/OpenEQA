@@ -9,8 +9,8 @@ project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, project_root)
 import argparse
 #import gym_unrealcv
-import gym
-from gym import wrappers
+import gymnasium as gym
+# from gymnasium import wrappers
 import cv2
 import time
 import numpy as np

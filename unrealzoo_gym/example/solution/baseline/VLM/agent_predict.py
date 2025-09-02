@@ -3,7 +3,6 @@ from .vlm_prompt import *
 import os
 import re
 import argparse
-import gym
 import cv2
 import time
 import numpy as np
