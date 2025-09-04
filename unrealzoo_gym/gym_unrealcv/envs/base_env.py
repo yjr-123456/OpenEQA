@@ -231,6 +231,7 @@ class UnrealCv_base(gym.Env):
                     # self.unrealcv.set_phy(obj, 1)
             elif self.agents[obj]['agent_type'] == 'drone':
                 self.unrealcv.set_move_bp(obj, [0, 0, 0, 0])
+                time.sleep(0.5)
                 self.unrealcv.set_phy(obj, 1)
 
         # reset target location
@@ -249,10 +250,12 @@ class UnrealCv_base(gym.Env):
             
             self.unrealcv.set_obj_rotation(obj, init_poses[i][-3:])
             if self.agents[obj]['agent_type'] in ['animal','car','drone','player']:
+                time.sleep(0.5)
                 self.unrealcv.set_phy(obj, 1)
                 time.sleep(0.8)
                 self.unrealcv.set_phy(obj, 0)
             elif self.agents[obj]['agent_type'] == 'motorbike':
+                time.sleep(0.5)
                 self.unrealcv.set_phy(obj, 0)
             self.unrealcv.set_cam(obj, self.agents[obj]['relative_location'], self.agents[obj]['relative_rotation'])
         # set top view
@@ -760,6 +763,7 @@ class UnrealCv_base(gym.Env):
         self.observation_space = spaces.Tuple(obs_spaces)
         # self.action_space.append(self.define_action_space(self.action_type, agent_info=new_dict))
         # self.observation_space.append(self.define_observation_space(new_dict['cam_id'], self.observation_type, self.resolution))
+        time.sleep(1)
         self.unrealcv.set_phy(name, 0)
         return new_dict
 
