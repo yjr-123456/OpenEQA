@@ -846,28 +846,28 @@ if __name__ == '__main__':
             env.close()
             print("Environment closed.")
             
-            if total_questions > 0 and question_type and save_dir:
-                final_accuracy = calculate_accuracy(correct_answers, total_questions)
-                print(f"\n === FINAL RESULTS ===")
-                print(f"Total Questions: {total_questions}")
-                print(f"Correct Answers: {correct_answers}")
-                print(f"Final Accuracy: {final_accuracy:.2f}%")
-                print("=" * 30)
+        if total_questions > 0 and question_type and save_dir:
+            final_accuracy = calculate_accuracy(correct_answers, total_questions)
+            print(f"\n === FINAL RESULTS ===")
+            print(f"Total Questions: {total_questions}")
+            print(f"Correct Answers: {correct_answers}")
+            print(f"Final Accuracy: {final_accuracy:.2f}%")
+            print("=" * 30)
                 
-                if results_filename is None:
-                    results_filename = save_results_to_file(
+            if results_filename is None:
+                results_filename = save_results_to_file(
                         results, correct_answers, total_questions,
                         env_name=env_name, question_type=question_type,
                         filename_prefix=save_dir
                     )
-                else:
-                    append_results_to_file(
+            else:
+                append_results_to_file(
                         results, correct_answers, total_questions, results_filename,
                         env_name=env_name, question_type=question_type,
                         filename_prefix=save_dir
                     )
                 
-                print(f" All results saved to: {results_filename}")
+            print(f" All results saved to: {results_filename}")
 
 
 

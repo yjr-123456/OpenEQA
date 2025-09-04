@@ -438,8 +438,8 @@ class agent:
         relevance = self._question_image_relevance()
         
         # collect clues
-        depth_flag = self.ask_need_for_depth()
-        clue_flag, clue = self._clue_collection(depth_flag)
+        # depth_flag = self.ask_need_for_depth()
+        clue_flag, clue = self._clue_collection(True)
         self.clue_buffer.append({
             "relevance": relevance,
             "clue_flag": clue_flag,

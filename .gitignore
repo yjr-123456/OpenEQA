@@ -13,7 +13,10 @@ unrealzoo_gym/example/depth_image/
 unrealzoo_gym/example/datacollection/
 unrealzoo_gym/example/GT_info/
 unrealzoo_gym/example/QA_Data/
+unrealzoo_gym/example/experiment_results/
 dinov3/
+unrealzoo_gym/example/obj_picker.py
+unrealzoo_gym/example/watch_dog.py
 # 数据文件
 *.npy
 *.csv

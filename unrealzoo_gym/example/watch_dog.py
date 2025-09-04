@@ -6,7 +6,7 @@ import psutil
 from datetime import datetime
 
 def kill_unreal_processes():
-    target_processes = ["UnrealZoo_UE5_5.exe"]
+    target_processes = ["UnrealZoo_UE5_5.exe", "UnrealZoo_UE5_5.app"]
     killed_processes = []
 
     for proc in psutil.process_iter(['pid', 'name']):

@@ -14,3 +14,4 @@ from gym_unrealcv.envs.base_env import UnrealCv_base
 from gym_unrealcv.envs.unrealcv_EQA_general import UnrealCvEQA_general
 from gym_unrealcv.envs.unrealcv_eqa_datacollection import UnrealCvEQA_DATA
 from gym_unrealcv.envs.base import UnrealCv_Random_base
+from gym_unrealcv.envs.unrealcv_obj_info_collection import UnrealCvObjectInfoCollection

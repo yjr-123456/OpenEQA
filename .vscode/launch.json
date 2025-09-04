@@ -1,6 +1,7 @@
 {
     "version": "0.2.0",
     "configurations": [
+
         {
             "name": "Python 调试程序: 当前文件目录",
             "type": "debugpy",
@@ -8,7 +9,8 @@
             "program": "${file}",
             "console": "integratedTerminal",
             "cwd": "${fileDirname}",  
-            "args": ["--model", "gemini_pro","-s","42"],
+            // "args": ["--model", "gemini_pro","-s","42"],
+            "args": [],
             "env": {
                 "PYTHONPATH": "${workspaceFolder}",
                 "OPENAI_API_KEY": "${env:ARK_API_KEY}"

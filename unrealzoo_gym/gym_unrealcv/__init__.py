@@ -125,7 +125,7 @@ for env in ['Map_ChemicalPlant_1', 'Old_Town', 'MiddleEast', 'Demo_Roof', 'Urban
     for i in range(6):  # reset type
         for action in ['Discrete', 'Continuous']:  # action type
             for obs in ['Color', 'Depth', 'Rgbd','ColorMask']:  # observation type
-                for entrypoint_file in ['UnrealCvEQA_DATA','UnrealCvEQA_general','UnrealCv_Random_base','UnrealCv_base']:
+                for entrypoint_file in ['UnrealCvEQA_DATA','UnrealCvEQA_general','UnrealCv_Random_base','UnrealCv_base','UnrealCvObjectInfoCollection']:
                         name = '{entrypoint_file}-{env}-{action}{obs}-v{i}'.format(entrypoint_file = entrypoint_file, env=env, action=action, obs=obs, i=i)
                         setting_file = 'EQA/{env}.json'.format(env=env)
                         register(
