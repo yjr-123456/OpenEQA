@@ -161,6 +161,7 @@ class UnrealCv_base(gym.Env):
             Relative_Pose=[],
             Success=False
         )
+        self.ue_log_path = None
 
 
 
@@ -213,14 +214,14 @@ class UnrealCv_base(gym.Env):
         """
         super().reset(seed=seed)
         if not self.launched:  # first time to launch
-            self.launched = self.launch_ue_env()
+            self.launched = self.launch_ue_env(self.ue_log_path)
             self.init_agents()
             self.init_objects()
 
         self.count_close = 0
         self.count_steps = 0
         self.count_eps += 1
-
+        self.info['ue_pid'] = self.get_ue_pid()
         # stop move and disable physics
         for i, obj in enumerate(self.player_list):
             if self.agents[obj]['agent_type'] in self.agents_category:
@@ -392,6 +393,15 @@ class UnrealCv_base(gym.Env):
             # 更新cam_list中对应的相机ID
             agent_idx = self.player_list.index(obj)
             self.cam_list[agent_idx] = nearest_cam_id
+
+    def get_ue_pid(self):
+        """
+        Get the process ID of the Unreal Engine binary.
+
+        Returns:
+            int: Process ID of the Unreal Engine binary.
+        """
+        return self.ue_binary.ue_pid
 
 
     def close(self):
@@ -1013,11 +1023,11 @@ class UnrealCv_base(gym.Env):
 
         return np.array(pose_obs), relative_pose
 
-    def launch_ue_env(self):
+    def launch_ue_env(self, ue_log_path=None):
         # launch the UE4 binary
         env_ip, env_port = self.ue_binary.start(docker=self.docker, resolution=self.resolution, display=self.display,
                                                opengl=self.use_opengl, offscreen=self.offscreen_rendering,
-                                               nullrhi=self.nullrhi,sleep_time=10)
+                                               nullrhi=self.nullrhi,sleep_time=10,log_file_path=ue_log_path)
 
 
         # connect to UnrealCV Server

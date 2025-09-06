@@ -21,6 +21,7 @@ import torch
 import base64
 import logging
 import math
+import socket
 # from trajectory_visualizer import TrajectoryVisualizer
 from dotenv import load_dotenv
 from openai import OpenAI
@@ -589,45 +590,43 @@ def process_in_vehicle_players(config_data):
     
     return config_data
 
-
+def send_pid_to_watchdog(pid, host='127.0.0.1', port=50007):
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.connect((host, port))
+        s.sendall(str(pid).encode())
 
 
 if __name__ == '__main__':
-    env_list = [
-        "ModularSciFiVillage", 
-        "Cabin_Lake",
-        "Pyramid",
-        "RuralAustralia_Example_01",
-        "ModularNeighborhood",
-        "ModularVictorianCity",
-        "Map_ChemicalPlant_1"
-    ]
-    question_type_folders = ["counting", "relative_location", "state", "relative_distance"]
     try:
-        for env_name in env_list:
+        parser = argparse.ArgumentParser()
+        parser.add_argument("-e", "--envs", nargs='+', default=["track_train"])
+        parser.add_argument("-u", "--task_type", default="UnrealCvEQA_general")
+        parser.add_argument("-o", "--action_obs", default="DiscreteRgbd")
+        parser.add_argument("-v", "--v_type", default="v0")
+        parser.add_argument("-s", "--seed", type=int, default=0)
+        parser.add_argument("-t", "--time-dilation", type=int, default=-1)
+        parser.add_argument("-d", "--early-done", type=int, default=-1)
+        parser.add_argument("-q", "--QA_path", default=os.path.join(os.path.dirname(__file__), 'QA_Data'))
+        parser.add_argument("-p", "--pid_port", type=int, default=50007, help="UnrealCV watchdog pid")
+        parser.add_argument("--question_types", nargs='+', default=["counting"], help="List of question types to evaluate")
+        parser.add_argument("--resume", action='store_true', help="Resume from previous progress")
+        parser.add_argument("--model", default="doubao", help="choose evaluation models")
+        parser.add_argument("--config_path", default=os.path.join(os.path.dirname(__file__), "solution"), help="configuration file path")
+        parser.add_argument("--ue_log_dir", default=os.path.join(os.path.dirname(__file__), "logs"), help="unreal engine logging directory")
+        args = parser.parse_args()
+        for env_name in args.envs:
+            # init agent
+            AG = agent(model = args.model, config_path=args.config_path)
+            obs_name = "BP_Character_C_1"
+            print("Initializing UnrealCV Gym environment...")
+            env_id = f'{args.task_type}-{env_name}-{args.action_obs}-{args.v_type}'
             question_type = None
             save_dir = None
             total_questions = 0
             correct_answers = 0
             results = []
             results_filename = None
-            parser = argparse.ArgumentParser()
-            parser.add_argument("-e", "--env_id", default=f'UnrealCvEQA_general-{env_name}-DiscreteRgbd-v0')
-            parser.add_argument("-s", "--seed", type=int, default=0)
-            parser.add_argument("-t", "--time-dilation", type=int, default=-1)
-            parser.add_argument("-d", "--early-done", type=int, default=-1)
-            parser.add_argument("-p", "--QA_path", default=os.path.join(os.path.dirname(__file__), 'QA_Data'))
-            parser.add_argument("--resume", action='store_true', help="Resume from previous progress")
-            parser.add_argument("--model", default="doubao", help="choose evaluation models")
-            parser.add_argument("--config_path", default="E:\\EQA\\unrealzoo_gym\\example\\solution", help="configuration file path")
-            args = parser.parse_args()
-            
-            # init agent
-            AG = agent(model = args.model, config_path=args.config_path)
-            obs_name = "BP_Character_C_1"
-            print("Initializing UnrealCV Gym environment...")
-
-            for q_type_folder_name in question_type_folders:
+            for q_type_folder_name in args.question_types:
                 question_type = q_type_folder_name
                 type_specific_folder_dir = os.path.join(args.QA_path, env_name, q_type_folder_name)
                 if not os.path.isdir(type_specific_folder_dir):
@@ -635,7 +634,7 @@ if __name__ == '__main__':
                     continue
                 
                 scenario_folder_names = [d for d in os.listdir(type_specific_folder_dir) 
-                                       if os.path.isdir(os.path.join(type_specific_folder_dir, d))]
+                                        if os.path.isdir(os.path.join(type_specific_folder_dir, d))]
                 
                 # 状态文件
                 state_file_path = os.path.join(type_specific_folder_dir, "status_recorder.json")
@@ -659,7 +658,7 @@ if __name__ == '__main__':
                     print(f"Resume mode: Previous accuracy: {calculate_accuracy(completed_correct, completed_questions):.2f}%")
                 
                 for scenario_folder_name in scenario_folder_names:
-                    env = gym.make(args.env_id)
+                    env = gym.make(env_id)
                     if args.time_dilation > 0:
                         env = time_dilation.TimeDilationWrapper(env, args.time_dilation)
                     if args.early_done > 0:
@@ -691,7 +690,7 @@ if __name__ == '__main__':
                         scenario_data = state_data[scenario_folder_name]
                         if isinstance(scenario_data, dict):
                             all_completed = all(is_question_completed(state_data, scenario_folder_name, qid) 
-                                              for qid in QA_dict.keys())
+                                                for qid in QA_dict.keys())
                             if all_completed:
                                 print(f"Scenario {scenario_folder_name} already completed, skipping.")
                                 continue
@@ -715,13 +714,18 @@ if __name__ == '__main__':
                     unwrapped_env.refer_agents_category = refer_agents_category_config
                     unwrapped_env.target_configs = target_configs
                     unwrapped_env.is_eval = True
-                    
+                    # set log dir
+                    if args.ue_log_dir:
+                        os.makedirs(args.ue_log_dir, exist_ok=True)
+                        unwrapped_env.ue_log_path = args.ue_log_dir
                     env = augmentation.RandomPopulationWrapper(env, num_min=agent_num + 1, num_max=agent_num + 1, height_bias=100)
                     
                     env = configUE.ConfigUEWrapper(env, resolution=(512,512), offscreen=False)
 
                     print(f"Resetting environment for file: {os.path.basename(file_path)}")
                     states, info = env.reset(seed=args.seed)
+                    pid = info['ue_pid']
+                    send_pid_to_watchdog(pid=pid, port=args.pid_port)
                     obs_rgb, obs_depth = obs_transform(states)
                     for question_id, question_data in QA_dict.items():
                         # 检查单个问题是否已完成
@@ -824,28 +828,31 @@ if __name__ == '__main__':
                     env.close()
                     print(f"Completed scenario: {scenario_folder_name} in environment: {env_name}")
                     time.sleep(10)
-                # env.close()    
-            # env.close()      
-    except KeyboardInterrupt:
-        if 'env' in locals():
-            env.close()
+    except KeyboardInterrupt:        
         print("\n=== 程序被中断 ===")
         print(f"已处理 {total_questions} 个问题")
         print(f"正确答案: {correct_answers}")
         if total_questions > 0:
             print(f"当前准确率: {calculate_accuracy(correct_answers, total_questions):.2f}%")
         print("进度已保存，可以使用 --resume 参数继续")
+        if 'env' in locals():
+            try:
+                env.close()
+                print("Environment closed.")
+            except Exception as close_e:
+                print(f"Error closing environment after interrupt: {close_e}")
+
     except Exception as e:
-        print(f"An error occurred: {e}")
+        print(f"An error occurred: {e}")    
+        import traceback
+        traceback.print_exc()
         if 'env' in locals():
-            env.close()
-            print("Environment closed due to error.")
-        raise e  
+            try:
+                env.close()
+            except Exception as close_e:
+                print(f"Error closing environment after exception: {close_e}")
+
     finally:
-        if 'env' in locals():
-            env.close()
-            print("Environment closed.")
-            
         if total_questions > 0 and question_type and save_dir:
             final_accuracy = calculate_accuracy(correct_answers, total_questions)
             print(f"\n === FINAL RESULTS ===")
@@ -868,7 +875,13 @@ if __name__ == '__main__':
                     )
                 
             print(f" All results saved to: {results_filename}")
-
+        
+        if 'env' in locals():
+            try:
+                env.close()
+                print("Environment closed.")
+            except Exception as close_e:
+                print(f"Error closing environment: {close_e}")
 
 
 

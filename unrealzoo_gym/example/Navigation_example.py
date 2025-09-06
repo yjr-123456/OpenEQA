@@ -94,7 +94,7 @@ class ReachablePointsCollector:
         
         # Adjust number of agents in the environment
         self.env = augmentation.RandomPopulationWrapper(env, num_agents, num_agents, random_target=False)
-        self.env = configUE.ConfigUEWrapper(self.env, offscreen=True)
+        self.env = configUE.ConfigUEWrapper(self.env, offscreen=False)
         
         self.env.reset()
         # Create random agent

@@ -185,11 +185,8 @@ class RandomPopulationWrapper(Wrapper):
                 env.agent_configs = env.agent_configs | agent_config2add
                 env.refer_agents = env.refer_agents | misc.convert_dict(agent_config2add)
         # add height bias to all agents
-        target_agents = misc.convert_dict(env.target_configs)
-        for agent_name, agent in target_agents.items():
-            target_agents[agent_name]['start_pos'][2] += self.height_bias
-        env.target_agents = target_agents
-        env.set_population(env.num_agents)
+        if hasattr(env, 'target_configs'):
+            self.add_height_bias(env, self.height_bias)
 
         if self.random_tracker_id:
             env.tracker_id = env.sample_tracker()
@@ -202,4 +199,10 @@ class RandomPopulationWrapper(Wrapper):
                 env.target_id = new_target
         states, info = self.env.reset(**kwargs)
         return states, info
-
+    
+    def add_height_bias(self, env, height_bias):
+        for agent_name in env.player_list:
+            loc = env.unrealcv.get_obj_location(agent_name)
+            loc[2] += height_bias
+            env.unrealcv.set_obj_location(agent_name, loc)
+        return

@@ -84,15 +84,15 @@ class UnrealCv_Random_base(gym.Env):
         # define action space
         self.action_type = action_type
         assert self.action_type in ['Discrete', 'Continuous', 'Mixed']
-        self.action_space = [self.define_action_space(self.action_type, self.agents[obj]) for obj in self.player_list]
+        self.action_space = spaces.Tuple([self.define_action_space(self.action_type, self.agents[obj]) for obj in self.player_list])
         self.action_clip = None
 
         # define observation space,
         # color, depth, rgbd,...
         self.observation_type = observation_type
         assert self.observation_type in ['Color', 'Depth', 'Rgbd', 'Gray', 'CG', 'Mask', 'Pose','MaskDepth','ColorMask']
-        self.observation_space = [self.define_observation_space(self.cam_list[i], self.observation_type, resolution)
-                                  for i in range(len(self.player_list))]
+        self.observation_space = spaces.Tuple([self.define_observation_space(self.cam_list[i], self.observation_type, resolution)
+                                  for i in range(len(self.player_list))])
 
         self.info = dict(
             Collision=0,
@@ -121,6 +121,7 @@ class UnrealCv_Random_base(gym.Env):
             env_map = None
 
         self.ue_binary = RunUnreal(ENV_BIN=env_bin, ENV_MAP=env_map)
+        self.ue_log_path = None
 
     def step(self, actions):
         self.info = dict(
@@ -174,10 +175,10 @@ class UnrealCv_Random_base(gym.Env):
     def reset(self,seed=None, options=None):
         super().reset(seed=seed)
         if not self.launched:  # first time to launch
-            self.launched = self.launch_ue_env()
+            self.launched = self.launch_ue_env(ue_log_path=self.ue_log_path)
             self.init_agents()
             self.init_objects()
-
+        self.info['ue_pid'] = self.get_ue_pid()
         self.count_close = 0
         self.count_steps = 0
         self.count_eps += 1
@@ -206,9 +207,13 @@ class UnrealCv_Random_base(gym.Env):
             self.unrealcv.set_cam(obj, self.agents[obj]['relative_location'], self.agents[obj]['relative_rotation'])
 
         # get state
-        # observations, self.obj_poses, self.img_show = self.update_observation(self.player_list, self.cam_list, self.cam_flag, self.observation_type)
-        observations = None
+        observations, self.obj_poses, self.img_show = self.update_observation(self.player_list, self.cam_list, self.cam_flag, self.observation_type)
+        # observations = None
         return observations, self.info
+
+    def get_ue_pid(self):
+        return self.ue_binary.ue_pid
+
 
     def close(self):
         if self.launched:
@@ -315,8 +320,15 @@ class UnrealCv_Random_base(gym.Env):
         self.unrealcv.set_random(name, 0)
         self.unrealcv.set_interval(self.interval, name)
         self.unrealcv.set_obj_location(name, loc)
-        self.action_space.append(self.define_action_space(self.action_type, agent_info=new_dict))
-        self.observation_space.append(self.define_observation_space(new_dict['cam_id'], self.observation_type, self.resolution))
+        action_spaces = [self.define_action_space(self.action_type, agent_info=self.agents[obj]) 
+                                for obj in self.player_list[:-1]]
+        action_spaces.append(self.define_action_space(self.action_type, agent_info=new_dict))
+        self.action_space = spaces.Tuple(action_spaces)
+        obs_spaces = [self.define_observation_space(self.cam_list[i], self.observation_type, self.resolution) 
+                                for i in range(len(self.player_list))]
+        self.observation_space = spaces.Tuple(obs_spaces)
+        # self.action_space.append(self.define_action_space(self.action_type, agent_info=new_dict))
+        # self.observation_space.append(self.define_observation_space(new_dict['cam_id'], self.observation_type, self.resolution))
         self.unrealcv.set_phy(name, 0)
         return new_dict
 
@@ -325,8 +337,14 @@ class UnrealCv_Random_base(gym.Env):
         agent_index = self.player_list.index(name)
         self.player_list.remove(name)
         self.cam_list = self.remove_cam(name)
-        self.action_space.pop(agent_index)
-        self.observation_space.pop(agent_index)
+        # self.action_space.pop(agent_index)
+        # self.observation_space.pop(agent_index)
+        action_spaces = [self.define_action_space(self.action_type, agent_info=self.agents[obj]) 
+                for obj in self.player_list]
+        self.action_space = spaces.Tuple(action_spaces)
+        obs_spaces = [self.define_observation_space(self.cam_list[i], self.observation_type, self.resolution) 
+                    for i in range(len(self.player_list))]
+        self.observation_space = spaces.Tuple(obs_spaces)
         self.unrealcv.destroy_obj(name)  # the agent is removed from the scene
         self.agents.pop(name)
 
@@ -458,11 +476,11 @@ class UnrealCv_Random_base(gym.Env):
 
         return np.array(pose_obs), relative_pose
 
-    def launch_ue_env(self):
+    def launch_ue_env(self, ue_log_path=None):
         # launch the UE4 binary and connect to UnrealCV
         env_ip, env_port = self.ue_binary.start(docker=self.docker, resolution=self.resolution, display=self.display,
                                                opengl=self.use_opengl, offscreen=self.offscreen_rendering,
-                                               nullrhi=self.nullrhi)
+                                               nullrhi=self.nullrhi, log_file_path=ue_log_path)
         # connect UnrealCV
         self.unrealcv = Character_API(port=env_port, ip=env_ip, resolution=self.resolution, comm_mode=self.comm_mode)
 
