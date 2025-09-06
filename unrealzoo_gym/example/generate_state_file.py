@@ -25,7 +25,7 @@ def load_json_file(file_path):
         print(f"An unexpected error occurred loading {file_path}: {e}")
         return None
 
-def generate_state_file(qa_path, env_list, question_type_folders, mode="empty"):
+def generate_state_file(qa_path, env_list, question_type_folders, model,mode="empty"):
     """
     生成状态文件
     
@@ -56,8 +56,8 @@ def generate_state_file(qa_path, env_list, question_type_folders, mode="empty"):
                 continue
             
             # 状态文件路径
-            state_file_path = os.path.join(type_specific_folder_dir, "status_recorder.json")
-            
+            state_file_path = os.path.join(type_specific_folder_dir, f"status_recorder_{model}.json")
+
             # 获取所有场景文件夹
             scenario_folder_names = [d for d in os.listdir(type_specific_folder_dir) 
                                    if os.path.isdir(os.path.join(type_specific_folder_dir, d))]
@@ -172,7 +172,7 @@ def scan_qa_structure(qa_path):
     
     return env_list, question_type_list
 
-def check_existing_states(qa_path, env_list, question_type_folders):
+def check_existing_states(qa_path, env_list, model, question_type_folders):
     """检查现有状态文件"""
     print("\n=== 检查现有状态文件 ===")
     
@@ -180,8 +180,8 @@ def check_existing_states(qa_path, env_list, question_type_folders):
     for env_name in env_list:
         for q_type in question_type_folders:
             type_specific_folder_dir = os.path.join(qa_path, env_name, q_type)
-            state_file_path = os.path.join(type_specific_folder_dir, "status_recorder.json")
-            
+            state_file_path = os.path.join(type_specific_folder_dir, f"status_recorder_{model}.json")
+
             if os.path.exists(state_file_path):
                 existing_files.append(state_file_path)
                 
@@ -275,7 +275,7 @@ def analyze_state_file(state_file_path):
         return None
 
 
-def reset_by_question_type(qa_path, env_list, target_question_types, reset_mode="pending"):
+def reset_by_question_type(qa_path, env_list, target_question_types, model, reset_mode="pending"):
     """
     按问题类别重置状态文件
     
@@ -304,8 +304,8 @@ def reset_by_question_type(qa_path, env_list, target_question_types, reset_mode=
                 continue
             
             # 状态文件路径
-            state_file_path = os.path.join(type_specific_folder_dir, "status_recorder.json")
-            
+            state_file_path = os.path.join(type_specific_folder_dir, f"status_recorder_{model}.json")
+
             if not os.path.exists(state_file_path):
                 print(f"    状态文件不存在: {state_file_path}, 跳过")
                 continue
@@ -381,7 +381,7 @@ def reset_by_question_type(qa_path, env_list, target_question_types, reset_mode=
     print(f"总计重置: {total_reset_questions} 个问题, 涉及 {total_reset_scenarios} 个场景")
     return True
 
-def reset_specific_scenarios(qa_path, env_name, question_type, scenario_names, reset_mode="pending"):
+def reset_specific_scenarios(qa_path, env_name, question_type, scenario_names, model, reset_mode="pending"):
     """
     重置特定场景的状态
     
@@ -394,8 +394,8 @@ def reset_specific_scenarios(qa_path, env_name, question_type, scenario_names, r
     """
     
     type_specific_folder_dir = os.path.join(qa_path, env_name, question_type)
-    state_file_path = os.path.join(type_specific_folder_dir, "status_recorder.json")
-    
+    state_file_path = os.path.join(type_specific_folder_dir, f"status_recorder_{model}.json")
+
     if not os.path.exists(state_file_path):
         print(f"状态文件不存在: {state_file_path}")
         return False
@@ -562,7 +562,7 @@ def main():
                        help="指定单个环境名称(用于reset_scenario模式)")
     parser.add_argument("--type", 
                        help="指定单个问题类型(用于reset_scenario模式)")
-    
+    parser.add_argument("--model", type=str, default="doubao", required=True, help="模型名称")
     args = parser.parse_args()
     
     print("=== 断点续传状态文件生成器 ===")
@@ -602,8 +602,8 @@ def main():
         if response.lower() not in ['y', 'yes']:
             print("操作已取消")
             return 0
-        
-        success = reset_by_question_type(args.qa_path, env_list, args.types, args.reset_mode)
+
+        success = reset_by_question_type(args.qa_path, env_list, args.types, args.model, args.reset_mode)
         if success:
             print("\n✓ 按问题类型重置成功!")
         return 0
@@ -620,8 +620,8 @@ def main():
         if response.lower() not in ['y', 'yes']:
             print("操作已取消")
             return 0
-        
-        success = reset_specific_scenarios(args.qa_path, args.env, args.type, args.scenarios, args.reset_mode)
+
+        success = reset_specific_scenarios(args.qa_path, args.env, args.type, args.scenarios, args.model, args.reset_mode)
         if success:
             print("\n✓ 场景重置成功!")
         return 0
@@ -631,8 +631,8 @@ def main():
         return 0
     
     # 检查现有状态文件
-    existing_files = check_existing_states(args.qa_path, env_list, question_type_folders)
-    
+    existing_files = check_existing_states(args.qa_path, env_list, args.model, question_type_folders)
+
     if args.mode == "scan":
         print("\n=== 扫描完成 ===")
         return 0
@@ -652,8 +652,8 @@ def main():
             return 0
     
     # 生成状态文件
-    success = generate_state_file(args.qa_path, env_list, question_type_folders, args.mode)
-    
+    success = generate_state_file(args.qa_path, env_list, question_type_folders, args.model, args.mode)
+
     if success:
         print("\n✓ 状态文件生成成功!")
         print("现在可以使用 'python run_baseline.py --resume' 进行断点续传")

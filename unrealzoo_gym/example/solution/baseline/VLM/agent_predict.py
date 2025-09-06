@@ -37,17 +37,17 @@ def sanitize_filename(filename):
     return sanitized
 
 
-def setup_logging(logger_base_dir="logs", env_name=None, question_type=None, batch_id=None):
+def setup_logging(logger_base_dir="logs", env_name=None, question_type=None, batch_id=None, model="default_model"):
     """
     按环境名和问题类型创建日志文件
     """
     # 创建日志目录（支持多级目录）
             
     if logger_base_dir:
-        log_base_dir = f"{logger_base_dir}/experiment_results/logs"
+        log_base_dir = f"{logger_base_dir}/experiment_results/logs/{model}"
     else:
         base_dir = os.path.dirname(os.path.abspath(__file__))
-        log_base_dir = os.path.join(base_dir, "experiment_results","logs")
+        log_base_dir = os.path.join(base_dir, "experiment_results","logs", model)
     os.makedirs(log_base_dir, exist_ok=True)        
     if env_name and question_type and batch_id:
     # 按环境名和问题类型创建子目录
@@ -331,8 +331,8 @@ def call_api_llm(sys_prompt,usr_prompt=None):
 
 class agent:
     def __init__(self, k_frames = 3, max_action_length=3, memory_size= 5,con_th = 0.8,max_step = 50, model= "doubao",config_path="model_config.json"):
-        
 
+        self.model = model
         initialize_model(model, f"{config_path}/model_config.json")
 
         self.target_list = []
@@ -922,7 +922,8 @@ class agent:
                 logger_base_dir=logger_base_dir,
                 env_name=env_name,
                 question_type=question_type,
-                batch_id=batch_id
+                batch_id=batch_id,
+                model=self.model
             )
         
         logger.info(f"[RESET] Resetting agent for new question: {question}")

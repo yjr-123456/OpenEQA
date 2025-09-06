@@ -10,9 +10,14 @@
             "console": "integratedTerminal",
             "cwd": "${fileDirname}",  
             // "args": ["--model", "gemini_pro","-s","42"],
-            "args": [],
+            // "args": [],
+           "args": [
+                "run_baseline.py",
+                "--envs", "ModularSciFiVillage", "Cabin_Lake",
+                "--question_types", "counting", "state",
+                "--other-args", "--model gemini_pro --resume"
+            ],
             "env": {
-                "PYTHONPATH": "${workspaceFolder}",
                 "OPENAI_API_KEY": "${env:ARK_API_KEY}"
             },
             "envFile": "${workspaceFolder}/.env"

@@ -606,13 +606,13 @@ if __name__ == '__main__':
         parser.add_argument("-s", "--seed", type=int, default=0)
         parser.add_argument("-t", "--time-dilation", type=int, default=-1)
         parser.add_argument("-d", "--early-done", type=int, default=-1)
-        parser.add_argument("-q", "--QA_path", default=os.path.join(os.path.dirname(__file__), 'QA_Data'))
+        parser.add_argument("-q", "--QA_path", default=os.path.join(current_dir, 'QA_Data'))
         parser.add_argument("-p", "--pid_port", type=int, default=50007, help="UnrealCV watchdog pid")
         parser.add_argument("--question_types", nargs='+', default=["counting"], help="List of question types to evaluate")
         parser.add_argument("--resume", action='store_true', help="Resume from previous progress")
         parser.add_argument("--model", default="doubao", help="choose evaluation models")
-        parser.add_argument("--config_path", default=os.path.join(os.path.dirname(__file__), "solution"), help="configuration file path")
-        parser.add_argument("--ue_log_dir", default=os.path.join(os.path.dirname(__file__), "logs"), help="unreal engine logging directory")
+        parser.add_argument("--config_path", default=os.path.join(current_dir, "solution"), help="configuration file path")
+        parser.add_argument("--ue_log_dir", default=os.path.join(current_dir, "unreal_log_path"), help="unreal engine logging directory")
         args = parser.parse_args()
         for env_name in args.envs:
             # init agent
@@ -626,6 +626,7 @@ if __name__ == '__main__':
             correct_answers = 0
             results = []
             results_filename = None
+            base_save_dir = os.path.join("experiment_results", "baseline", args.model)
             for q_type_folder_name in args.question_types:
                 question_type = q_type_folder_name
                 type_specific_folder_dir = os.path.join(args.QA_path, env_name, q_type_folder_name)
@@ -637,7 +638,7 @@ if __name__ == '__main__':
                                         if os.path.isdir(os.path.join(type_specific_folder_dir, d))]
                 
                 # 状态文件
-                state_file_path = os.path.join(type_specific_folder_dir, "status_recorder.json")
+                state_file_path = os.path.join(type_specific_folder_dir, f"status_recorder_{args.model}.json")
                 state_data = load_or_create_state_file(state_file_path)
                 
                 # 初始化统计变量
@@ -645,7 +646,7 @@ if __name__ == '__main__':
                 correct_answers = 0
                 results = []
                 results_filename = None
-                save_dir = f"experiment_results/{question_type}"
+                save_dir = os.path.join(base_save_dir, env_name, q_type_folder_name)
                 os.makedirs(save_dir, exist_ok=True)
                 
                 if args.resume:
@@ -748,10 +749,10 @@ if __name__ == '__main__':
                         if not question_stem or not question_answer:
                             print(f"Warning: Question stem is not complete in {file_path}, skipping.")
                             continue
-                        log_base_path = os.path.dirname(__file__)
+                        
                         AG.reset(question=question_stem, obs_rgb=obs_rgb, obs_depth=obs_depth, target_type=refer_agents_category_config,
                                 question_type=question_type, answer_list=question_options, batch_id = scenario_folder_name,
-                                question_answer=question_answer, env_name=env_name,logger_base_dir=log_base_path)
+                                question_answer=question_answer, env_name=env_name,logger_base_dir=current_dir)
 
                         max_step = AG.max_step
                         answer = None

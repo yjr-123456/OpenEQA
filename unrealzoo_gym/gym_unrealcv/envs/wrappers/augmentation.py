@@ -161,7 +161,7 @@ class RandomPopulationWrapper(Wrapper):
         env = self.env.unwrapped
         # env.target_agents = misc.convert_dict(env.target_configs)
         if not env.launched:  # we need to launch the environment
-            env.launched = env.launch_ue_env()
+            env.launched = env.launch_ue_env(env.ue_log_path)
             env.init_agents()
             env.init_objects()
         else:
@@ -173,6 +173,16 @@ class RandomPopulationWrapper(Wrapper):
         else:
             # Randomize the number of agents
             env.num_agents = np.random.randint(self.min_num, self.max_num)
+                
+        if self.random_tracker_id:
+            env.tracker_id = env.sample_tracker()
+        if self.random_target_id:
+            new_target = env.sample_target()
+            if new_target != env.tracker_id:  # set target object mask to white
+                env.unrealcv.build_color_dict(env.player_list)
+                env.unrealcv.set_obj_color(env.player_list[env.target_id], env.unrealcv.color_dict[env.player_list[new_target]])
+                env.unrealcv.set_obj_color(env.player_list[new_target], [255, 255, 255])
+                env.target_id = new_target
         
         # check agent_type
         expect_agent_types = set(self.agent_category) if self.agent_category else set(env.agent_configs.keys())
@@ -184,25 +194,18 @@ class RandomPopulationWrapper(Wrapper):
                 agent_config2add = ConfigGenerator.add_agent_type(agent_type)
                 env.agent_configs = env.agent_configs | agent_config2add
                 env.refer_agents = env.refer_agents | misc.convert_dict(agent_config2add)
-        # add height bias to all agents
-        if hasattr(env, 'target_configs'):
+        
+        # add height bias and init target agents
+        if hasattr(env, 'target_configs') and env.target_configs:
             self.add_height_bias(env, self.height_bias)
+            env.target_agents = misc.convert_dict(env.target_configs)
+            env.set_population(env.num_agents)
 
-        if self.random_tracker_id:
-            env.tracker_id = env.sample_tracker()
-        if self.random_target_id:
-            new_target = env.sample_target()
-            if new_target != env.tracker_id:  # set target object mask to white
-                env.unrealcv.build_color_dict(env.player_list)
-                env.unrealcv.set_obj_color(env.player_list[env.target_id], env.unrealcv.color_dict[env.player_list[new_target]])
-                env.unrealcv.set_obj_color(env.player_list[new_target], [255, 255, 255])
-                env.target_id = new_target
         states, info = self.env.reset(**kwargs)
         return states, info
     
     def add_height_bias(self, env, height_bias):
-        for agent_name in env.player_list:
-            loc = env.unrealcv.get_obj_location(agent_name)
-            loc[2] += height_bias
-            env.unrealcv.set_obj_location(agent_name, loc)
+        for _, agent_config in env.target_configs.items():
+            for i in range(len(agent_config["start_pos"])):
+                agent_config["start_pos"][i][2] += height_bias
         return
