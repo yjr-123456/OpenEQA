@@ -310,7 +310,7 @@ class ReachablePointsCollector:
             poses.append(pos)
         return poses
     
-    def collect(self, env_name, steps=5000, render=True, save_interval=500):
+    def collect(self, env_name, steps=5000, render=True, save_interval=500, save_path="."):
         """开始收集可达点
         
         Args:
@@ -368,24 +368,24 @@ class ReachablePointsCollector:
                     print(f"步骤 {step}/{steps}, 收集了 {len(self.reachable_grid)} 个可达点")
                     
                 if render:
-                    self.visualize(save=True, env_name=env_name, filename=f"coverage_map_{step}.png")
+                    self.visualize(save=True, env_name=env_name, save_path=save_path, filename=f"coverage_map_{step}.png")
             
             # 定期保存结果
             if step % save_interval == 0 and step > 0:
-                path = f"E:/EQA/unrealzoo_gym/example/reachable_point/{env_name}"
+                path = f"{save_path}"
                 if not os.path.exists(path):
                     os.makedirs(path)
                 print(f"在步骤 {step} 保存可达点到 {path}")
                 self.save(f"{path}/{env_name}_{step}.pkl")
         
         # 最终保存
-        final_path = f"E:/EQA/unrealzoo_gym/example/reachable_point/{env_name}"
+        final_path = f"{save_path}/final"
         if not os.path.exists(final_path):
             os.makedirs(final_path)
         self.save(f"{final_path}/{env_name}_final.pkl")
         return self.reachable_grid
-    
-    def visualize(self, save=True, env_name="unknown", filename="coverage_map.png"):
+
+    def visualize(self, save=True, env_name="unknown", filename="coverage_map.png", save_path="."):
         """可视化收集的可达点"""
         # 提取x-y坐标用于2D绘图
         if not self.reachable_grid:
@@ -450,7 +450,7 @@ class ReachablePointsCollector:
         plt.legend()
         
         if save:
-            path = f"E:/EQA/unrealzoo_gym/example/reachable_point/{env_name}/visualization"
+            path = f"{save_path}/visualization"
             if not os.path.exists(path):
                 os.makedirs(path)
             file_path = os.path.join(path, filename)
@@ -478,81 +478,68 @@ class ReachablePointsCollector:
 
 if __name__ == '__main__':
     # 定义要采集的环境列表
-    env_list = {
-    "Map_ChemicalPlant_1" : 5000
-    # "ModularGothic_Day": 3000,
-    # "Greek_Island": 2500,
+    # env_list = {
+    # "Map_ChemicalPlant_1" : 5000
+    # # "ModularGothic_Day": 3000,
+    # # "Greek_Island": 2500,
    
-    # "Pyramid": 1500,
-    #  "Cabin_Lake": 4000,
-    # "ModularSciFiVillage": 2000,
-    # "RuralAustralia_Example_01": 5000,
+    # # "Pyramid": 1500,
+    # #  "Cabin_Lake": 4000,
+    # # "ModularSciFiVillage": 2000,
+    # # "RuralAustralia_Example_01": 5000,
 
-    # "ModularVictorianCity": 5000,
-    # "ModularNeighborhood": 5000,
+    # # "ModularVictorianCity": 5000,
+    # # "ModularNeighborhood": 5000,
 
-    }
+    # }
     
-    # 遍历每个环境进行采集
-    try:
-        for env_name, max_step in env_list.items():
-            print(f"\n========== 开始采集环境: {env_name} ==========\n")
-            
-            parser = argparse.ArgumentParser(description=None)
-            parser.add_argument("-e", "--env_id", nargs='?', default=f'UnrealCv_Random_base-{env_name}-DiscreteRgbd-v0',
-                                help='Select the environment to run')
-            parser.add_argument("-r", '--render', dest='render', action='store_true', help='show env using cv2')
-            parser.add_argument("-s", '--seed', dest='seed', default=42, help='random seed')
-            parser.add_argument("-t", '--time-dilation', dest='time_dilation', default=-1, help='time_dilation to keep fps in simulator')
-            parser.add_argument("-n", '--nav-agent', dest='nav_agent', action='store_true', help='use nav agent to control the agents')
-            parser.add_argument("-d", '--early-done', dest='early_done', default=-1, help='early_done when lost in n steps')
-            parser.add_argument("-m", '--monitor', dest='monitor', action='store_true', help='auto_monitor')
+    parser = argparse.ArgumentParser(description=None)
+    # parser.add_argument("-e", "--env_id", nargs='?', default=f'UnrealCv_Random_base-{env_name}-DiscreteRgbd-v0',
+    #                     help='Select the environment to run')
+    parser.add_argument("-e", "--env_name", dest='env_name', default="Map_ChemicalPlant_1", help='environment name')
+    parser.add_argument("-r", '--render', dest='render', action='store_true', help='show env using cv2')
+    parser.add_argument("-s", '--seed', dest='seed', default=42, help='random seed')
+    parser.add_argument("-t", '--time-dilation', dest='time_dilation', default=-1, help='time_dilation to keep fps in simulator')
+    parser.add_argument("-n", '--nav-agent', dest='nav_agent', action='store_true', help='use nav agent to control the agents')
+    parser.add_argument("-d", '--early-done', dest='early_done', default=-1, help='early_done when lost in n steps')
+    parser.add_argument("-m", '--monitor', dest='monitor', action='store_true', help='auto_monitor')
+    parser.add_argument("--max_step", dest='max_step', type=int, default=5000, help='max steps to collect reachable points')
+    parser.add_argument("--save_path", dest='save_path', default=os.path.dirname(__file__), help='where to save the results')
 
-            args = parser.parse_args([])  # 使用空列表避免从命令行解析参数
-            
-            # 为每个环境设置env_id
-            args.env_id = f'UnrealCv_Random_base-{env_name}-DiscreteRgbd-v0'
-            
-            env = gym.make(args.env_id)
-            if int(args.time_dilation) > 0:
-                env = time_dilation.TimeDilationWrapper(env, int(args.time_dilation))
-            if int(args.early_done) > 0:
-                env = early_done.EarlyDoneWrapper(env, int(args.early_done))
-            if args.monitor:
-                env = monitor.DisplayWrapper(env)
-            agent_num = len(env.unwrapped.safe_start)
-            sample_region = env.unwrapped.sample_region if hasattr(env.unwrapped, 'sample_region') else None
-            # 为每个环境创建采集器
-            collector = ReachablePointsCollector(env, num_agents=agent_num, grid_resolution=100, sample_region=sample_region)
-            try:
-                print(f"开始采集环境 {env_name} 的可达点...")
-                collector.collect(env_name=env_name, steps=max_step, render=True, save_interval=500)
-                collector.visualize(save=True, filename=f"coverage_map_{env_name}.png")
-                collector.save(f"{env_name}_reachable_points.pkl")
-                env.close()
-                print(f"\n========== 完成环境 {env_name} 的采集 ==========\n")
-            except KeyboardInterrupt:
-                print(f'用户中断，保存当前环境 {env_name} 的可达点')
-                collector.save(f"{env_name}_reachable_points_interrupted.pkl")
-                env.close()
-                break  # 中断后退出整个循环
-            except Exception as e:
-                print(f"采集环境 {env_name} 时发生错误: {e}")
-                env.close()
-                import traceback
-                traceback.print_exc()   
-            finally:
-                env.close()
+    args = parser.parse_args([])  # 使用空列表避免从命令行解析参数
+    env_name = args.env_name
+    max_step = args.max_step
+    # 为每个环境设置env_id
+    args.env_id = f'UnrealCv_Random_base-{env_name}-DiscreteRgbd-v0'
+    
+    env = gym.make(args.env_id)
+    if int(args.time_dilation) > 0:
+        env = time_dilation.TimeDilationWrapper(env, int(args.time_dilation))
+    if int(args.early_done) > 0:
+        env = early_done.EarlyDoneWrapper(env, int(args.early_done))
+    if args.monitor:
+        env = monitor.DisplayWrapper(env)
+    agent_num = len(env.unwrapped.safe_start)
+    sample_region = env.unwrapped.sample_region if hasattr(env.unwrapped, 'sample_region') else None
+    collector = ReachablePointsCollector(env, num_agents=agent_num, grid_resolution=100, sample_region=sample_region)
+    save_path = os.path.join(args.save_path, 'reachable_points', env_name)
+    try:
+        print(f"开始采集环境 {env_name} 的可达点...")
+        collector.collect(env_name=env_name, steps=max_step, render=True, save_interval=500)
+        collector.visualize(save=True, save_path=save_path, filename=f"coverage_map_{env_name}.png")
+        collector.save(os.path.join(save_path, f"{env_name}_reachable_points.pkl"))
+        env.close()
+        print(f"\n========== 完成环境 {env_name} 的采集 ==========\n")
     except KeyboardInterrupt:
-        print("用户中断，停止采集所有环境")
+        print(f'用户中断，保存当前环境 {env_name} 的可达点')
+        collector.save(os.path.join(save_path, f"{env_name}_reachable_points_interrupted.pkl"))
         env.close()
-        import traceback
-        traceback.print_exc()
     except Exception as e:
-        print(f"发生错误: {e}") 
+        print(f"采集环境 {env_name} 时发生错误: {e}")
         env.close()
+        collector.save(os.path.join(save_path, f"{env_name}_reachable_points_error.pkl"))
         import traceback
-        traceback.print_exc()
+        traceback.print_exc()   
     finally:
         env.close()
     print("所有环境采集完成!")
