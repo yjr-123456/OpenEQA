@@ -1,8 +1,8 @@
 {
     "env_name": "SuburbNeighborhood_Day",
-    "env_bin": "UnrealZoo_UE5_5_Win64_v1.0.2/UnrealZoo_UE5_5_Win64_v1.0.2/UnrealZoo_UE5_5/Binaries/Win64/UnrealZoo_UE5_5.exe",
+    "env_bin": "UnrealZoo_UE5_5_Win64_v1.0.4/UnrealZoo_UE5_5/Binaries/Win64/UnrealZoo_UE5_5.exe",
     "env_map": "SuburbNeighborhood_Day",
-    "env_bin_win": "UnrealZoo_UE5_5_Win64_v1.0.2\\UnrealZoo_UE5_5_Win64_v1.0.2\\UnrealZoo_UE5_5\\Binaries\\Win64\\UnrealZoo_UE5_5.exe",
+    "env_bin_win": "UnrealZoo_UE5_5_Win64_v1.0.4\\UnrealZoo_UE5_5\\Binaries\\Win64\\UnrealZoo_UE5_5.exe",
     "env_bin_mac": "UnrealZoo_UE5_5_Mac_v1.0.3/UnrealZoo_UE5_5.app",
     "third_cam": {
         "cam_id": 0,
@@ -334,12 +334,14 @@
     },
         "target_configs":{
         "player":{
-            "name":["player_1","player_2"],
-            "app_id":[1,2],
-            "animation":["stand","stand"],
+            "name":["player_1","player_2", "player_3", "player_4"],
+            "app_id":[1,2,3,4],
+            "animation":["stand","stand","stand","stand"],
             "start_pos":[
-                [-533,-1413, 98,0, 0, 0],
-                [-749,-915, 98,0, 0, 0]
+                [-2374.059, 1375.122, 107.744, 0, -83, 0],
+                [-1416.787, 1561.778, 102.030, 0, -78, 0],
+                [995.614,-2093.701, 127.026, 0, -164, 0],
+                [736.534, -1869.385, 105.001,0, 155, 0]
                     ]
         },
         "animal":{
@@ -376,7 +378,7 @@
         }
     },
     "safe_start": [
-        [-927,-149, 98,0, 180, 0]
+        [5148.361, 958.672, 85.016, 0, 0, 0]
     ],
     "reset_area": [
         -1177.151,

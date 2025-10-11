@@ -13,19 +13,78 @@ import os
 #import random
 from openai import OpenAI
 import json
-# from pynput import keyboard
-os.environ["ARK_API_KEY"] = "1da99d32-75da-4384-b943-b2e240c2e8bb" # 设置 API Key
-client = OpenAI(
-    # 此为默认路径，您可根据业务所在地域进`行配置
-    base_url="https://ark.cn-beijing.volces.com/api/v3",
-    # 从环境变量中获取您的 API Key。此为默认方式，您可根据需要进行修改
-    api_key=os.environ.get("ARK_API_KEY"),
-)
+from dotenv import load_dotenv
+load_dotenv(True)  # Load environment variables from .env file
+import argparse
+# # from pynput import keyboard
+# os.environ["ARK_API_KEY"] = "1da99d32-75da-4384-b943-b2e240c2e8bb" # 设置 API Key
+# client = OpenAI(
+#     # 此为默认路径，您可根据业务所在地域进`行配置
+#     base_url="https://ark.cn-beijing.volces.com/api/v3",
+#     # 从环境变量中获取您的 API Key。此为默认方式，您可根据需要进行修改
+#     api_key=os.environ.get("ARK_API_KEY"),
+# )
+
+def load_model_config(config_path="model_config.json"):
+    """加载模型配置文件"""
+    try:
+        with open(config_path, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except FileNotFoundError:
+        print(f"模型配置文件 {config_path} 不存在，使用默认配置")
+        return None
+    except json.JSONDecodeError:
+        print(f"模型配置文件 {config_path} 格式错误")
+        return None
+
+
+def create_client(model_name="doubao", config_path="model_config.json"):
+    """根据模型名称创建OpenAI客户端"""
+    config = load_model_config(config_path)
+    
+    if config is None:
+        raise ValueError(f"无法加载模型配置文件 {config_path}")
+    
+    model_config = config["models"].get(model_name)
+    if model_config is None:
+        print(f"模型 {model_name} 配置不存在，使用默认模型")
+        model_name = config["default_model"]
+        model_config = config["models"][model_name]
+    key_name = model_config["api_key_env"]
+    # 从环境变量获取API密钥
+    api_key = os.environ.get(key_name)
+    if not api_key:
+        raise ValueError(f"环境变量 {key_name} 未设置")
+
+    client = OpenAI(
+        base_url=model_config["base_url"],
+        api_key=api_key
+    )
+    
+    return client, model_config["model_name"], model_config
+
+
+client = None
+current_model_name = None
+current_model_config = None
+
+def initialize_model(model_name="doubao",model_config_path="model_config.json"):
+    """初始化指定的模型"""
+    global client, current_model_name, current_model_config
+    client, current_model_name, current_model_config = create_client(model_name,model_config_path)
+    print(f"已初始化模型: {model_name} ({current_model_name})")
+
 
 scene_prompt = (
     "There are serval observations in different views,please give a comprehensive of them in the form of a paragraph.\n"
     "Just describe the scene as if you are in the scene, and do not use words like'The series of images depicts ...'\n"
 )
+
+system_prompt = (
+    "You are a creative quizzer."
+    "Your task is to ask questions about the objects in the scene according to the ground truth information we provide to you."
+)
+
 
 prompt_bg_rela_loca = (
     "You should ask **relative location questions about the objects** in the scene according to the ground truth information we provide to you."
@@ -41,12 +100,12 @@ prompt_bg_rela_loca = (
     "[Question Type]:\n"
     "The question type should be relative locations between objects, such as 'Where is the woman relative to the man'.\n"
     "Please make sure that every question has four options containing one definite and true answer\n"
-    "Only at most five questions you can ask, please cherish the chance to ask questions.\n"
+    "Only at most five questions you can ask, please ask meaningful questions.\n"
     "[Think Step by Step]:\n"
     "You can do this step by step:\n"
     "1. figure out the target object, and pick the another one object(object A).\n"
     "2. Ask question in this way: 'Where is the object A relative to the target object?'"
-    "3. Given ground truth information, make sure the answer is correct.\n"
+    "3. Given ground truth information, find the relative location from target_object to object A.\n"
     "[Important Attention]:"
     "1. Make sure that the target object's state is not **'liedown' and 'Flying'**, becaues it is hard to describe the relative location of an object from a lying down or flying object.\n"
     "[Output Format]:\n" 
@@ -484,6 +543,10 @@ def check_reach(goal, now):
 
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='EQA Question Generation Script')
+    parser.add_argument('--model', type=str, default='doubao', help='Model name to use (default: doubao)')
+    parser.add_argument('--config', type=str, default='model_config.json', help='Path to model configuration file (default: model_config.json)')
+    args = parser.parse_args()
     env_list = [
     "Map_ChemicalPlant_1",
     "ModularNeighborhood",

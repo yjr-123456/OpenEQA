@@ -83,7 +83,6 @@ class GraphBasedSampler:
         return all_max_distance
 
 
-
     def _sample_external_cameras(self, objects, camera_count=8, 
                                  # 新增或调整参数以适应新方法
                                  ring_inner_radius_offset=200, # 圆环内半径相对于智能体包围圆的偏移
@@ -253,8 +252,9 @@ class GraphBasedSampler:
 
         # 5. 格式化输出
         output_cameras = []
-        for cam_info in selected_cameras_final_info:
+        for i, cam_info in enumerate(selected_cameras_final_info):
             output_cameras.append({
+                'id': i,
                 'position': cam_info['position'],
                 'rotation': cam_info['rotation'],
                 'node': cam_info['node'],
@@ -264,7 +264,6 @@ class GraphBasedSampler:
 
         print(f"新思路相机采样完成，共获得 {len(output_cameras)} 个相机点。")
         return output_cameras
-
     
     def _determine_object_orientation(self, node, obj_type):
         """基于环境约束确定物体的朝向"""
@@ -351,25 +350,12 @@ class GraphBasedSampler:
         
         return True
     
-    def _check_center_distance(self, node, sampled_objects, max_distance):
-        """检查与其他物体中心的距离是否在范围内"""
-        if not sampled_objects:
-            return True
-            
-        node_pos = np.array(self.node_positions[node])
-        
-        # 检查至少与一个已放置物体的中心距离在范围内
-        for obj in sampled_objects:
-            sampled_pos = np.array(self.node_positions[obj["node"]])
-            dist = np.linalg.norm(node_pos - sampled_pos)
-            if dist <= max_distance:
-                return True
-        
-        return False
-    
-    def _mark_area_occupied(self, node, occupied_areas, length, width, rotation=0):
+
+    def _mark_area_occupied(self, node, occupied_areas, valid_mask,length, width, rotation=0):
         """标记被物体占用的区域，考虑旋转角度"""
         occupied_areas.append((node, length, width, rotation))
+        return valid_mask
+
  
     def _find_nearest_valid_node(self, target_pos, obj_node=None, max_search=20):
         """找到最接近目标位置的有效节点"""
@@ -390,379 +376,6 @@ class GraphBasedSampler:
                 
         return None
     
-    def _check_clear_line_of_sight_direct(self, camera_pos, obj_pos, objects, target_idx):
-        """直接检查相机与物体之间的视线是否畅通（使用位置而非节点）"""
-        camera_pos = np.array(camera_pos)
-        obj_pos = np.array(obj_pos)
-        
-        # 计算方向向量和距离
-        direction = obj_pos - camera_pos
-        distance = np.linalg.norm(direction)
-        if distance == 0:
-            return False
-        direction = direction / distance
-        for i, obj in enumerate(objects):
-            if i == target_idx:
-                continue
-                
-            pos_array = np.array(obj["position"])
-            obj_type = obj["type"]
-            
-            # 计算物体到相机-目标连线的投影距离
-            camera_to_obj = pos_array - camera_pos
-            proj_dist = np.dot(camera_to_obj, direction)
-            
-            # 只检查位于相机和目标之间的物体
-            if 0 < proj_dist < distance:
-                # 计算物体到连线的垂直距离
-                perp_vector = camera_to_obj - proj_dist * direction
-                perp_dist = np.linalg.norm(perp_vector)
-                
-                # 根据物体类型确定遮挡阈值
-                if obj_type in ['car', 'truck'] and perp_dist < 150:
-                    return False
-                elif obj_type in ['human', 'animal'] and perp_dist < 50:
-                    return False
-                    
-        return True
-
-    def set_sampling_zone(self, center_position, radius=None, reset_history=True):
-        """设置采样区域的中心和半径，可以强制改变采样区域"""
-        self.sampling_center = center_position
-        self.sampling_radius = radius
-        
-        if reset_history:
-            self.historical_positions = []
-        
-        print(f"设置新采样区域中心: {center_position}, 半径: {radius}")
-        return self
-
-    def get_randomized_start_node(self):
-        """获取不同区域的随机起始节点"""
-        # 获取所有节点坐标
-        positions = np.array(list(self.node_positions.values()))
-        
-        # 将环境划分为4个象限
-        quadrants = [
-            (positions[:, 0] > 0) & (positions[:, 1] > 0),  # 第一象限
-            (positions[:, 0] < 0) & (positions[:, 1] > 0),  # 第二象限
-            (positions[:, 0] < 0) & (positions[:, 1] < 0),  # 第三象限
-            (positions[:, 0] > 0) & (positions[:, 1] < 0),  # 第四象限
-        ]
-        
-        # 随机选择一个象限
-        quadrant_idx = np.random.randint(0, 4)
-        quadrant_mask = quadrants[quadrant_idx]
-        
-        # 从选定象限中随机选择一个节点
-        quadrant_nodes = [node for i, node in enumerate(self.node_positions.keys()) 
-                        if i in np.where(quadrant_mask)[0]]
-        
-        if quadrant_nodes:
-            return random.choice(quadrant_nodes)
-        else:
-            return random.choice(list(self.node_positions.keys()))
-
-    def sample_points_for_agents_multi_round(self, agent_configs, camera_count=3, 
-                                        reset_history=False, exclusion_radius=None):
-        """使用多样化采样为预定义代理配置采样位置，避免与历史采样点重合"""
-        
-        if reset_history:
-            self.historical_positions = []
-            
-        if exclusion_radius is not None:
-            self.exclusion_radius = exclusion_radius
-            
-        # 为代理采样位置并避开历史位置
-        updated_configs, camera_configs = self.sample_for_predefined_agents(
-            agent_configs=agent_configs,
-            camera_count=camera_count,
-            excluded_positions=self.historical_positions,
-            exclusion_radius=self.exclusion_radius
-        )
-        
-        # 记录本次采样的位置
-        for agent_type, config in updated_configs.items():
-            for start_pos in config['start_pos']:
-                # 只保存x,y,z位置，不包括旋转
-                self.historical_positions.append(start_pos[:3])
-        
-        return updated_configs, camera_configs
-
-    # def sample_for_predefined_agents(self, agent_configs, min_edge_distance=50, 
-    #                                 max_center_distance=700, camera_count=3, 
-    #                                 max_steps=5000, vehicle_zones=None, all_max_distance=None):
-    #     """
-    #     更高内聚度采样：先定中心点，再在圆形区域内采样所有物体
-    #     """
-    #     def _all_within_max_distance(new_node, sampled_objects, max_distance):
-    #         if not sampled_objects or max_distance is None:
-    #             return True
-    #         new_pos = np.array(self.node_positions[new_node])
-    #         for obj in sampled_objects:
-    #             obj_pos = np.array(self.node_positions[obj["node"]])
-    #             dist = np.linalg.norm(new_pos - obj_pos)
-    #             if dist > max_distance:
-    #                 return False
-    #         return True
-    
-    #     # 1. 生成采样物体列表
-    #     object_list = []
-    #     car_reference_area = 400 * 200  # 80000
-    #     small_object_area_threshold = car_reference_area * 0.3 # 定义小物体面积阈值 (例如汽车面积的30%)
-    #     all_objects_are_small = True # 初始化标志
-    #     has_car = False # 是否有任何标记为 'car' 类型的物体
-
-    #     for agent_type, config in agent_configs.items():
-    #         current_agent_is_car_type = (agent_type == 'car')
-    #         if current_agent_is_car_type:
-    #             has_car = True # 标记场景中存在'car'类型的配置
-
-    #         # 确定尺寸的逻辑保持不变
-    #         if agent_type == 'player':
-    #             size = (50, 50)
-    #         elif agent_type == 'car':
-    #             size = (400, 200)
-    #         elif agent_type == 'motorbike':
-    #             size = (180, 60)
-    #         elif agent_type == 'drone':
-    #             size = (100, 100)
-    #         # ... (animal size logic remains the same) ...
-    #         for i, name in enumerate(config['name']):
-    #             # 重复尺寸确定逻辑以确保每个物体都被评估
-    #             # (这部分可以优化，避免在循环内重复判断agent_type来定size，
-    #             # 但为了最小化改动，暂时保留，确保每个物体的size都被正确获取用于判断大小)
-    #             temp_size = (0,0)
-    #             if agent_type == 'player':
-    #                 temp_size = (50, 50)
-    #             elif agent_type == 'car':
-    #                 temp_size = (400, 200)
-    #             elif agent_type == 'motorbike':
-    #                 temp_size = (180, 60)
-    #             elif agent_type == 'drone':
-    #                 temp_size = (100, 100)
-    #             elif agent_type == 'animal':
-    #                 app_id = config['app_id'][i]
-    #                 if app_id == 0: temp_size = (50, 50)
-    #                 elif app_id in [1, 2]: temp_size = (80, 50)
-    #                 elif app_id in [3, 5, 12]: temp_size = (40, 40)
-    #                 elif app_id == 6: temp_size = (300, 150)
-    #                 elif app_id == 9: temp_size = (30, 30)
-    #                 elif app_id in [10, 14]: temp_size = (400, 150)
-    #                 elif app_id in [11, 15, 25, 26]: temp_size = (300, 280)
-    #                 elif app_id in [16, 20, 21, 22]: temp_size = (350, 280)
-    #                 elif app_id == 19: temp_size = (250, 280)
-    #                 elif app_id == 23: temp_size = (400, 280)
-    #                 elif app_id == 27: temp_size = (300, 200)
-    #                 else: temp_size = (50, 50)
-    #             else: # 默认一个尺寸以防agent_type未覆盖
-    #                 temp_size = size if 'size' in locals() and agent_type not in ['player', 'car', 'motorbike', 'drone', 'animal'] else (50,50)
-
-
-    #             object_area = temp_size[0] * temp_size[1]
-    #             if object_area >= small_object_area_threshold:
-    #                 all_objects_are_small = False
-                
-    #             object_list.append((
-    #                 agent_type, temp_size[0], temp_size[1], name, config['app_id'][i],
-    #                 config['animation'][i] if 'animation' in config else 'None',
-    #                 config['feature_caption'][i] if 'feature_caption' in config else ''
-    #             ))
-    #     object_list.sort(key=lambda x: x[1] * x[2], reverse=True)
-
-    #     if not object_list: # 如果没有物体，直接返回
-    #         print("没有待采样的物体。")
-    #         return {}, {}
-
-    #     # 2. 预处理车辆区域节点
-    #     # ... (point_in_rectangle and vehicle_zone_nodes logic remains the same) ...
-    #     def point_in_rectangle(point, rectangle):
-    #         import matplotlib.path as mpath
-    #         path = mpath.Path(rectangle)
-    #         return path.contains_point((point[0], point[1]))
-    
-    #     vehicle_zone_nodes = {}
-    #     if vehicle_zones and 'car' in vehicle_zones:
-    #         zone_nodes = []
-    #         for node, pos in self.node_positions.items():
-    #             for rectangle in vehicle_zones['car']:
-    #                 if point_in_rectangle([pos[0], pos[1]], rectangle):
-    #                     zone_nodes.append(node)
-    #                     break
-    #         if zone_nodes:
-    #             vehicle_zone_nodes['car'] = zone_nodes
-    
-    #     # 3. 采样中心点 (修改此部分逻辑)
-    #     all_nodes = list(self.graph.nodes())
-    #     if not all_nodes:
-    #         print("错误：图中没有节点可供采样。")
-    #         return {}, {}
-
-    #     if all_objects_are_small:
-    #         center_node = random.choice(all_nodes)
-    #         print("所有物体都较小，中心点从整个图中随机选择。")
-    #     elif has_car and vehicle_zone_nodes.get('car'):
-    #         # 场景中存在'car'类型物体，并且有定义的车辆区域节点
-    #         center_node = random.choice(vehicle_zone_nodes['car'])
-    #         print("场景中包含汽车且车辆区域可用，中心点从车辆区域选择。")
-    #     else:
-    #         # 其他情况（例如，有大物体但没有车，或有车但没有车辆区域）
-    #         center_node = random.choice(all_nodes)
-    #         print("中心点从整个图中随机选择（无车/无车辆区域/或有非车大物体）。")
-    #     center_pos = np.array(self.node_positions[center_node])
-    
-    #     # 4. 采样半径
-    #     # ... (logic remains the same) ...
-    #     if all_max_distance is not None:
-    #         sample_radius = all_max_distance / 2
-    #     else:
-    #         sample_radius = 1500  # 默认
-    
-    #     # 5. 采样区域内的所有节点
-    #     # ... (logic remains the same) ...
-    #     candidate_nodes = [
-    #         node for node in all_nodes
-    #         if np.linalg.norm(np.array(self.node_positions[node]) - center_pos) <= sample_radius
-    #     ]
-    #     if not candidate_nodes:
-    #         print("没有足够的候选节点满足采样半径约束，请增大all_max_distance或减少物体数量！")
-    #         return {}, {}
-    
-    #     # 6. 采样主循环
-    #     # ... (logic remains the same, including the use of car_reference_area for use_vehicle_zone) ...
-    #     sampled_objects = []
-    #     occupied_areas = []
-    #     steps = 0
-    
-    #     for obj_info in object_list:
-    #         agent_type, length, width, name, app_id, animation,feature_caption = obj_info
-    #         placed = False
-    #         local_steps = 0
-    #         max_local_steps = 500 # 每个物体最大尝试次数，可以考虑调整
-    
-    #         # 区域限制 (这里的 car_reference_area 用于判断是否应用车辆区域，与上面的 small_object_area_threshold 不同)
-    #         use_vehicle_zone = False
-    #         if vehicle_zones and 'car' in vehicle_zones and 'car' in vehicle_zone_nodes:
-    #             if agent_type == 'car' or agent_type == 'motorbike': # 明确车辆类型
-    #                 use_vehicle_zone = True
-    #             # 对于非车辆类型，但尺寸较大的物体，也可能考虑放入车辆区域（如果该逻辑仍需保留）
-    #             # 例如： elif length * width >= car_reference_area: 
-    #             #    use_vehicle_zone = True
-    #             # 如果不希望非车辆大物体被放入车辆区，可以注释或调整此elif
-    
-    #         if use_vehicle_zone and vehicle_zone_nodes.get('car'):
-    #             valid_nodes = list(set(candidate_nodes) & set(vehicle_zone_nodes['car']))
-    #         else:
-    #             valid_nodes = candidate_nodes
-    
-    #         if not valid_nodes:
-    #             print(f"没有可用节点可供 {agent_type} ({name}) 采样（区域限制后），尝试在采样失败前跳过此物体或调整策略。")
-    #             # return {}, {} # 或者选择跳过这个物体而不是直接失败整个采样
-    #             continue # 跳过当前无法采样的物体
-    #         current_node = random.choice(valid_nodes) # 确保 valid_nodes 不为空
-    
-    #         while not placed and local_steps < max_local_steps and steps < max_steps:
-    #             if self._can_place_object_at(current_node, occupied_areas, length, width, min_edge_distance):
-    #                 if self._check_center_distance(current_node, sampled_objects, max_center_distance):
-    #                     if _all_within_max_distance(current_node, sampled_objects, all_max_distance):
-    #                         yaw = self._determine_object_orientation(current_node, agent_type)
-    #                         position = self.node_positions[current_node]
-    #                         rotation = [0, yaw, 0]
-    #                         object_dict = {
-    #                             'node': current_node,
-    #                             'position': position,
-    #                             'rotation': rotation,
-    #                             'type': agent_type,
-    #                             'name': name,
-    #                             'app_id': app_id,
-    #                             'animation': animation,
-    #                             'feature_caption': feature_caption,
-    #                             'dimensions': (length, width)
-    #                         }
-    #                         sampled_objects.append(object_dict)
-    #                         self._mark_area_occupied(current_node, occupied_areas, length, width, yaw)
-    #                         placed = True
-    #                         break # 已放置，跳出内部while
-    
-    #             # 移动到下一个节点
-    #             neighbors = [n for n in self.graph.neighbors(current_node) if n in valid_nodes]
-    #             if neighbors:
-    #                 current_node = random.choice(neighbors)
-    #             else:
-    #                 # 如果没有有效邻居，从所有有效节点中随机选一个
-    #                 if valid_nodes: # 再次检查，以防万一
-    #                    current_node = random.choice(valid_nodes)
-    #                 else: # 理论上不应发生，因为前面检查过 valid_nodes
-    #                    print(f"警告: 为 {name} ({agent_type}) 寻找下一个节点时 valid_nodes 为空。")
-    #                    break # 跳出内部while，当前物体放置失败
-
-    #             local_steps += 1
-    #             steps += 1
-    
-    #         if not placed:
-    #             print(f"警告: 无法为 {name} ({agent_type}) 找到合适位置。考虑跳过或返回部分成功。")
-    #             # return {}, {} # 如果一个物体失败则整个失败
-    #             # 或者，可以选择记录失败，并继续尝试放置其他物体
-    
-    #     # 7. 采样相机
-    #     cameras = self._sample_external_cameras(
-    #         objects=sampled_objects, # 只为成功采样的物体采样相机
-    #         camera_count=camera_count,
-    #         min_distance=800,
-    #         max_distance=1500 # 这个距离可以考虑也自适应或作为参数
-    #     )
-    
-    #     # 8. 转换为配置格式
-    #     updated_configs = {}
-    #     # 初始化 updated_configs 结构
-    #     for agent_type_key in agent_configs.keys(): # 使用原始configs的key来确保所有类型都被考虑
-    #         updated_configs[agent_type_key] = {
-    #             'name': [], 'app_id': [], 'animation': [], 'feature_caption':[], 'start_pos': []
-    #         }
-
-    #     for obj in sampled_objects: #只处理成功采样的物体
-    #         agent_type = obj['type']
-    #         # 确保即使原始configs中没有这个type（不太可能发生），也能处理
-    #         if agent_type not in updated_configs: 
-    #             updated_configs[agent_type] = {'name': [], 'app_id': [], 'animation': [], 'feature_caption':[], 'start_pos': []}
-            
-    #         updated_configs[agent_type]['name'].append(obj['name'])
-    #         updated_configs[agent_type]['app_id'].append(obj['app_id'])
-    #         updated_configs[agent_type]['animation'].append(obj['animation'])
-    #         updated_configs[agent_type]['feature_caption'].append(obj['feature_caption'])
-    #         pos = obj['position']
-    #         rot = obj['rotation']
-    #         start_pos = [pos[0], pos[1], pos[2], rot[0], rot[1], rot[2]]
-    #         updated_configs[agent_type]['start_pos'].append(start_pos)
-    
-    #     camera_configs = {}
-    #     if cameras:
-    #         camera_names = []
-    #         camera_app_ids = []
-    #         camera_animations = [] # 虽然相机通常没有动画，但保持格式一致
-    #         camera_feature_captions = [] # 相机通常没有特征描述
-    #         camera_positions = []
-    #         for i, cam in enumerate(cameras):
-    #             camera_names.append(f"camera_{i}")
-    #             camera_app_ids.append(0) # 相机通常 app_id 为0或特定值
-    #             camera_animations.append("None")
-    #             camera_feature_captions.append("External camera view") # 可以给一个默认描述
-    #             pos = cam["position"]
-    #             rot = cam["rotation"]
-    #             camera_positions.append([pos[0], pos[1], pos[2], rot[0], rot[1], rot[2]])
-    #         camera_configs["camera"] = {
-    #             "name": camera_names,
-    #             "app_id": camera_app_ids,
-    #             "animation": camera_animations,
-    #             "feature_caption": camera_feature_captions, # 添加特征描述字段
-    #             "start_pos": camera_positions
-    #         }
-    
-    #     print(f"成功为 {len(sampled_objects)}/{len(object_list)} 个代理找到位置，总步数: {steps}")
-    #     if len(sampled_objects) < len(object_list):
-    #         print(f"注意：并非所有请求的代理都成功放置。请求数: {len(object_list)}, 成功数: {len(sampled_objects)}")
-    #     return updated_configs, camera_configs
-
 
     def sample_for_predefined_agents(self, agent_configs, min_edge_distance=50, 
                                     max_center_distance=700, camera_count=3, 

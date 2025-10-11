@@ -327,7 +327,7 @@ class Character_API(UnrealCv_API):
             cmd = [f'vset /objects/spawn {obj_class_name} {obj_name}',
                    f'vset /object/{obj_name}/location {x} {y} {z}',
                    f'vset /object/{obj_name}/rotation {pitch} {yaw} {roll}',
-                   f'vbp {obj_name} set_phy 1'
+                   f'vbp {obj_name} set_phy 0'
                    ]
         self.client.request(cmd, -1)
         return obj_name
@@ -604,7 +604,7 @@ class Character_API(UnrealCv_API):
         return mask_percent
     def read_image(self, cam_id, viewmode, mode='direct'):
             # cam_id:0 1 2 ...
-            # viewmode:lit,  =normal, depth, object_mask
+            # viewmode:lit,  =normal, object_mask. if you want to get depth image, please use get_depth api
             # mode: direct, file
             res = None
             if mode == 'direct': # get image from unrealcv in png format

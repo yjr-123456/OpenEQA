@@ -1,12 +1,12 @@
 from gymnasium import Wrapper
-from example.agent_configs_sampler import AgentSampler, GraphBasedSampler
+from example.agent_configs_sampler import AgentSampler, AgentBasedSampler
 import random
 from gym_unrealcv.envs.utils import misc
 import time
 from gym_unrealcv.envs.wrappers.augmentation import ConfigGenerator
 class SampleAgentConfigWrapper(Wrapper):
-    def __init__(self, env, agent_category, min_types=1, max_types=5, graph_path=None, 
-                 type_count_ranges=None, min_total_agents=5, max_total_agents=10, if_cnt=False):  # 新增参数
+    def __init__(self, env, agent_category, camera_height,model,min_types=1, max_types=5, graph_path=None, 
+                 type_count_ranges=None, min_total_agents=5, max_total_agents=10, if_cnt=False, config_path="model_config.json",obj_2_hide=None):
         super().__init__(env)
         # set parameters
         self.agent_category = agent_category
@@ -18,7 +18,9 @@ class SampleAgentConfigWrapper(Wrapper):
         self.if_cnt = if_cnt    
         # init sampler
         self.agent_sampler = AgentSampler()
-        self.point_sampler = GraphBasedSampler(graph_path)
+        self.agent_point_sampler = AgentBasedSampler(graph_path, model, config_path=config_path)
+        self.obj_2_hide = obj_2_hide
+        self.camera_height = camera_height  # default camera height
 
     def step(self,action):
         obs, reward, termination,truncation, info = self.env.step(action)
@@ -37,22 +39,27 @@ class SampleAgentConfigWrapper(Wrapper):
 
         vehicle_zones = env.unwrapped.vehicle_zones
         height_bias = env.unwrapped.height_bias
+        # hide some objs
+        if self.obj_2_hide is not None:
+            env.unrealcv.set_hide_objects(self.obj_2_hide)
         # sample agent num for each agent type
-        
         if self.if_cnt == False:
             agent_type_counts = self.sample_agent_types() 
             print("agent_type_counts\n",agent_type_counts)
             env.refer_agents_category = list(agent_type_counts.keys())        
             env.num_agents = sum(agent_type_counts.values()) + len(env.player_list)
             sampled_agent, name_mapping_dict = self.agent_sampler.sample_with_specific_counts_no_repeat(agent_type_counts)
-            agent_configs, camera_configs, sample_center,sample_radius = self.sample_agent_configs(sampled_agent, vehicle_zones=vehicle_zones)
+            env, agent_configs, camera_configs, sample_center,sample_radius = self.sample_agent_configs(env,sampled_agent, cam_id=1,vehicle_zones=vehicle_zones)
         else:
             num_agents = random.randint(self.min_total_agents, self.max_total_agents)
             sampled_agent, name_mapping_dict = self.agent_sampler.sample_agent_typid(agent_type_category=self.agent_category, agent_num=num_agents)
             env.refer_agents_category = list(sampled_agent.keys())
             env.num_agents = num_agents + len(env.player_list)
-            agent_configs, camera_configs, sample_center,sample_radius = self.sample_agent_configs(sampled_agent, vehicle_zones=vehicle_zones)
-        
+            env, agent_configs, camera_configs, sample_center,sample_radius = self.sample_agent_configs(env, sampled_agent, cam_id=1, vehicle_zones=vehicle_zones)
+
+        # show object
+        if self.obj_2_hide is not None:
+            env.unrealcv.set_show_objects(self.obj_2_hide)
         for agent_type,info_val in agent_configs.items(): # Renamed 'info' to 'info_val' to avoid conflict
             
             if agent_type == 'car' or agent_type == 'drone':
@@ -195,23 +202,26 @@ class SampleAgentConfigWrapper(Wrapper):
         print(f"采样配置 - 选定类型: {list(agents_type_counts.keys())}")
         print(f"采样配置 - 总智能体数: {total_agents} (范围: {self.min_total_agents}-{self.max_total_agents})")
         print(f"采样配置 - 详细分布: {agents_type_counts}")
-        
         return agents_type_counts
 
-    def sample_agent_configs(self,agent_configs, vehicle_zones=None):
-        all_max_distance = self.point_sampler.compute_adaptive_all_max_distance(agent_configs)
+    def sample_agent_configs(self,env,agent_configs, cam_id=1, cam_count = 8,vehicle_zones=None):
+        all_max_distance = self.agent_point_sampler.compute_adaptive_all_max_distance(agent_configs)
         max_retry = 200
         for attempt in range(max_retry):
-            results_dict = self.point_sampler.sample_for_predefined_agents( 
+            results_dict = self.agent_point_sampler.sample_agent_positions( 
+                env=env,
                 agent_configs=agent_configs,
-                camera_count=8,
+                cam_id=cam_id,
+                cam_count=cam_count,
                 vehicle_zones=vehicle_zones,
                 all_max_distance=all_max_distance,
                 ring_inner_radius_offset=300, 
                 ring_outer_radius_offset=500,
                 min_angle_separation_deg=35,
-                min_cam_to_agent_dist=200 
+                min_cam_to_agent_dist=200,
+                height= self.camera_height
             )
+            env = results_dict['env']
             updated_configs = results_dict['agent_configs']
             camera_configs = results_dict['camera_configs']
             agent_sampling_center = results_dict['sampling_center']
@@ -227,4 +237,4 @@ class SampleAgentConfigWrapper(Wrapper):
                 print(f"采样失败，重新尝试（第{attempt+1}次）")
         else:
             print("多次尝试后仍未采样成功，请检查参数或环境！")
-        return updated_configs, camera_configs,agent_sampling_center, agent_sampling_radius
+        return env, updated_configs, camera_configs, agent_sampling_center, agent_sampling_radius

@@ -168,8 +168,7 @@ class UnrealCv_Random_base(gym.Env):
 
         if self.count_steps > self.max_steps:
             self.info['Termination'] = True
-        
-        observations = None
+        observations, self.obj_poses, self.img_show = self.update_observation(self.player_list, self.cam_list, self.cam_flag, self.observation_type)
         return observations, self.info['Reward'], self.info['Termination'], self.info['Truncation'], self.info
 
     def reset(self,seed=None, options=None):
