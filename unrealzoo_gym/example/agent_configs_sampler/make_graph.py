@@ -288,11 +288,11 @@ class TrajectoryGraphBuilder:
             print(f"  {i+1}. Node {node}: centrality = {centrality:.4f}, real coordinates = {self.reachable_grid[node]}")
             
         # Save graph data
-        with open(f"E:/EQA/unrealzoo_gym/example/agent_configs_sampler/points_graph/{env_name}/environment_graph.gpickle", 'wb') as f:
+        with open(f"E:/EQA/unrealzoo_gym/example/agent_configs_sampler/points_graph/{env_name}/environment_graph_1.gpickle", 'wb') as f:
             pickle.dump(self.graph, f)
         # nx.gpickle.write_gpickle(self.graph, "environment_graph.gpickle")
-        print("\nGraph saved to environment_graph.gpickle")
-        
+        print("\nGraph saved to environment_graph_1.gpickle")
+
     def _discretize_position(self, position):
         """Discretize continuous position into grid coordinates"""
         x, y, z = position
@@ -317,7 +317,7 @@ if __name__ == "__main__":
     # "Greek_Island"
     ]
     for env_name in env_list:
-        pickle_file = f"E:/EQA/unrealzoo_gym/example/agent_configs_sampler/points_graph/{env_name}/{env_name}.pkl"
+        pickle_file = f"E:/EQA/unrealzoo_gym/example/agent_configs_sampler/points_graph/{env_name}/{env_name}_final.pkl"
 
         # Create graph builder
         builder = TrajectoryGraphBuilder(pickle_file)

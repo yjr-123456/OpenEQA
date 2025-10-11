@@ -199,7 +199,7 @@ class RandomPopulationWrapper(Wrapper):
         if hasattr(env, 'target_configs') and env.target_configs:
             self.add_height_bias(env, self.height_bias)
             env.target_agents = misc.convert_dict(env.target_configs)
-            env.set_population(env.num_agents)
+        env.set_population(env.num_agents)
 
         states, info = self.env.reset(**kwargs)
         return states, info

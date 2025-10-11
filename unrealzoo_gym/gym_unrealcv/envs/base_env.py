@@ -351,9 +351,6 @@ class UnrealCv_base(gym.Env):
         self.unrealcv.cam = self.unrealcv.get_camera_config()
         self.update_camera_assignments()
         time.sleep(5)
-
-        
-
         # get state
         observations, self.obj_poses, self.img_show = self.update_observation(self.player_list, self.cam_list, self.cam_flag, self.observation_type)
 
@@ -761,9 +758,16 @@ class UnrealCv_base(gym.Env):
         # for obj in self.player_list:
         #     print("num of agent:",len(self.player_list)-1)
         #     print("location of obj:", obj, "is", self.unrealcv.get_obj_location(obj))
+        # if cur_agent_type in ['animal','car']:
+        #     self.unrealcv.set_phy(name, 1)
+        time.sleep(1)
+        self.unrealcv.set_phy(name, 0)
+        time.sleep(1)
         self.unrealcv.set_obj_rotation(name, rot)
+        time.sleep(2)
         if cur_agent_type not in ['car','motorbike']:
             self.unrealcv.set_appearance(name, self.target_agents[name]['app_id'])
+        # transform action space
         action_spaces = [self.define_action_space(self.action_type, agent_info=self.agents[obj]) 
                                 for obj in self.player_list[:-1]]
         action_spaces.append(self.define_action_space(self.action_type, agent_info=new_dict))
@@ -773,8 +777,7 @@ class UnrealCv_base(gym.Env):
         self.observation_space = spaces.Tuple(obs_spaces)
         # self.action_space.append(self.define_action_space(self.action_type, agent_info=new_dict))
         # self.observation_space.append(self.define_observation_space(new_dict['cam_id'], self.observation_type, self.resolution))
-        time.sleep(1)
-        self.unrealcv.set_phy(name, 0)
+        
         return new_dict
 
     def remove_agent(self, name):
@@ -1088,10 +1091,9 @@ class UnrealCv_base(gym.Env):
                 self.agents[f'{valid_name}'] = self.add_agent(valid_name, self.target_agents[valid_name]["start_pos"], refer_agent)
                 agent_cnt += 1
                 time.sleep(1)
-            
-
         while len(self.player_list) > num_agents:
             self.remove_agent(self.player_list[-1])  # remove the last one
+    
 
     def set_npc(self):
         # TODO: set the NPC agent

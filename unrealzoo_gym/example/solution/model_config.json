@@ -28,6 +28,13 @@
       "max_tokens": 10000,
       "temperature": 0.3
     },
+    "gpt-5-2025-08-07": {
+      "base_url": "https://xiaoai.plus/v1",
+      "api_key_env": "OPENAI_API_KEY",
+      "model_name": "gpt-5-2025-08-07",
+      "max_tokens": 10000,
+      "temperature": 0.3
+    },
     "claude": {
       "base_url": "https://api.anthropic.com/v1",
       "api_key_env": "ANTHROPIC_API_KEY",

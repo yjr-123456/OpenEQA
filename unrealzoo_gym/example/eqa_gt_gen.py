@@ -2,6 +2,8 @@ import sys
 import os
 project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, project_root)
+current_dir = os.path.dirname(os.path.abspath(__file__))
+parent_dir = os.path.dirname(current_dir)
 import argparse
 #import gym_unrealcv
 import gymnasium as gym
@@ -148,17 +150,18 @@ from example.agent_configs_sampler import AgentSampler, GraphBasedSampler
 if __name__ == '__main__':
     # env name
     env_list = [
-    # "Map_ChemicalPlant_1",
+    # "Map_ChemicalPlant_1": -12776,
     # "ModularNeighborhood",
     # "ModularSciFiVillage",
     # "RuralAustralia_Example_01",
     # "ModularVictorianCity",
     # "Cabin_Lake",
     # "Pyramid",
-    "ModularGothic_Day",
-    "Greek_Island"
+    # "ModularGothic_Day",
+    # "Greek_Island",
+    # "SuburbNeighborhood_Day" 
     ]
-    env_name = "Greek_Island"  # Change this to the desired environment name
+    env_name = "Map_ChemicalPlant_1" # Change this to the desired environment name
     parser = argparse.ArgumentParser(description=None)
     parser.add_argument("-e", "--env_id", nargs='?', default=f'UnrealCvEQA_DATA-{env_name}-DiscreteColorMask-v0',
                         help='Select the environment to run')
@@ -169,16 +172,23 @@ if __name__ == '__main__':
     parser.add_argument("-d", '--early-done', dest='early_done', default=-1, help='early_done when lost in n steps')
     parser.add_argument("-m", '--monitor', dest='monitor', action='store_true', help='auto_monitor')
     parser.add_argument("-c", '--ifonly-counting', dest='if_cnt', action='store_true', help='if only counting the number of agents in the scene')
-    parser.add_argument("-g", "--reachable-points-graph", dest='graph_path', default=f"./agent_configs_sampler/points_graph/{env_name}/environment_graph.gpickle", help='use reachable points graph')
+    parser.add_argument("-g", "--reachable-points-graph", dest='graph_path', default=f"./agent_configs_sampler/points_graph/{env_name}/environment_graph_1.gpickle", help='use reachable points graph')
     parser.add_argument("-w", "--work-dir", dest='work_dir', default="E:/EQA/unrealzoo_gym/example", help='work directory to save the data')
+    parser.add_argument("--config-path", dest='config_path', default=os.path.join(current_dir, "solution"), help='path to model config file')
+    parser.add_argument("--model", dest="model", default="gemini_pro", help="model name")
+    parser.add_argument("--floor_height", dest="floor_height", type=float, default=-12776.0, help="floor height from the ground")
+    parser.add_argument("--camera-height", dest="camera_height", type=int, default=1000, help="camera height from the ground")
     args = parser.parse_args()
     
     env = gym.make(args.env_id)
-    
+    # obj_2_hide = ["BP_Tree_Skinned_LargeSplit2", "BP_Tree_Skinned_LargeSplit3", "BP_Tree_Skinned_LargeSplit4", "BP_Tree_Skinned_LargeSplit5", "BP_Tree_Skinned_LargeSplit6", 
+    #               "BP_Tree_Skinned_LargeSplit7", "BP_Tree_Skinned_LargeSplit_6", "BP_Tree_Skinned_Large2_2", "BP_Tree_Skinned_Large3", "BP_Tree_Skinned_Large4",
+    #                 "BP_Tree_Skinned_Large5", "BP_Tree_Skinned_Large6", "BP_Tree_Skinned_Large_9"]
+    obj_2_hide = []
     # some configs
     currpath = os.path.dirname(os.path.abspath(__file__))
     graph_path = os.path.join(currpath, args.graph_path)
-    agents_category = ['player','drone', 'animal']
+    agents_category = ['player','drone']
     batch = datetime.now().strftime("%m%d-%H%M%S")
     obs_name = "BP_Character_C_1"
     action = [-1]
@@ -191,32 +201,36 @@ if __name__ == '__main__':
         env = monitor.DisplayWrapper(env)
     
     # agent sample pre-define
-    agents_categories = ['player','drone', 'animal','car']     
+    agents_categories = ['player','drone','car']     
     type_ranges = {
-        'player': (4, 6),
-        'car': (1, 2),     
-        'animal': (0, 1),   
+        'player': (2, 6),
+        'car': (1, 2),
         'drone': (0, 1),
+        'animal': (0, 1),
         'motorbike': (0, 0)
     }
-    min_total = 5
-    max_total = 8
+    min_total = 3
+    max_total = 7
 
     # wrapper
     # env = augmentation.RandomPopulationWrapper
     env = sample_agent_configs.SampleAgentConfigWrapper(
         env,
         agent_category=agents_categories,
+        camera_height= args.camera_height + args.floor_height,
+        model=args.model,   
         min_types=1,  
         max_types=4,
         type_count_ranges=type_ranges,       
         min_total_agents=min_total,  
         max_total_agents=max_total,
         graph_path=graph_path,
-        if_cnt=args.if_cnt 
+        if_cnt=args.if_cnt,
+        config_path=args.config_path,
+        obj_2_hide=obj_2_hide 
     )
 
-    env = configUE.ConfigUEWrapper(env, offscreen=False)
+    env = configUE.ConfigUEWrapper(env, offscreen=False,resolution=(1080,1080))
     save_cnt = 0
     try:
         while save_cnt <= 5:
@@ -243,10 +257,11 @@ if __name__ == '__main__':
             collected_images_for_instance = []  # record obs
             cam_position = env.unwrapped.camera_position
             # start keyboard listener   
-            listener = keyboard.Listener(on_press=on_press, on_release=on_release)
-            listener.start()
+            # listener = keyboard.Listener(on_press=on_press, on_release=on_release)
+            # listener.start()
             print(f"\nProcessing Batch: {batch}, Instance ID: {instance_id}")
             safe_start_flag = 0
+            safe_start_to_collect = []
             for cam_idx, position in enumerate(cam_position):
                 loca = position[0:3]
                 rota = position[3:]
@@ -268,41 +283,39 @@ if __name__ == '__main__':
                     else:
                         bgr_image_from_env = bgr_image_from_env.astype(np.uint8)
                 
-                cv2.imshow("RGB/BGR", bgr_image_from_env) 
-                cv2.imshow("Mask", mask_obs)
-                cv2.waitKey(0)
+                # cv2.imshow("RGB/BGR", bgr_image_from_env) 
+                # cv2.imshow("Mask", mask_obs)
+                # cv2.waitKey(0)
 
-                print(f"  Camera {cam_idx + 1}/{len(cam_position)}: Press 'y' to save, 'n' to skip.")
-                collection_choice = 0
-                key_state['y'] = False 
-                key_state['n'] = False
-                key_state['c'] = False
-                flag = 0
-                while collection_choice == 0:
-                    collection_choice = get_key_collection()
-                    time.sleep(0.05)
+                # print(f"  Camera {cam_idx + 1}/{len(cam_position)}: Press 'y' to save, 'n' to skip.")
+                # collection_choice = 0
+                # key_state['y'] = False 
+                # key_state['n'] = False
+                # key_state['c'] = False
+                # flag = 0
+                # while collection_choice == 0:
+                #     collection_choice = get_key_collection()
+                #     time.sleep(0.05)
                 
-                if collection_choice == 1: # 'y'
-                    collected_images_for_instance.append((bgr_image_from_env, cam_idx))
-                    if safe_start_flag == 0:
-                        # set safe start
-                        safe_start = position
-                        safe_start_flag = 1
-                    print(f"    Image from camera {cam_idx + 1} marked for saving.")
-                elif collection_choice == 2: # 'n'
-                    print(f"    Image from camera {cam_idx + 1} skipped.")
-                elif collection_choice == 3: # 'c'
-                    print("    Collection cancelled.")
-                    flag = 1
-                    break
+                # if collection_choice == 1: # 'y'
+                collected_images_for_instance.append((bgr_image_from_env, cam_idx))
+                # set safe start
+                safe_start_to_collect.append(position)
+                print(f"    Image from camera {cam_idx + 1} marked for saving.")
+                # elif collection_choice == 2: # 'n'
+                #     print(f"    Image from camera {cam_idx + 1} skipped.")
+                # elif collection_choice == 3: # 'c'
+                #     print("    Collection cancelled.")
+                #     flag = 1
+                #     break
                 time.sleep(0.1)
-            listener.stop() 
+        
             if args.render:
                 cv2.destroyAllWindows()
 
-            if flag == 1:
-                print("Collection cancelled.")
-                continue
+            # if flag == 1:
+            #     print("Collection cancelled.")
+            #     continue
             
             # make dir
             os.makedirs(current_gt_info, exist_ok=True)
@@ -326,7 +339,7 @@ if __name__ == '__main__':
             # save gt info
             data_to_save = {
                 "instance_id": instance_id,
-                "safe_start": safe_start,
+                "safe_start": safe_start_to_collect,
                 "obs_folder_path": current_instance_obs_path,
                 "obs_filenames": [os.path.basename(p) for p in saved_image_paths_for_instance],
                 "sample_configs": info["sample_configs"],
@@ -348,8 +361,6 @@ if __name__ == '__main__':
         env.close()
     except KeyboardInterrupt:
         print('\nExiting due to KeyboardInterrupt...')
-        if 'listener' in locals() and listener.is_alive():
-            listener.stop()
         env.close()
     finally:
         if args.render:
