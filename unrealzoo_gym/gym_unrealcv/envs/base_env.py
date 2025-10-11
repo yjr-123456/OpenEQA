@@ -9,6 +9,7 @@ import random
 import sys
 import time
 import math
+import socket
 ''' 
 It is a base env for general purpose agent-env interaction, including single/multi-agent navigation, tracking, etc.
 Observation : raw color image and depth
@@ -20,7 +21,10 @@ def calculate_distance(pos1, pos2):
     """计算两个位置之间的欧几里得距离"""
     return math.sqrt((pos1[0] - pos2[0])**2 + (pos1[1] - pos2[1])**2 + (pos1[2] - pos2[2])**2)
 
-
+def send_pid(pid, host='127.0.0.1', port=50007):
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.connect((host, port))
+        s.sendall(str(pid).encode())
 
 # TODO: agent apis for blueprints commands
 # TODO: config env by parapmeters
@@ -162,6 +166,8 @@ class UnrealCv_base(gym.Env):
             Success=False
         )
         self.ue_log_path = None
+        self.send_pid = False
+        self.watchdog_port = 50007
 
 
 
@@ -261,13 +267,18 @@ class UnrealCv_base(gym.Env):
             self.unrealcv.set_cam(obj, self.agents[obj]['relative_location'], self.agents[obj]['relative_rotation'])
         # set top view
         self.set_topview(init_poses[self.protagonist_id], self.cam_id[0])
-        time.sleep(1)
         pick_cnt = 0
 
         if len(self.target_list) != 0:
             # check agent
             self.target_list = self.check_agent()
             print("target list after check:\n",self.target_list)
+            # for i, obj in enumerate(self.target_list):
+            #     app_id = self.target_agents[obj]['app_id']
+            #     if self.agents[obj]['agent_type'] not in ['car','motorbike']:
+            #         self.unrealcv.set_appearance(obj, app_id)
+            #         time.sleep(3.0)
+            #         print(f"======set appearance for {obj}, app_id:{app_id}")
             for i, obj in enumerate(self.target_list):
                 #self.unrealcv.set_obj_color(obj, self.agent_color[self.agents[obj]['color']])
                 animation = self.target_agents[obj]['animation']
@@ -286,6 +297,7 @@ class UnrealCv_base(gym.Env):
                     pick_up_name = f"{pick_up_class}_{batch_id}_{pick_cnt}"
                     self.pickup_list.append(pick_up_name)
                     self.unrealcv.new_obj(pick_up_class,pick_up_name,loc, rot)
+                    self.unrealcv.set_obj_color(pick_up_name, np.random.randint(0, 255, 3))
                     time.sleep(2.0)
                     self.unrealcv.set_animation(obj, animation)
                     time.sleep(2.0)
@@ -344,15 +356,13 @@ class UnrealCv_base(gym.Env):
                         index = self.target_configs[agent_type]['name'].index(obj)
                         self.target_configs[agent_type]['state'][index] = status 
                     continue
-                time.sleep(2)
-
+                time.sleep(3)
+            time.sleep(3.0)
         print("\n agent num:", len(self.target_list))
         # distribute camera
         self.unrealcv.cam = self.unrealcv.get_camera_config()
         self.update_camera_assignments()
-        time.sleep(5)
-
-        
+        time.sleep(5.0)
 
         # get state
         observations, self.obj_poses, self.img_show = self.update_observation(self.player_list, self.cam_list, self.cam_flag, self.observation_type)
@@ -708,7 +718,7 @@ class UnrealCv_base(gym.Env):
 
         return info
 
-    def add_agent(self, name, loc, refer_agent, color=[255,255,0]):
+    def add_agent(self, name, loc, refer_agent):
         """
         Add a new agent to the environment.
 
@@ -753,17 +763,25 @@ class UnrealCv_base(gym.Env):
 
         # self.target_camera_list.append(new_dict['cam_id'])
         self.cam_list.append(new_dict['cam_id'])
+        time.sleep(0.5)
         self.unrealcv.set_obj_scale(name, refer_agent['scale'])
-        self.unrealcv.set_obj_color(name, color)
+        time.sleep(0.5)
+        self.unrealcv.set_obj_color(name, np.random.randint(0, 255, 3))
+        time.sleep(0.5)
         self.unrealcv.set_random(name, 0)
+        time.sleep(0.5)
         self.unrealcv.set_interval(self.interval, name)
+        time.sleep(0.5)
         self.unrealcv.set_obj_location(name, loca)
         # for obj in self.player_list:
         #     print("num of agent:",len(self.player_list)-1)
         #     print("location of obj:", obj, "is", self.unrealcv.get_obj_location(obj))
+        time.sleep(0.5)
         self.unrealcv.set_obj_rotation(name, rot)
-        if cur_agent_type not in ['car','motorbike']:
-            self.unrealcv.set_appearance(name, self.target_agents[name]['app_id'])
+        # time.sleep(5)
+        # if cur_agent_type not in ['car','motorbike']:
+        #     self.unrealcv.set_appearance(name, self.target_agents[name]['app_id'])
+            # print("==========set appearance res:", res, "============")
         action_spaces = [self.define_action_space(self.action_type, agent_info=self.agents[obj]) 
                                 for obj in self.player_list[:-1]]
         action_spaces.append(self.define_action_space(self.action_type, agent_info=new_dict))
@@ -773,7 +791,7 @@ class UnrealCv_base(gym.Env):
         self.observation_space = spaces.Tuple(obs_spaces)
         # self.action_space.append(self.define_action_space(self.action_type, agent_info=new_dict))
         # self.observation_space.append(self.define_observation_space(new_dict['cam_id'], self.observation_type, self.resolution))
-        time.sleep(1)
+        time.sleep(3)
         self.unrealcv.set_phy(name, 0)
         return new_dict
 
@@ -1033,6 +1051,12 @@ class UnrealCv_base(gym.Env):
         # connect to UnrealCV Server
         self.unrealcv = Character_API(port=env_port, ip=env_ip, resolution=self.resolution, comm_mode=self.comm_mode)
         self.unrealcv.set_map(self.env_name)
+
+        # send pid if needed
+        if self.send_pid:
+            ue_pid = self.get_ue_pid()
+            send_pid(pid=ue_pid, port=self.watchdog_port)
+            print("ue pid:", ue_pid)
         return True
 
     def init_agents(self):
@@ -1044,7 +1068,7 @@ class UnrealCv_base(gym.Env):
         # destory all pickup objects
         if len(self.pickup_list) != 0:
             for obj in self.pickup_list.copy():
-                self.unrealcv.destroy_pickup(obj)
+                self.unrealcv.destroy_obj(obj)
                 self.pickup_list.remove(obj)
         assert len(self.pickup_list) == 0, "There are still some pickup objects in the scene, please check the code."
 

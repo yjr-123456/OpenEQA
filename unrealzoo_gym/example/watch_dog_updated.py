@@ -187,17 +187,26 @@ def main():
     parser.add_argument('--interval', type=int, default=10, help='检查间隔(秒)')
     parser.add_argument('--max-restarts', type=int, default=200, help='最大重启次数')
     parser.add_argument('--pid-port', type=int, default=50007, help='监听PID的端口')
-    parser.add_argument('--other-args', type=str, default='', help='其它要传递给run_baseline.py的参数（可选，格式如："--model doubao --resume"）')
+    parser.add_argument('--model', type=str, default='gemini_pro', help='模型名称')
+    parser.add_argument('--resume', action='store_true', help='是否从上次中断处恢复')
+    parser.add_argument('--ts', type=int,default=0, help='时间戳参数')
+    # parser.add_argument('--other-args', type=str, default='', help='其它要传递给run_baseline.py的参数（可选，格式如："--model doubao --resume"）')
+    
     args = parser.parse_args()
     script_args = []
-    script_args = []
+    script_args += ['--model', args.model]
+    if args.resume:
+        script_args += ['--resume']
     script_args += ['-e'] + args.envs
     script_args += ['--question_types'] + args.question_types
+    script_args += ["--use_pid", "True"]
     script_args += ['--pid_port', str(args.pid_port)]
-    if args.other_args:
-        # 按空格分割并加入
-        script_args += args.other_args.split()
 
+    # if args.other_args:
+    #     # 按空格分割并加入
+    #     script_args += args.other_args.split()
+    if args.ts and args.ts > 0:
+        time.sleep(args.ts)
     watchdog = WatchDog(
         script_path=args.script,
         script_args=script_args,
