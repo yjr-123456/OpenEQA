@@ -27,7 +27,7 @@ from dotenv import load_dotenv
 from openai import OpenAI
 load_dotenv()
 
-# os.environ["UnrealEnv"] = "/Volumes/KINGSTON/UnrealEnv"
+os.environ["UnrealEnv"] = "/Volumes/KINGSTON/UnrealEnv"
 
 client = OpenAI(
     # 此为默认路径，您可根据业务所在地域进`行配置
@@ -590,10 +590,10 @@ def process_in_vehicle_players(config_data):
     
     return config_data
 
-def send_pid_to_watchdog(pid, host='127.0.0.1', port=50007):
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        s.connect((host, port))
-        s.sendall(str(pid).encode())
+# def send_pid_to_watchdog(pid, host='127.0.0.1', port=50007):
+#     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+#         s.connect((host, port))
+#         s.sendall(str(pid).encode())
 
 
 if __name__ == '__main__':
@@ -608,6 +608,7 @@ if __name__ == '__main__':
         parser.add_argument("-d", "--early-done", type=int, default=-1)
         parser.add_argument("-q", "--QA_path", default=os.path.join(current_dir, 'QA_Data'))
         parser.add_argument("-p", "--pid_port", type=int, default=50007, help="UnrealCV watchdog pid")
+        parser.add_argument("--use_pid", type=bool,default=False, help="Whether to use pid watchdog to monitor the UE process")
         parser.add_argument("--question_types", nargs='+', default=["counting"], help="List of question types to evaluate")
         parser.add_argument("--resume", action='store_true', help="Resume from previous progress")
         parser.add_argument("--model", default="doubao", help="choose evaluation models")
@@ -657,13 +658,14 @@ if __name__ == '__main__':
                     print(f"Resume mode: Found {completed_questions} completed questions")
                     print(f"Resume mode: Previous correct answers: {completed_correct}")
                     print(f"Resume mode: Previous accuracy: {calculate_accuracy(completed_correct, completed_questions):.2f}%")
-                
+                # 初始化环境
+                env = gym.make(env_id)
+                if args.time_dilation > 0:
+                    env = time_dilation.TimeDilationWrapper(env, args.time_dilation)
+                if args.early_done > 0:
+                    env = early_done.EarlyDoneWrapper(env, args.early_done)
+
                 for scenario_folder_name in scenario_folder_names:
-                    env = gym.make(env_id)
-                    if args.time_dilation > 0:
-                        env = time_dilation.TimeDilationWrapper(env, args.time_dilation)
-                    if args.early_done > 0:
-                        env = early_done.EarlyDoneWrapper(env, args.early_done)
                     id_folder_path = os.path.join(type_specific_folder_dir, scenario_folder_name)
                     file_path = os.path.join(id_folder_path, f"{q_type_folder_name}.json")
                     
@@ -709,7 +711,7 @@ if __name__ == '__main__':
                     if len(start_pose) == 1:
                         start_pose = start_pose[0]
                     assert len(start_pose) == 6
-                    
+
                     unwrapped_env = env.unwrapped
                     unwrapped_env.safe_start = safe_start_config
                     unwrapped_env.refer_agents_category = refer_agents_category_config
@@ -719,14 +721,17 @@ if __name__ == '__main__':
                     if args.ue_log_dir:
                         os.makedirs(args.ue_log_dir, exist_ok=True)
                         unwrapped_env.ue_log_path = args.ue_log_dir
+                    # pid config
+                    if args.use_pid:
+                        env.unwrapped.send_pid = True
+                        env.unwrapped.watchdog_port = args.pid_port
+
                     env = augmentation.RandomPopulationWrapper(env, num_min=agent_num + 1, num_max=agent_num + 1, height_bias=100)
-                    
                     env = configUE.ConfigUEWrapper(env, resolution=(512,512), offscreen=False)
 
                     print(f"Resetting environment for file: {os.path.basename(file_path)}")
                     states, info = env.reset(seed=args.seed)
-                    pid = info['ue_pid']
-                    send_pid_to_watchdog(pid=pid, port=args.pid_port)
+                    
                     obs_rgb, obs_depth = obs_transform(states)
                     for question_id, question_data in QA_dict.items():
                         # 检查单个问题是否已完成
@@ -735,7 +740,6 @@ if __name__ == '__main__':
                             continue
                         
                         total_questions += 1
-                        
                         # 设置玩家位置
                         loca = start_pose[0:3]
                         rota = start_pose[3:]
@@ -759,7 +763,10 @@ if __name__ == '__main__':
                         cur_step = 0
                         
                         for cur_step in range(0, max_step+1):
+                            time_1 = time.time()
                             action = AG.predict(obs_rgb, obs_depth,info)
+                            time_2 = time.time()
+                            print(f"======================Step {cur_step} Action: {action} Time: {time_2 - time_1:.2f}s======================")
                             actions = action + [-1]*agent_num
                             print(actions)
                             obs, reward, termination, truncation, info = env.step(actions)
@@ -824,11 +831,10 @@ if __name__ == '__main__':
                                 env_name=env_name, question_type=question_type,
                                 filename_prefix=save_dir
                             )
-                        
                         print(f"Question {total_questions} | Accuracy: {calculate_accuracy(correct_answers, total_questions):.1f}%")
-                    env.close()
-                    print(f"Completed scenario: {scenario_folder_name} in environment: {env_name}")
-                    time.sleep(10)
+                        print(f"Completed scenario: {scenario_folder_name} in environment: {env_name}")
+                env.close()
+                time.sleep(10)
     except KeyboardInterrupt:        
         print("\n=== 程序被中断 ===")
         print(f"已处理 {total_questions} 个问题")

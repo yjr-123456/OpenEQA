@@ -156,7 +156,7 @@ def encode_image_array(image_array):
 
 def image_captioning(image):
     client = OpenAI(
-            api_key="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"
+            api_key=""
     )
     base64_image = encode_image_array(image)
     response = client.chat.completions.create(
