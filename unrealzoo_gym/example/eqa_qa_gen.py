@@ -9,21 +9,14 @@ import numpy as np
 import os
 # import torch
 #from gym_unrealcv.envs.tracking.baseline import PoseTracker
-# from gym_unrealcv.envs.wrappers import time_dilation, early_done, monitor, agents, augmentation, configUE, sample_agent_configs
-#import random
+from gym_unrealcv.envs.wrappers import time_dilation, early_done, monitor, agents, augmentation, configUE, sample_agent_configs
+import random
+current_dir = os.path.dirname(os.path.abspath(__file__))
 from openai import OpenAI
 import json
 from dotenv import load_dotenv
 load_dotenv(True)  # Load environment variables from .env file
 import argparse
-# # from pynput import keyboard
-# os.environ["ARK_API_KEY"] = "1da99d32-75da-4384-b943-b2e240c2e8bb" # 设置 API Key
-# client = OpenAI(
-#     # 此为默认路径，您可根据业务所在地域进`行配置
-#     base_url="https://ark.cn-beijing.volces.com/api/v3",
-#     # 从环境变量中获取您的 API Key。此为默认方式，您可根据需要进行修改
-#     api_key=os.environ.get("ARK_API_KEY"),
-# )
 
 def load_model_config(config_path="model_config.json"):
     """加载模型配置文件"""
@@ -69,10 +62,10 @@ current_model_name = None
 current_model_config = None
 
 def initialize_model(model_name="doubao",model_config_path="model_config.json"):
-    """初始化指定的模型"""
+    
     global client, current_model_name, current_model_config
     client, current_model_name, current_model_config = create_client(model_name,model_config_path)
-    print(f"已初始化模型: {model_name} ({current_model_name})")
+    print(f"Initialize model: {model_name} ({current_model_name})")
 
 
 scene_prompt = (
@@ -85,9 +78,8 @@ system_prompt = (
     "Your task is to ask questions about the objects in the scene according to the ground truth information we provide to you."
 )
 
-
 prompt_bg_rela_loca = (
-    "You should ask **relative location questions about the objects** in the scene according to the ground truth information we provide to you."
+    "Your task is to ask **relative location questions about the objects** in the scene according to the ground truth information we provide to you."
     "This is a question about relative locations between two objects, such as 'Where is the Object A relative to the Object B?'."
     "[Ground Truth Information Format]:\n"
     "The ground truth information is organized in this way:\n"
@@ -114,7 +106,7 @@ prompt_bg_rela_loca = (
 )
 
 prompt_bg_rela_distance =(
-    "You should ask **relative distance comparison questions about the objects** in the scene according to the ground truth information we provide to you."
+    "Your task is to ask **relative distance comparison questions about the objects** in the scene according to the ground truth information we provide to you."
     "This is a question about comparing which of two objects(object A or object B) is closer or farther to a certain object(target object)."
     "For example, 'which is closer to the target object, object A or object B?'."
     "[Ground Truth Information Format]:\n"
@@ -141,7 +133,7 @@ prompt_bg_rela_distance =(
 )
 
 prompt_bg_state = (
-    "You should ask **relative distance comparison questions about the objects** in the scene according to the ground truth information we provide to you."
+    "Your task is to ask **state questions about the objects** in the scene according to the ground truth information we provide to you."
     "This is a question about object's state, such as 'What's the state of object?'"
     "[Question Type]:\n"
     "The question type should be **objects'states question**, such as 'What's the state of the man'.\n"
@@ -166,7 +158,7 @@ prompt_bg_state = (
 )
 
 prompt_bg_cnt = (
-    "You should ask **object counting questions about the objects** in the scene according to the ground truth information we provide to you."
+    "Your task is to ask **object counting questions** in the scene according to the ground truth information we provide to you."
     "This is a question about counting objects in the scene, such as 'How many man in the scene?'."
     "[Question Type]:\n"
     "The question type should be **objects counting**, such as 'How many man in the scene'.\n"
@@ -203,7 +195,6 @@ prompt_bg_cnt = (
 
 prompt_bg_attribute =(
     "You should ask **object attribute questions about the objects** in the scene according to the ground truth information we provide to you."
-    
 )
 
 filter_prompt = (
@@ -266,301 +257,303 @@ name2typid = {
     "Red_Motorbike": "motorbike_0"
 } 
 
-def format_dict_for_llm(gt_information, question_type = "relative_location",agent_cnt_feature_path = None):
+class generate_qa_agent:
+    def __init__(self, model_name="doubao",base_dir= None,model_config_path="model_config.json"):
+        self.base_dir = base_dir
+        self.model = model_name
+        initialize_model(model_name,model_config_path)
 
-    import numpy as np
-    
-    result = "\n"
-    
-    def format_array(arr):
-        if isinstance(arr, np.ndarray):
-            arr = arr.tolist()
-        return str(arr)
-    
-    result = "\n"
-    for obj_name, basic_info in gt_information["agent_info"].items():
-        result += f"Object: {obj_name}\n"
-        result += f"  State: {basic_info['state']}\n"
-        result += f"  Feature: {basic_info['feature']}\n\n"
-    
-    if question_type == "state":
-        return result
-    elif question_type == "counting":
-        with open(agent_cnt_feature_path, 'r') as f:
-            agent_cnt_features = json.load(f)
+
+    def format_dict_for_llm(self, gt_information, question_type = "relative_location",agent_cnt_feature_path = None):
+
+        import numpy as np
         
-        cnt_gt = "[counting ground truth]:\n"
-        cnt_info = gt_information["counting_gt"]
-        cnt_gt += f"  Total objects: {cnt_info['total_agents']}\n"
-        cnt_gt += f"  Total object type: {cnt_info['total_agent_types']}\n"
-        cnt_gt += f"  Object number per each state:\n"
-        for state, count in cnt_info["agents_per_state"].items():
-            cnt_gt += f"    {state}: {count}\n"
-        cnt_gt += f"  Object number per each object type and state:\n"
-        for obj_type_state, state_counts in cnt_info["agents_per_type_state"].items():
-            splits = obj_type_state.split('_')
-            type = splits[0]
-            state = "_".join(splits[1:])
-            cnt_gt += f"    {type} ({state}): {state_counts}\n"
-        feature_description = "[feature description]:\n"
-        for agent_name in gt_information["agent_info"].keys():
-            typid = name2typid[agent_name]
-            type, id = typid.split('_') 
-            if type == "player":
-                feature_dict = agent_cnt_features[type][id]
-                feature_description += f"  {agent_name}, gender:{feature_dict['Gender']}, skin color:{feature_dict['Skin_color']}, bald or not:{feature_dict['Bald_or_not']},wearing glasses or not:{feature_dict['Wearing_glasses_or_not']}\n"
-        feature_description += "\n"
-        return cnt_gt + feature_description
-    
-    elif question_type == "relative_location":
-        rel_loca = "\n"
-        rel_loca_info = gt_information["relative_location"]
-        for obj_name, obj_info in gt_information["agent_info"].items():
-            rel_loca += f"Object: {obj_name}, State: {obj_info['state']}\n"
-            rel_obj_info = rel_loca_info[obj_name]
-            for obj_name2, rel_info in rel_obj_info.items():
-                relative_location = rel_info['relative_direction']
-                rel_loca += f"  The {obj_name2} is {relative_location} the {obj_name}\n"
-        return rel_loca
-    elif question_type == "relative_distance":
-        rel_distance = "\n"
-        rel_distance_info = gt_information["relative_location"]
+        result = "\n"
+        
+        def format_array(arr):
+            if isinstance(arr, np.ndarray):
+                arr = arr.tolist()
+            return str(arr)
+        
+        result = "\n"
         for obj_name, basic_info in gt_information["agent_info"].items():
-            rel_distance += f"Object: {obj_name}, State: {basic_info['state']}\n"
-            rel_obj_info = rel_distance_info[obj_name]
-            for obj_name2, rel_info in rel_obj_info.items():
-                relative_distance = rel_info['distance']
-                rel_distance += f"  The distance between {obj_name2} and {obj_name} is {relative_distance}\n"
-
-        return rel_distance
-
-
-def encode_image_array(image_array):
-        from PIL import Image
-        import io
-        import base64
-        if image_array.max() <= 1:
-            image_array = (image_array * 255).clip(0, 255)
-        image_array = image_array.astype(np.uint8)
-    
-        img = Image.fromarray(image_array)
-        img_byte_arr = io.BytesIO()
-        img.save(img_byte_arr, format='png')
-        base64_image = base64.b64encode(img_byte_arr.getvalue()).decode('utf-8')
-        #print(base64_image[:50])
-        return base64_image
-
-def image_captioning(image_list): # Modified to accept a list of images
-
-
-    user_message_content = []
-    # Add a text part first, if desired, to guide the model
-    # user_message_content.append({"type": "text", "text": "Please describe the scene depicted in the following images:"})
-
-    for image_array in image_list:
-        base64_image = encode_image_array(image_array)
-        user_message_content.append(
-            {
-                "type": "image_url",
-                "image_url": {"url": f"data:image/png;base64,{base64_image}"} # Assuming PNG
-            }
-        )
-    
-    if not user_message_content:
-        print("Warning: No images provided for captioning.")
-        return "No images were provided to describe."
-
-    response = client.chat.completions.create(
-        model='doubao-1.5-vision-pro-250328',
-        max_tokens=1000, # Adjust as needed
-        messages=[
-            {"role": "system", "content": scene_prompt}, # System prompt
-            {"role": "user", "content": user_message_content} # User content now a list of image URLs
-        ],
-    )
-    respon = response.choices[0].message.content
-    print("Generated Caption:\n", respon)
-    return respon
-
-def generate_question(gt_info,image_description, question_type = "relative_location"):    
-
-    prompt = ""
-    if question_type == "relative_location":
-        prompt = prompt_bg_rela_loca
-    elif question_type == "counting":
-        prompt = prompt_bg_cnt
-    elif question_type == "state":
-        prompt = prompt_bg_state
-    elif question_type == "relative_distance":
-        prompt = prompt_bg_rela_distance
-    else:
-        raise ValueError("Invalid question type. Please choose 'relative_location', 'relative_rotation', 'counting', or 'state'.")
+            result += f"Object: {obj_name}\n"
+            result += f"  State: {basic_info['state']}\n"
+            result += f"  Feature: {basic_info['feature']}\n\n"
         
-    response = client.chat.completions.create(
-        model='doubao-1.5-vision-pro-250328',
-        max_tokens=10000,
-        messages=[
-            {"role": "system", "content": prompt},
-            {"role": "user", "content": [
+        if question_type == "state":
+            return result
+        elif question_type == "counting":
+            with open(agent_cnt_feature_path, 'r') as f:
+                agent_cnt_features = json.load(f)
+            
+            cnt_gt = "[counting ground truth]:\n"
+            cnt_info = gt_information["counting_gt"]
+            cnt_gt += f"  Total objects: {cnt_info['total_agents']}\n"
+            cnt_gt += f"  Total object type: {cnt_info['total_agent_types']}\n"
+            cnt_gt += f"  Object number per each state:\n"
+            for state, count in cnt_info["agents_per_state"].items():
+                cnt_gt += f"    {state}: {count}\n"
+            cnt_gt += f"  Object number per each object type and state:\n"
+            for obj_type_state, state_counts in cnt_info["agents_per_type_state"].items():
+                splits = obj_type_state.split('_')
+                type = splits[0]
+                state = "_".join(splits[1:])
+                cnt_gt += f"    {type} ({state}): {state_counts}\n"
+            feature_description = "[feature description]:\n"
+            for agent_name in gt_information["agent_info"].keys():
+                typid = name2typid[agent_name]
+                type, id = typid.split('_') 
+                if type == "player":
+                    feature_dict = agent_cnt_features[type][id]
+                    feature_description += f"  {agent_name}, gender:{feature_dict['Gender']}, skin color:{feature_dict['Skin_color']}, bald or not:{feature_dict['Bald_or_not']},wearing glasses or not:{feature_dict['Wearing_glasses_or_not']}\n"
+            feature_description += "\n"
+            return cnt_gt + feature_description
+        
+        elif question_type == "relative_location":
+            rel_loca = "\n"
+            rel_loca_info = gt_information["relative_location"]
+            for obj_name, obj_info in gt_information["agent_info"].items():
+                rel_loca += f"Object: {obj_name}, State: {obj_info['state']}\n"
+                rel_obj_info = rel_loca_info[obj_name]
+                for obj_name2, rel_info in rel_obj_info.items():
+                    relative_location = rel_info['relative_direction']
+                    rel_loca += f"  The {obj_name2} is {relative_location} the {obj_name}\n"
+            return rel_loca
+        elif question_type == "relative_distance":
+            rel_distance = "\n"
+            rel_distance_info = gt_information["relative_location"]
+            for obj_name, basic_info in gt_information["agent_info"].items():
+                rel_distance += f"Object: {obj_name}, State: {basic_info['state']}\n"
+                rel_obj_info = rel_distance_info[obj_name]
+                for obj_name2, rel_info in rel_obj_info.items():
+                    relative_distance = rel_info['distance']
+                    rel_distance += f"  The distance between {obj_name2} and {obj_name} is {relative_distance}\n"
+
+            return rel_distance
+
+    def encode_image_array(self, image_array):
+            from PIL import Image
+            import io
+            import base64
+            if image_array.max() <= 1:
+                image_array = (image_array * 255).clip(0, 255)
+            image_array = image_array.astype(np.uint8)
+        
+            img = Image.fromarray(image_array)
+            img_byte_arr = io.BytesIO()
+            img.save(img_byte_arr, format='png')
+            base64_image = base64.b64encode(img_byte_arr.getvalue()).decode('utf-8')
+            #print(base64_image[:50])
+            return base64_image
+
+    def image_captioning(self, image_list): # Modified to accept a list of images
+
+
+        user_message_content = []
+        # Add a text part first, if desired, to guide the model
+        # user_message_content.append({"type": "text", "text": "Please describe the scene depicted in the following images:"})
+
+        for image_array in image_list:
+            base64_image = self.encode_image_array(image_array)
+            user_message_content.append(
                 {
-                    "type": "text",
-                    "text": f"scenary description:{image_description}"
-                },
-                {
-                    "type":"text",
-                    "text": f"ground truth information:{gt_info},it contains the ground truth information of the objects in the scene"
-                },
-                {
-                    "type": "text",
-                    "text": f"Please ask **object {question_type}** questions about the objects in the scene according to the ground truth information and scene description."
+                    "type": "image_url",
+                    "image_url": {"url": f"data:image/png;base64,{base64_image}"} # Assuming PNG
                 }
-                ]
-            },
-        ],
-
-    )
-    respon = response.choices[0].message.content
-    return respon
-
-def save_collection_data_to_single_file(qa_string, image_list,target_configs, refer_agents_category, safe_start,
-                                        env_name="SuburbNeighborhood_Day", question_type="relative_location", 
-                                        batch_id=None, base_dir="./QA_Data", sample_configs=None):
-    """
-    Save data to a single JSON file with multiple batches
-    
-    Args:
-        qa_string: Question-answer text
-        target_configs: Target configuration dictionary
-        refer_agents_category: Reference agent category list
-        safe_start: Safe start position list
-        env_name: Environment name
-        question_type: Question type
-        batch_id: Optional batch ID, if None, timestamp will be used
-        base_dir: Base directory
-    """
-    import re
-    import json
-    import os
-    import time
-    
-    # Generate batch ID
-    if batch_id is None:
-        batch_id = f"batch_{time.strftime('%Y%m%d_%H%M%S')}"
-    
-    # Create save directory
-    save_dir = os.path.join(base_dir, env_name)
-    save_dir = os.path.join(save_dir, question_type, batch_id)
-    os.makedirs(save_dir, exist_ok=True)
-    
-    # Define file path (single file for all batches)
-    data_file = os.path.join(save_dir, f"{question_type}.json")
-    
-    # Save observations
-    obs_folder = f"obs_{batch_id}"
-    obs_dir = os.path.join(save_dir, obs_folder)
-    os.makedirs(obs_dir, exist_ok=True)
-    for i, obs in enumerate(image_list):
-        obs = cv2.cvtColor(obs, cv2.COLOR_RGB2BGR)  # Convert RGB to BGR for OpenCV
-        cv2.imwrite(os.path.join(obs_dir, f"obs_{i}.png"), obs)
-
-    questions_dict = {}
-    if question_type != 'counting':
-        pattern = r'Question (\d+): (.*?)\n\n((?:\s*[A-D]\.\s.*?\n)+)\n*Answer \1: ([A-D]\..*?)(?:\n\n|$)'
-    else:
-        # Regex for counting questions (open-ended answer, possibly with a single letter option like "A.")
-        pattern = r'Question (\d+): (.*?)\n\nAnswer \1: (.*?)(?:\n\n|$)'
-    
-    matches = re.finditer(pattern, qa_string, re.DOTALL)
-    
-    for match in matches:
-        q_num = match.group(1)
-        question_text = match.group(2).strip()
+            )
         
-        options = []  # Initialize options as an empty list
+        if not user_message_content:
+            print("Warning: No images provided for captioning.")
+            return "No images were provided to describe."
+
+        response = client.chat.completions.create(
+            model=self.model,
+            max_tokens=1000, # Adjust as needed
+            messages=[
+                {"role": "system", "content": scene_prompt}, # System prompt
+                {"role": "user", "content": user_message_content} # User content now a list of image URLs
+            ],
+        )
+        respon = response.choices[0].message.content
+        print("Generated Caption:\n", respon)
+        return respon
+
+    def generate_question(self, gt_info, image_description, model, question_type = "relative_location"):    
+
+        prompt = ""
+        if question_type == "relative_location":
+            prompt = prompt_bg_rela_loca
+        elif question_type == "counting":
+            prompt = prompt_bg_cnt
+        elif question_type == "state":
+            prompt = prompt_bg_state
+        elif question_type == "relative_distance":
+            prompt = prompt_bg_rela_distance
+        else:
+            raise ValueError("Invalid question type. Please choose 'relative_location', 'relative_rotation', 'counting', or 'state'.")
+            
+        response = client.chat.completions.create(
+            model=model,
+            max_tokens=10000,
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": prompt},
+                {"role": "user", "content": [
+                    {
+                        "type": "text",
+                        "text": f"scenary description:{image_description}"
+                    },
+                    {
+                        "type":"text",
+                        "text": f"ground truth information:{gt_info},it contains the ground truth information of the objects in the scene"
+                    },
+                    {
+                        "type": "text",
+                        "text": f"Please ask **object {question_type}** questions about the objects in the scene according to the ground truth information and scene description."
+                    }
+                    ]
+                },
+            ],
+
+        )
+        respon = response.choices[0].message.content
+        return respon
+
+    def save_collection_data_to_single_file(self, qa_string, image_list,target_configs, refer_agents_category, safe_start,
+                                            env_name="SuburbNeighborhood_Day", question_type="relative_location", 
+                                            batch_id=None, sample_configs=None):
+        """
+        Save data to a single JSON file with multiple batches
         
+        Args:
+            qa_string: Question-answer text
+            target_configs: Target configuration dictionary
+            refer_agents_category: Reference agent category list
+            safe_start: Safe start position list
+            env_name: Environment name
+            question_type: Question type
+            batch_id: Optional batch ID, if None, timestamp will be used
+            base_dir: Base directory
+        """
+        import re
+        import json
+        import os
+        import time
+        
+        # Generate batch ID
+        if batch_id is None:
+            batch_id = f"batch_{time.strftime('%Y%m%d_%H%M%S')}"
+        
+        # Create save directory
+        save_dir = os.path.join(self.base_dir, env_name)
+        save_dir = os.path.join(save_dir, question_type, batch_id)
+        os.makedirs(save_dir, exist_ok=True)
+        
+        # Define file path (single file for all batches)
+        data_file = os.path.join(save_dir, f"{question_type}.json")
+        
+        # Save observations
+        obs_folder = f"obs_{batch_id}"
+        obs_dir = os.path.join(save_dir, obs_folder)
+        os.makedirs(obs_dir, exist_ok=True)
+        for i, obs in enumerate(image_list):
+            obs = cv2.cvtColor(obs, cv2.COLOR_RGB2BGR)  # Convert RGB to BGR for OpenCV
+            cv2.imwrite(os.path.join(obs_dir, f"obs_{i}.png"), obs)
+
+        questions_dict = {}
         if question_type != 'counting':
-            # For non-counting questions, options are in group 3, answer in group 4
-            options_text = match.group(3).strip()
-            answer_text = match.group(4).strip()
-            for option_line in options_text.split('\n'):
-                if option_line.strip():
-                    options.append(option_line.strip())
-            questions_dict[f"Question {q_num}"] = {
-            "question": question_text,
-            "options": options, # For counting, this will be an empty list
-            "answer": answer_text
-            }
+            pattern = r'Question (\d+): (.*?)\n\n((?:\s*[A-D]\.\s.*?\n)+)\n*Answer \1: ([A-D]\..*?)(?:\n\n|$)'
         else:
-            answer_text = match.group(3).strip()        
-            questions_dict[f"Question {q_num}"] = {
+            # Regex for counting questions (open-ended answer, possibly with a single letter option like "A.")
+            pattern = r'Question (\d+): (.*?)\n\nAnswer \1: (.*?)(?:\n\n|$)'
+        
+        matches = re.finditer(pattern, qa_string, re.DOTALL)
+        
+        for match in matches:
+            q_num = match.group(1)
+            question_text = match.group(2).strip()
+            
+            options = []  # Initialize options as an empty list
+            
+            if question_type != 'counting':
+                # For non-counting questions, options are in group 3, answer in group 4
+                options_text = match.group(3).strip()
+                answer_text = match.group(4).strip()
+                for option_line in options_text.split('\n'):
+                    if option_line.strip():
+                        options.append(option_line.strip())
+                questions_dict[f"Question {q_num}"] = {
                 "question": question_text,
+                "options": options, # For counting, this will be an empty list
                 "answer": answer_text
-            }
-    # Create batch data
-    filtered_target_configs = {}
-    for category in refer_agents_category:
-        if category in target_configs:
-            filtered_target_configs[category] = target_configs[category]
+                }
+            else:
+                answer_text = match.group(3).strip()        
+                questions_dict[f"Question {q_num}"] = {
+                    "question": question_text,
+                    "answer": answer_text
+                }
+        # Create batch data
+        filtered_target_configs = {}
+        for category in refer_agents_category:
+            if category in target_configs:
+                filtered_target_configs[category] = target_configs[category]
 
-    batch_data = {
-        "target_configs": filtered_target_configs, 
-        "sample_configs": sample_configs,  # Add sample_configs if available
-        "refer_agents_category": refer_agents_category,
-        "safe_start": safe_start,
-        "obs_dir": obs_dir,
-        "Questions": questions_dict
-    }
-    file_data = batch_data
-    with open(data_file, 'w') as f:
-        json.dump(file_data, f, indent=4)
-    print(f"Batch {batch_id} saved to {data_file}")
-    return batch_id
-
-class RandomAgent(object):
-    """The world's simplest agent!"""
-    def __init__(self, action_space):
-        self.action_space = action_space
-        self.count_steps = 0
-        self.action = self.action_space.sample()
-
-    def act(self, observation, keep_steps=10):
-        self.count_steps += 1
-        if self.count_steps > keep_steps:
-            self.action = self.action_space.sample()
-            self.count_steps = 0
-        else:
-            return self.action
-        return self.action
-
-    def reset(self):
-        self.action = self.action_space.sample()
-        self.count_steps = 0
+        batch_data = {
+            "target_configs": filtered_target_configs, 
+            "sample_configs": sample_configs,  # Add sample_configs if available
+            "refer_agents_category": refer_agents_category,
+            "safe_start": safe_start,
+            "obs_dir": obs_dir,
+            "Questions": questions_dict
+        }
+        file_data = batch_data
+        with open(data_file, 'w') as f:
+            json.dump(file_data, f, indent=4)
+        print(f"Batch {batch_id} saved to {data_file}")
+        return batch_id
 
 def check_reach(goal, now):
     error = np.array(now[:2]) - np.array(goal[:2])
     distance = np.linalg.norm(error)
     return distance < 40
 
-
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='EQA Question Generation Script')
-    parser.add_argument('--model', type=str, default='doubao', help='Model name to use (default: doubao)')
-    parser.add_argument('--config', type=str, default='model_config.json', help='Path to model configuration file (default: model_config.json)')
+    env_name = "Map_ChemicalPlant_1" # Change this to the desired environment name
+    parser = argparse.ArgumentParser(description=None)
+    parser.add_argument("-e", "--env_id", nargs='?', default=f'UnrealCvEQA_DATA-{env_name}-DiscreteColorMask-v0',
+                        help='Select the environment to run')
+    parser.add_argument("-r", '--render', dest='render', action='store_true', help='show env using cv2')
+    parser.add_argument("-s", '--seed', dest='seed', default=0, help='random seed')
+    parser.add_argument("-t", '--time-dilation', dest='time_dilation', default=-1, help='time_dilation to keep fps in simulator')
+    parser.add_argument("-n", '--nav-agent', dest='nav_agent', action='store_true', help='use nav agent to control the agents')
+    parser.add_argument("-d", '--early-done', dest='early_done', default=-1, help='early_done when lost in n steps')
+    parser.add_argument("-m", '--monitor', dest='monitor', action='store_true', help='auto_monitor')
+    parser.add_argument("-c", '--ifonly-counting', dest='if_cnt', action='store_true', help='if only counting the number of agents in the scene')
+    parser.add_argument("-g", "--reachable-points-graph", dest='graph_path', default=f"./agent_configs_sampler/points_graph/{env_name}/environment_graph_1.gpickle", help='use reachable points graph')
+    parser.add_argument("-w", "--work-dir", dest='work_dir', default="E:/EQA/unrealzoo_gym/example", help='work directory to save the data')
+    parser.add_argument("--config-path", dest='config_path', default=os.path.join(current_dir, "solution"), help='path to model config file')
+    parser.add_argument("--model", dest="model", default="gemini_pro", help="model name")
+    # parser.add_argument('--config', type=str, default='model_config.json', help='Path to model configuration file (default: model_config.json)')
     args = parser.parse_args()
     env_list = [
-    "Map_ChemicalPlant_1",
-    "ModularNeighborhood",
-    "ModularSciFiVillage",
-    "RuralAustralia_Example_01",
-    "ModularVictorianCity",
-    "Cabin_Lake",
-    "Pyramid"
+    # "Map_ChemicalPlant_1",
+    # "ModularNeighborhood",
+    # "ModularSciFiVillage",
+    # "RuralAustralia_Example_01",
+    # "ModularVictorianCity",
+    # "Cabin_Lake",
+    # "Pyramid"
     # "ModularGothic_Day",
     # "Greek_Island"
+    "SuburbNeighborhood_Day"
     ]
-    gt_path = "E:\\EQA\\unrealzoo_gym\\example\\GT_info"
-    # env_name = "SuburbNeighborhood_Day"
-    agent_cnt_feature_path = "E:\\EQA\\unrealzoo_gym\\example\\agent_caption\\agent_cnt_features.json"
+    curr_path = os.path.dirname(os.path.abspath(__file__))
+    gt_path = f"{curr_path}/GT_info"
+    model_config_path = f"{curr_path}/solution/model_config.json"
+    gen_qa_agent = generate_qa_agent(model_name=args.model,model_config_path=model_config_path)
+    agent_cnt_feature_path = f"{curr_path}/agent_caption/agent_cnt_features.json"
     type_list = ["relative_location"]
     for env_name in env_list:
         try:
@@ -600,14 +593,14 @@ if __name__ == '__main__':
                                 print(f"Warning: {path} is not a valid image file.")
                         else:
                             print(f"Warning: {path} does not exist.")
-                    image_caption = image_captioning(obs_rgb) # Generate image captioning
+                    image_caption = gen_qa_agent.image_captioning(obs_rgb) # Generate image captioning
                     # generate question type by type
                     for question_type in type_list:
                         print(f"Generating questions for {question_type}...")          
-                        gt_info_str = format_dict_for_llm(gt_information, question_type,agent_cnt_feature_path = agent_cnt_feature_path)
-                        respon = generate_question(gt_info_str, image_caption, question_type) 
+                        gt_info_str = gen_qa_agent.format_dict_for_llm(gt_information, question_type,agent_cnt_feature_path = agent_cnt_feature_path)
+                        respon = gen_qa_agent.generate_question(gt_info_str, image_caption, question_type) 
                         print(f"\nGenerated questions for {question_type}:\n", respon)  
-                        save_collection_data_to_single_file(respon, obs_rgb, target_configs, refer_agents_category, safe_start,env_name=env_name,question_type=question_type,batch_id = visit_id, sample_configs = sample_configs)
+                        gen_qa_agent.save_collection_data_to_single_file(respon, obs_rgb, target_configs, refer_agents_category, safe_start,env_name=env_name,question_type=question_type,batch_id = visit_id, sample_configs = sample_configs)
                     # Update status recorder
                     processed_any = True
                     status_recorder[fodername] = True

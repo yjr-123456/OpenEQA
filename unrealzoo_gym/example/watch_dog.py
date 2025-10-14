@@ -41,7 +41,7 @@ def monitor_log_file(log_path, max_silence):
 
 def run_with_file_logging():
     restart_count = 0
-    max_restarts = 200
+    max_restarts = 20
     log_dir = "logs"
     os.makedirs(log_dir, exist_ok=True)
 
@@ -61,7 +61,7 @@ def run_with_file_logging():
 
         with open(log_path, "w", encoding="utf-8") as log_file:
             process = subprocess.Popen(
-                [sys.executable, "depth_test.py", "--resume", "--model", "openai_gpt4o_2024_11_20"],
+                [sys.executable, "eqa_gt_gen.py", "--model", "gemini_pro"],
                 stdout=log_file,
                 stderr=log_file
             )

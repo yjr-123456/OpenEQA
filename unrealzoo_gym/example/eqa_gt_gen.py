@@ -15,104 +15,60 @@ from pynput import keyboard
 from datetime import datetime
 import time
 import numpy as np
-
-class RandomAgent(object):
-    """The world's simplest agent!"""
-    def __init__(self, action_space):
-        self.action_space = action_space
-        self.count_steps = 0
-        self.action = self.action_space.sample()
-
-    def act(self, observation, keep_steps=10):
-        self.count_steps += 1
-        if self.count_steps > keep_steps:
-            self.action = self.action_space.sample()
-            self.count_steps = 0
-        else:
-            return self.action
-        return self.action
-
-    def reset(self):
-        self.action = self.action_space.sample()
-        self.count_steps = 0
-
-
-#use keyboard
-key_state = {
-    'i': False,
-    'j': False,
-    'k': False,
-    'l': False,
-    'w': False,
-    'a': False,
-    's': False,
-    'd': False,
-    'y': False,
-    'c': False,
-    'n': False,
-    'b': False,
-    'm': False,
-    'n': False,
-    'z': False,
-    'x': False,
-}
-
-def on_press(key):
-    try:
-        if key.char in key_state:
-            key_state[key.char] = True
-    except AttributeError:
-        if key == keyboard.Key.space:
-            key_state['space'] = True
-        if key == keyboard.Key.up:
-            key_state['head_up'] = True
-        if key == keyboard.Key.down:
-            key_state['head_down'] = True
-
-
-def on_release(key):
-    try:
-        if key.char in key_state:
-            key_state[key.char] = False
-    except AttributeError:
-        if key == keyboard.Key.space:
-            key_state['space'] = False
-        if key == keyboard.Key.up:
-            key_state['head_up'] = False
-        if key == keyboard.Key.down:
-            key_state['head_down'] = False
-
-def get_key_action():
-    action= [6]
-    # action = ([0, 0], 0, 0)
-    # action = list(action)  # Convert tuple to list for modification
-    # action[0] = list(action[0])  # Convert inner tuple to list for modification
-    if key_state['i']:
-        action = [0]
-    if key_state['k']:
-        action= [1]
-    if key_state['j']:
-        action = [2]
-    if key_state['l']:
-        action = [3]
-    if key_state['z']:
-        action = [5]
-    if key_state['x']:
-        action = [4]
-    return action
-
-def get_key_collection():
-    collection = 0
-    if key_state['y']:
-        collection = 1
-    elif key_state['n']:
-        collection = 2
-    elif key_state['c']:
-        collection = 3
-    return collection
-
 import json
 import os
+import random
+from dotenv import load_dotenv
+from openai import OpenAI
+import transforms3d
+load_dotenv(True)
+def load_model_config(config_path="model_config.json"):
+    """加载模型配置文件"""
+    try:
+        with open(config_path, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except FileNotFoundError:
+        print(f"模型配置文件 {config_path} 不存在，使用默认配置")
+        return None
+    except json.JSONDecodeError:
+        print(f"模型配置文件 {config_path} 格式错误")
+        return None
+
+def create_client(model_name="doubao", config_path="model_config.json"):
+    """根据模型名称创建OpenAI客户端"""
+    config = load_model_config(config_path)
+    
+    if config is None:
+        raise ValueError(f"无法加载模型配置文件 {config_path}")
+    
+    model_config = config["models"].get(model_name)
+    if model_config is None:
+        print(f"模型 {model_name} 配置不存在，使用默认模型")
+        model_name = config["default_model"]
+        model_config = config["models"][model_name]
+    key_name = model_config["api_key_env"]
+    # 从环境变量获取API密钥
+    api_key = os.environ.get(key_name)
+    if not api_key:
+        raise ValueError(f"环境变量 {key_name} 未设置")
+
+    client = OpenAI(
+        base_url=model_config["base_url"],
+        api_key=api_key
+    )
+    
+    return client, model_config["model_name"], model_config
+
+# 全局客户端和模型配置
+client = None
+current_model_name = None
+current_model_config = None
+
+def initialize_model(model_name="doubao",model_config_path="model_config.json"):
+    """初始化指定的模型"""
+    global client, current_model_name, current_model_config
+    client, current_model_name, current_model_config = create_client(model_name,model_config_path)
+    print(f"已初始化模型: {model_name} ({current_model_name})")
 
 
 def update_json_file(file_path, new_entries):
@@ -146,6 +102,104 @@ def update_json_file(file_path, new_entries):
         print(f"Error writing to file '{file_path}': {e}")
 
 from example.agent_configs_sampler import AgentSampler, GraphBasedSampler
+
+def call_api_vlm(sys_prompt, usr_prompt, base64_image_list=[]):
+    """
+    Call the vLM API with the given prompt.
+    """
+    messages=[
+            {"role": "system", "content": sys_prompt},
+            {"role": "user", "content": [
+                {
+                    "type": "text",
+                    "text": usr_prompt,
+                }
+            ]
+            }
+    ]
+
+    for base64_image in base64_image_list:
+            messages.append({"role": "user", "content": [
+                {
+                    "type": "image_url",
+                    "image_url": {
+                        "url": f"data:image/jpeg;base64,{base64_image}",
+                    }
+                }]
+            })
+    # Assuming OpenAI API is set up correctly
+    response = client.chat.completions.create(
+        model=current_model_name,
+        max_tokens=10000,
+        messages=messages
+    )
+    respon=  response.choices[0].message.content.strip()
+    print(f"[VLM RESPONSE] {respon}")
+    return respon
+
+def encode_image_array(image_array):
+    from PIL import Image
+    import io
+    import base64
+    # Convert the image array to a PIL Image object
+    image = Image.fromarray(np.uint8(image_array))
+
+    # Save the PIL Image object to a bytes buffer
+    buffered = io.BytesIO()
+    image.save(buffered, format="JPEG")
+
+    # Encode the bytes buffer to Base64
+    img_str = base64.b64encode(buffered.getvalue()).decode('utf-8')
+
+    return img_str
+    
+sys_prompt = """
+    You are a smart environment examiner.
+    Your task is to examine whether the environment is naturally and reasonably populated with agents.
+    You will be provided with a first-person view image.
+    You need to check whether the vehicle is damaged and whether the people are trapped.
+    output format:
+    use xml format to output your answer.
+    <a>yes/no</a>
+"""
+
+def check_reach(goal_loca,cur_loac):
+    distance = np.linalg.norm(np.array(goal_loca[:2]) - np.array(cur_loac[:2]))
+    return distance > 200
+
+def caculate_relative_pose( cur_obj_pose,tar_obj_pose):
+        direction_vector = np.array(tar_obj_pose[:3]) - np.array(cur_obj_pose[:3])
+        pitch,yaw,roll = cur_obj_pose[3:]
+        pitch = np.radians(pitch)
+        roll = np.radians(roll)
+        pitch = np.radians(pitch)
+        yaw = np.radians(yaw)
+        roll = np.radians(roll)
+        rot = transforms3d.euler.euler2mat(-roll, -pitch, yaw, 'sxyz')
+        rot_wl = np.linalg.inv(rot)
+        # Transform the direction vector to obj1's frame
+        local_direction = np.dot(rot_wl, direction_vector)
+        return [local_direction[1],local_direction[0]]
+
+def save_data(data, img_list, trace_dir):
+    import json
+    import os
+    # create base directory with timestamp
+    timestamp = time.strftime("%Y%m%d-%H%M%S")
+    base_dir = os.path.join(trace_dir, timestamp)
+    if not os.path.exists(base_dir):
+        os.makedirs(base_dir)
+    # save data to json file
+    with open(os.path.join(base_dir, 'data.json'), 'w') as f:
+        json.dump(data, f, indent=4)
+    # save images
+    obs_dir = os.path.join(base_dir, 'obs')
+    if not os.path.exists(obs_dir):
+        os.makedirs(obs_dir)
+    for i, img in enumerate(img_list):
+        cv2.imwrite(os.path.join(obs_dir, f'image_{i}.png'), img)
+    print(f"Data saved to {base_dir}")
+
 
 if __name__ == '__main__':
     # env name
@@ -252,7 +306,7 @@ if __name__ == '__main__':
             current_instance_obs_path = os.path.join(current_gt_info , f"obs")
             gt_info_filename = os.path.join(current_gt_info, f"gt_info.json")
             record_file = os.path.join(base_gt_path, f"status_recorder.json")
-
+            trace_dir = os.path.join(current_gt_info, f"trace")
             # sample obs
             collected_images_for_instance = []  # record obs
             cam_position = env.unwrapped.camera_position
@@ -260,7 +314,7 @@ if __name__ == '__main__':
             # listener = keyboard.Listener(on_press=on_press, on_release=on_release)
             # listener.start()
             print(f"\nProcessing Batch: {batch}, Instance ID: {instance_id}")
-            safe_start_flag = 0
+            trace_cnt = 0
             safe_start_to_collect = []
             for cam_idx, position in enumerate(cam_position):
                 loca = position[0:3]
@@ -274,8 +328,11 @@ if __name__ == '__main__':
                 obs = obs[0]  # get the first observation
                 bgr_image_from_env = obs[...,:3].squeeze()
                 mask_obs = obs[...,3:].squeeze()
-                # bgr_image_from_env = env.unwrapped.unrealcv.read_image(1,"lit","direct")
-                # mask_obs = env.unwrapped.unrealcv.read_image(1,"object_mask","direct")
+
+                # update_camera_configs
+                env.unwrapped.unrealcv.cam = env.unwrapped.unrealcv.get_camera_config()
+                env.unwrapped.update_camera_assignments()
+                cam_id = env.unwrapped.agents[obs_name]['cam_id']
 
                 if bgr_image_from_env.dtype != np.uint8:
                     if bgr_image_from_env.max() <= 1.0 and bgr_image_from_env.min() >= 0.0:
@@ -283,32 +340,59 @@ if __name__ == '__main__':
                     else:
                         bgr_image_from_env = bgr_image_from_env.astype(np.uint8)
                 
-                # cv2.imshow("RGB/BGR", bgr_image_from_env) 
-                # cv2.imshow("Mask", mask_obs)
-                # cv2.waitKey(0)
-
-                # print(f"  Camera {cam_idx + 1}/{len(cam_position)}: Press 'y' to save, 'n' to skip.")
-                # collection_choice = 0
-                # key_state['y'] = False 
-                # key_state['n'] = False
-                # key_state['c'] = False
-                # flag = 0
-                # while collection_choice == 0:
-                #     collection_choice = get_key_collection()
-                #     time.sleep(0.05)
                 
-                # if collection_choice == 1: # 'y'
+                # collect trajectory
+                type_2_sample = list(current_target_configs.keys())
+                if 'drone' in type_2_sample:
+                    type_2_sample.remove('drone')
+                agent_type = random.choice(type_2_sample)
+                agent_name = random.choice(current_target_configs[agent_type]['name'])
+                name_index = current_target_configs[agent_type]['name'].index(agent_name)
+                loc = current_target_configs[agent_type]['start_pos'][name_index]
+                cur_location = position[:3] 
+                # loc_2_sample = current_target_configs[agent_type]['start_pos']
+                # loc = random.choice(loc_2_sample)
+
+                img_list = []
+                pose_list = []
+                action_list = []
+                time_list = []
+                count_step = 0
+                path_string =env.unwrapped.unrealcv.nav_to_goal_bypath(obs_name,loc[:3])
+                print("=========path_string=========\n",path_string)
+                while check_reach(loc, cur_location):
+                    obs=env.unwrapped.unrealcv.read_image(cam_id, 'lit', mode='direct')
+                    cur_pose = env.unwrapped.unrealcv.get_obj_pose(obs_name)
+                    time_list.append(time.time())
+                    cur_location = cur_pose[:3]
+                    img_list.append(obs)
+                    pose_list.append(cur_pose)
+                    count_step += 1
+                # caculate action for each frame
+                for i in range(0, len(pose_list)-1):
+                    delta_yaw = pose_list[i+1][-2] - pose_list[i][-2]
+                    direct_vec = np.array(pose_list[i+1][:2]) - np.array(pose_list[i][:2])
+                    delta_t = time_list[i+1] - time_list[i]
+                    distance = np.linalg.norm(direct_vec)
+                    linear_velocity = distance / delta_t
+                    angle_velocity = delta_yaw / delta_t
+                    action_list.append([angle_velocity, linear_velocity])
+                data_to_save = {}
+                data_to_save["Instruction"] = f"{info['Instruction']} {info['Relative_pose']} you"
+                data_to_save["Target_Type"] = agent_type
+                data_to_save["Start_Pose"] = position
+                data_to_save["Target_Name"] = agent_name
+                data_to_save["Target_Pose"] = loc
+                data_to_save["Trajectory_Pose"] = pose_list
+                data_to_save["Action_Per_Frame"] = action_list
+                data_to_save["Time_Per_Frame"] = time_list
+                save_data(data_to_save, img_list,f"{trace_dir}/{trace_cnt}")
+                trace_cnt+=1
                 collected_images_for_instance.append((bgr_image_from_env, cam_idx))
                 # set safe start
                 safe_start_to_collect.append(position)
                 print(f"    Image from camera {cam_idx + 1} marked for saving.")
-                # elif collection_choice == 2: # 'n'
-                #     print(f"    Image from camera {cam_idx + 1} skipped.")
-                # elif collection_choice == 3: # 'c'
-                #     print("    Collection cancelled.")
-                #     flag = 1
-                #     break
-                time.sleep(0.1)
+                
         
             if args.render:
                 cv2.destroyAllWindows()

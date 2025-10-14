@@ -42,7 +42,6 @@ def load_model_config(config_path="model_config.json"):
         print(f"模型配置文件 {config_path} 格式错误")
         return None
 
-
 def create_client(model_name="doubao", config_path="model_config.json"):
     """根据模型名称创建OpenAI客户端"""
     config = load_model_config(config_path)
@@ -111,6 +110,7 @@ sys_prompt_point_sample = f"""
     You are a smart placing agent in a 3D virtual environment.
     Your task is to iteratively place objects in this virtual environment using a top - down view image
 """
+
 usr_prompt_point_sample = f"""
     input:
     1. the top-down view image of the environment with discrete placeable locations marked in green with their ids, and there may be objects you placed before that are marked with blue boxes.
@@ -934,7 +934,7 @@ class AgentBasedSampler(GraphBasedSampler):
         # Assuming OpenAI API is set up correctly
         response = client.chat.completions.create(
             model=current_model_name,
-            max_tokens=10000,
+            max_tokens=9000,
             messages=messages
         )
         respon=  response.choices[0].message.content.strip()
