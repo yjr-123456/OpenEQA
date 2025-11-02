@@ -1,0 +1,9 @@
+[submodule "unrealzoo_gym/example/solution/EXPRESS-Bench"]
+	path = unrealzoo_gym/example/solution/EXPRESS-Bench
+	url = https://github.com/HCPLab-SYSU/EXPRESS-Bench.git
+[submodule "unrealzoo_gym/example/solution/graph_eqa"]
+	path = unrealzoo_gym/example/solution/graph_eqa
+	url = https://github.com/yjr-123456/graph_eqa.git
+[submodule "unrealzoo_gym/example/solution/Depth-Anything-V2"]
+	path = unrealzoo_gym/example/solution/Depth-Anything-V2
+	url = https://github.com/DepthAnything/Depth-Anything-V2.git
