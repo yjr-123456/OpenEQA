@@ -1,0 +1,228 @@
+{
+    "target_configs": {
+        "player": {
+            "name": [
+                "player_16_BIY0OM",
+                "player_5_BIY0OM",
+                "player_6_BIY0OM",
+                "player_4_BIY0OM",
+                "player_7_BIY0OM",
+                "player_12_BIY0OM"
+            ],
+            "app_id": [
+                16,
+                5,
+                6,
+                4,
+                7,
+                12
+            ],
+            "animation": [
+                "liedown",
+                "liedown",
+                "pick_up",
+                "crouch",
+                "pick_up",
+                "pick_up"
+            ],
+            "feature_caption": [
+                "A man with dark skin, wearing a black fedora, black turtleneck, black pants, and black shoes.",
+                "A female soldier wearing green tactical uniform, backpack, and black boots. Hair is tied back. She carries a utility vest and accessories.",
+                "A female soldier with light skin, wearing a black beanie, tactical vest, black shirt, pants, and boots, with a white scarf and communication gear.",
+                "A woman with fair skin, wearing a white and blue shirt, blue pants, dark boots, a gray bandana, and a utility belt with pouches",
+                "A bald man with glasses, dark complexion, wearing a black turtleneck, suit, and shoes",
+                "A man wearing a gray suit, dark shirt, and brown shoes with short dark hair."
+            ],
+            "start_pos": [
+                [
+                    -64396.224,
+                    85128.612,
+                    -5575.125,
+                    0,
+                    147.44780611964143,
+                    0
+                ],
+                [
+                    -64249.02,
+                    85173.72,
+                    -5572.925,
+                    0,
+                    -23.260200321905216,
+                    0
+                ],
+                [
+                    -64148.733,
+                    85130.18,
+                    -5565.031,
+                    0.0,
+                    -0.0,
+                    0.0
+                ],
+                [
+                    -64267.691,
+                    84870.398,
+                    -5560.103,
+                    0,
+                    75.76725815034806,
+                    0
+                ],
+                [
+                    -64474.152,
+                    84687.982,
+                    -5577.045,
+                    0.0,
+                    -90.001,
+                    0.0
+                ],
+                [
+                    -64634.336,
+                    84953.028,
+                    -5576.912,
+                    0.0,
+                    -90.0,
+                    0.0
+                ]
+            ],
+            "type": [
+                "None",
+                "None",
+                "None",
+                "None",
+                "None",
+                "None"
+            ]
+        },
+        "drone": {
+            "name": [
+                "drone_0_BIY0OM"
+            ],
+            "app_id": [
+                0
+            ],
+            "animation": [
+                "none"
+            ],
+            "feature_caption": [
+                "Aerial drone with a black and white frame, dual rotors, and a streamlined design."
+            ],
+            "start_pos": [
+                [
+                    -64502.946,
+                    84868.143,
+                    -5377.642,
+                    0,
+                    75.65759445380513,
+                    0
+                ]
+            ],
+            "type": [
+                "None"
+            ]
+        }
+    },
+    "sample_configs": {
+        "sample_center": [
+            -64792.368,
+            84806.241,
+            -5571.149
+        ],
+        "sample_radius": 920.6593684716864
+    },
+    "refer_agents_category": [
+        "player",
+        "drone"
+    ],
+    "safe_start": [
+        [
+            -64476.233,
+            84164.643,
+            -5616.114,
+            0,
+            83.34075846222818,
+            0
+        ],
+        [
+            -64950.652,
+            84684.632,
+            -5565.099,
+            0,
+            26.896306298787387,
+            0
+        ],
+        [
+            -64106.837,
+            85438.087,
+            -5562.528,
+            0,
+            -120.6040306486462,
+            0
+        ]
+    ],
+    "obs_dir": "E:\\EQA\\unrealzoo_gym\\example/QA_data_2\\PlanetOutDoor\\relative_distance\\BIY0OM\\obs_BIY0OM",
+    "Questions": {
+        "Question 1": {
+            "question": "Which is closer to the_man_in_fedora_hat, the_woman_in_camo_vest or the_woman_in_black_vest?",
+            "options": [
+                "A. the_woman_in_camo_vest",
+                "B. the_woman_in_black_vest"
+            ],
+            "answer": "A. the_woman_in_camo_vest"
+        },
+        "Question 2": {
+            "question": "Which is closer to the_man_in_fedora_hat, the_woman_in_floral_shirt or the_bald_man_in_glasses?",
+            "options": [
+                "A. the_woman_in_floral_shirt",
+                "B. the_bald_man_in_glasses"
+            ],
+            "answer": "A. the_woman_in_floral_shirt"
+        },
+        "Question 3": {
+            "question": "Which is closer to the_woman_in_camo_vest, the_man_in_fedora_hat or the_woman_in_floral_shirt?",
+            "options": [
+                "A. the_man_in_fedora_hat",
+                "B. the_woman_in_floral_shirt"
+            ],
+            "answer": "A. the_man_in_fedora_hat"
+        },
+        "Question 4": {
+            "question": "Which is closer to the_woman_in_camo_vest, the_woman_in_floral_shirt or the_man_in_grey_suit?",
+            "options": [
+                "A. the_woman_in_floral_shirt",
+                "B. the_man_in_grey_suit"
+            ],
+            "answer": "A. the_woman_in_floral_shirt"
+        },
+        "Question 5": {
+            "question": "Which is closer to the_woman_in_black_vest, the_woman_in_camo_vest or the_man_in_fedora_hat?",
+            "options": [
+                "A. the_woman_in_camo_vest",
+                "B. the_man_in_fedora_hat"
+            ],
+            "answer": "A. the_woman_in_camo_vest"
+        },
+        "Question 6": {
+            "question": "Which is closer to the_woman_in_black_vest, the_woman_in_floral_shirt or the_bald_man_in_glasses?",
+            "options": [
+                "A. the_woman_in_floral_shirt",
+                "B. the_bald_man_in_glasses"
+            ],
+            "answer": "A. the_woman_in_floral_shirt"
+        },
+        "Question 7": {
+            "question": "Which is closer to the_bald_man_in_glasses, the_woman_in_floral_shirt or the_man_in_fedora_hat?",
+            "options": [
+                "A. the_woman_in_floral_shirt",
+                "B. the_man_in_fedora_hat"
+            ],
+            "answer": "A. the_woman_in_floral_shirt"
+        },
+        "Question 8": {
+            "question": "Which is closer to the_bald_man_in_glasses, White_Drone or the_man_in_fedora_hat?",
+            "options": [
+                "A. White_Drone",
+                "B. the_man_in_fedora_hat"
+            ],
+            "answer": "A. White_Drone"
+        }
+    }
+}

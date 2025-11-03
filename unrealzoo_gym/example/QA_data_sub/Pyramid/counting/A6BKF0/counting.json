@@ -1,0 +1,149 @@
+{
+    "target_configs": {
+        "player": {
+            "name": [
+                "player_4_A6BKF0",
+                "player_1_A6BKF0",
+                "player_5_A6BKF0"
+            ],
+            "app_id": [
+                4,
+                1,
+                5
+            ],
+            "animation": [
+                "stand",
+                "liedown",
+                "pick_up"
+            ],
+            "feature_caption": [
+                "A woman with fair skin, wearing a white and blue shirt, blue pants, dark boots, a gray bandana, and a utility belt with pouches",
+                "A man wearing sunglasses, dark green long-sleeve shirt, light cargo pants, black gloves, and brown boots",
+                "A female soldier wearing green tactical uniform, backpack, and black boots. Hair is tied back. She carries a utility vest and accessories."
+            ],
+            "start_pos": [
+                [
+                    14538.443,
+                    2812.34,
+                    198.144,
+                    0,
+                    110.32327699076484,
+                    0
+                ],
+                [
+                    14440.377,
+                    2845.129,
+                    198.144,
+                    0,
+                    151.3167181089745,
+                    0
+                ],
+                [
+                    14583.094,
+                    3040.262,
+                    198.105,
+                    0.0,
+                    -90.0,
+                    0.0
+                ]
+            ],
+            "type": [
+                "None",
+                "None",
+                "None"
+            ]
+        },
+        "animal": {
+            "name": [
+                "animal_21_A6BKF0"
+            ],
+            "app_id": [
+                21
+            ],
+            "animation": [
+                "None"
+            ],
+            "feature_caption": [
+                "Saber-toothed tiger with long fangs, striped fur, muscular build, and powerful limbs."
+            ],
+            "start_pos": [
+                [
+                    15046.108,
+                    3020.012,
+                    198.089,
+                    0,
+                    -7.12325254793663,
+                    0
+                ]
+            ],
+            "type": [
+                "None"
+            ]
+        }
+    },
+    "sample_configs": {
+        "sample_center": [
+            14936.456,
+            2616.068,
+            197.86
+        ],
+        "sample_radius": 752.0917067743371
+    },
+    "refer_agents_category": [
+        "player",
+        "animal"
+    ],
+    "safe_start": [
+        [
+            14324.799,
+            2359.099,
+            197.944,
+            0,
+            60.15678119736532,
+            0
+        ],
+        [
+            14884.013,
+            2128.24,
+            198.144,
+            0,
+            106.14977664505382,
+            0
+        ],
+        [
+            15168.474,
+            3035.304,
+            197.86,
+            0,
+            -168.41570339427028,
+            0
+        ]
+    ],
+    "obs_dir": "E:\\EQA\\unrealzoo_gym\\example/QA_data_2\\Pyramid\\counting\\A6BKF0\\obs_A6BKF0",
+    "Questions": {
+        "Question 1": {
+            "question": "How many distinct living beings are visible in the scene, including both humans and animals?",
+            "answer": "four"
+        },
+        "Question 2": {
+            "question": "How many humans are actively holding something in the scene?",
+            "answer": "one"
+        },
+        "Question 3": {
+            "question": "How many female individuals are present among the group of people?",
+            "answer": "two"
+        },
+        "Question 4": {
+            "question": "Among all the humans described, how many are not bald?",
+            "answer": "three"
+        },
+        "Question 5": {
+            "question": "Excluding the individual lying on the ground, how many humans are in an upright or active posture?",
+            "answer": "two"
+        },
+        "Question 6": {
+            "question": "How many humans are in a recumbent position in the scene?",
+            "answer": "one"
+        }
+    }
+}

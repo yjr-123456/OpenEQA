@@ -1,0 +1,150 @@
+{
+    "target_configs": {
+        "player": {
+            "name": [
+                "player_1_5GIQVN",
+                "player_5_5GIQVN",
+                "player_10_5GIQVN",
+                "player_4_5GIQVN"
+            ],
+            "app_id": [
+                1,
+                5,
+                10,
+                4
+            ],
+            "animation": [
+                "liedown",
+                "crouch",
+                "pick_up",
+                "stand"
+            ],
+            "feature_caption": [
+                "A man wearing sunglasses, dark green long-sleeve shirt, light cargo pants, black gloves, and brown boots",
+                "A female soldier wearing green tactical uniform, backpack, and black boots. Hair is tied back. She carries a utility vest and accessories.",
+                "A man with medium skin, wearing sunglasses, maroon polo shirt, beige pants, brown shoes, and a watch",
+                "A woman with fair skin, wearing a white and blue shirt, blue pants, dark boots, a gray bandana, and a utility belt with pouches"
+            ],
+            "start_pos": [
+                [
+                    -3026.151,
+                    78.685,
+                    98.226,
+                    0,
+                    -94.98698185622541,
+                    0
+                ],
+                [
+                    -3140.493,
+                    287.387,
+                    98.226,
+                    0,
+                    28.791489003797835,
+                    0
+                ],
+                [
+                    -3026.917,
+                    -145.711,
+                    98.15,
+                    0.0,
+                    -90.0,
+                    0.0
+                ],
+                [
+                    -2691.406,
+                    138.644,
+                    98.226,
+                    0,
+                    64.80962566079802,
+                    0
+                ]
+            ],
+            "type": [
+                "None",
+                "None",
+                "None",
+                "None"
+            ]
+        }
+    },
+    "sample_configs": {
+        "sample_center": [
+            -3176.471,
+            -6.877,
+            98.165
+        ],
+        "sample_radius": 706.4231623721412
+    },
+    "refer_agents_category": [
+        "player"
+    ],
+    "safe_start": [
+        [
+            -3164.339,
+            -503.678,
+            107.428,
+            0,
+            71.97551605111504,
+            0
+        ],
+        [
+            -2218.964,
+            164.793,
+            98.21,
+            0,
+            -174.30343516038457,
+            0
+        ],
+        [
+            -3435.806,
+            350.531,
+            98.15,
+            0,
+            -29.307357818189125,
+            0
+        ]
+    ],
+    "obs_dir": "E:\\EQA\\unrealzoo_gym\\example/QA_data_2\\SuburbNeighborhood_Day\\state\\5GIQVN\\obs_5GIQVN",
+    "Questions": {
+        "Question 1": {
+            "question": "What's the state of the man wearing sunglasses and a dark green shirt?",
+            "options": [
+                "A. standing",
+                "B. sitting",
+                "C. liedown",
+                "D. walking"
+            ],
+            "answer": "C. liedown"
+        },
+        "Question 2": {
+            "question": "What's the state of the woman in the green tactical uniform?",
+            "options": [
+                "A. walking",
+                "B. standing",
+                "C. crouch",
+                "D. running"
+            ],
+            "answer": "C. crouch"
+        },
+        "Question 3": {
+            "question": "What's the state of the man in the burgundy polo shirt?",
+            "options": [
+                "A. lying down",
+                "B. holding something",
+                "C. running",
+                "D. sitting"
+            ],
+            "answer": "B. holding something"
+        },
+        "Question 4": {
+            "question": "What's the state of the woman wearing the white and blue floral shirt?",
+            "options": [
+                "A. crouch",
+                "B. sit",
+                "C. walk",
+                "D. stand"
+            ],
+            "answer": "D. stand"
+        }
+    }
+}

@@ -1,0 +1,200 @@
+{
+    "target_configs": {
+        "player": {
+            "name": [
+                "player_7_3RM1LD",
+                "player_3_3RM1LD",
+                "player_9_3RM1LD",
+                "player_4_3RM1LD",
+                "player_6_3RM1LD",
+                "player_16_3RM1LD"
+            ],
+            "app_id": [
+                7,
+                3,
+                9,
+                4,
+                6,
+                16
+            ],
+            "animation": [
+                "pick_up",
+                "stand",
+                "crouch",
+                "stand",
+                "stand",
+                "crouch"
+            ],
+            "feature_caption": [
+                "A bald man with glasses, dark complexion, wearing a black turtleneck, suit, and shoes",
+                "A woman with medium skin, dark hair in a bun, wearing a dark V-neck shirt, light pants, and brown boots",
+                "A man with medium skin tone, wearing a navy blue polo shirt, black pants, and blue shoes, with a dark watch on his wrist and black hair.",
+                "A woman with fair skin, wearing a white and blue shirt, blue pants, dark boots, a gray bandana, and a utility belt with pouches",
+                "A female soldier with light skin, wearing a black beanie, tactical vest, black shirt, pants, and boots, with a white scarf and communication gear.",
+                "A man with dark skin, wearing a black fedora, black turtleneck, black pants, and black shoes."
+            ],
+            "start_pos": [
+                [
+                    15671.436,
+                    -733.562,
+                    -12708.725,
+                    0.0,
+                    -90.0,
+                    0.0
+                ],
+                [
+                    15566.257,
+                    -958.748,
+                    -12708.725,
+                    0,
+                    75.44672791512599,
+                    0
+                ],
+                [
+                    15396.548,
+                    -1123.971,
+                    -12708.725,
+                    0,
+                    122.20839984289717,
+                    0
+                ],
+                [
+                    15282.083,
+                    -1194.908,
+                    -12708.725,
+                    0,
+                    53.988359229109506,
+                    0
+                ],
+                [
+                    15301.687,
+                    -1357.086,
+                    -12708.725,
+                    0,
+                    130.25239097054168,
+                    0
+                ],
+                [
+                    15305.731,
+                    -865.556,
+                    -12708.725,
+                    0,
+                    -29.948049416409646,
+                    0
+                ]
+            ],
+            "type": [
+                "None",
+                "None",
+                "None",
+                "None",
+                "None",
+                "None"
+            ]
+        }
+    },
+    "sample_configs": {
+        "sample_center": [
+            15452.871,
+            -1550.496,
+            -12708.725
+        ],
+        "sample_radius": 1045.666494299615
+    },
+    "refer_agents_category": [
+        "player"
+    ],
+    "safe_start": [
+        [
+            15196.971,
+            -514.612,
+            -12708.725,
+            0,
+            -66.90053212084182,
+            0
+        ],
+        [
+            15276.27,
+            -1860.807,
+            -12708.725,
+            0,
+            80.03773652531416,
+            0
+        ],
+        [
+            15198.119,
+            -1237.426,
+            -12708.725,
+            0,
+            41.73009414379185,
+            0
+        ]
+    ],
+    "obs_dir": "E:\\EQA\\unrealzoo_gym\\example/QA_data_2\\Map_ChemicalPlant_1\\relative_distance\\3RM1LD\\obs_3RM1LD",
+    "Questions": {
+        "Question 1": {
+            "question": "Which is closer to the_bald_man_in_glasses, the_woman_in_deep_V_top or the_man_in_blue_polo?",
+            "options": [
+                "A. the_woman_in_deep_V_top",
+                "B. the_man_in_blue_polo"
+            ],
+            "answer": "A. the_woman_in_deep_V_top"
+        },
+        "Question 2": {
+            "question": "Which is closer to the_bald_man_in_glasses, the_man_in_fedora_hat or the_woman_in_floral_shirt?",
+            "options": [
+                "A. the_man_in_fedora_hat",
+                "B. the_woman_in_floral_shirt"
+            ],
+            "answer": "A. the_man_in_fedora_hat"
+        },
+        "Question 3": {
+            "question": "Which is closer to the_bald_man_in_glasses, the_woman_in_deep_V_top or the_woman_in_black_vest?",
+            "options": [
+                "A. the_woman_in_deep_V_top",
+                "B. the_woman_in_black_vest"
+            ],
+            "answer": "A. the_woman_in_deep_V_top"
+        },
+        "Question 4": {
+            "question": "Which is closer to the_woman_in_deep_V_top, the_bald_man_in_glasses or the_woman_in_floral_shirt?",
+            "options": [
+                "A. the_bald_man_in_glasses",
+                "B. the_woman_in_floral_shirt"
+            ],
+            "answer": "A. the_bald_man_in_glasses"
+        },
+        "Question 5": {
+            "question": "Which is closer to the_woman_in_deep_V_top, the_man_in_blue_polo or the_woman_in_black_vest?",
+            "options": [
+                "A. the_man_in_blue_polo",
+                "B. the_woman_in_black_vest"
+            ],
+            "answer": "A. the_man_in_blue_polo"
+        },
+        "Question 6": {
+            "question": "Which is closer to the_man_in_blue_polo, the_woman_in_floral_shirt or the_bald_man_in_glasses?",
+            "options": [
+                "A. the_woman_in_floral_shirt",
+                "B. the_bald_man_in_glasses"
+            ],
+            "answer": "A. the_woman_in_floral_shirt"
+        },
+        "Question 7": {
+            "question": "Which is closer to the_woman_in_floral_shirt, the_man_in_blue_polo or the_woman_in_deep_V_top?",
+            "options": [
+                "A. the_man_in_blue_polo",
+                "B. the_woman_in_deep_V_top"
+            ],
+            "answer": "A. the_man_in_blue_polo"
+        },
+        "Question 8": {
+            "question": "Which is closer to the_woman_in_floral_shirt, the_man_in_blue_polo or the_bald_man_in_glasses?",
+            "options": [
+                "A. the_man_in_blue_polo",
+                "B. the_bald_man_in_glasses"
+            ],
+            "answer": "A. the_man_in_blue_polo"
+        }
+    }
+}

@@ -1,0 +1,228 @@
+{
+    "target_configs": {
+        "player": {
+            "name": [
+                "player_3_3SVDX1",
+                "player_5_3SVDX1",
+                "player_15_3SVDX1",
+                "player_4_3SVDX1",
+                "player_9_3SVDX1",
+                "player_10_3SVDX1"
+            ],
+            "app_id": [
+                3,
+                5,
+                15,
+                4,
+                9,
+                10
+            ],
+            "animation": [
+                "stand",
+                "crouch",
+                "liedown",
+                "crouch",
+                "crouch",
+                "crouch"
+            ],
+            "feature_caption": [
+                "A woman with medium skin, dark hair in a bun, wearing a dark V-neck shirt, light pants, and brown boots",
+                "A female soldier wearing green tactical uniform, backpack, and black boots. Hair is tied back. She carries a utility vest and accessories.",
+                "A bald man with medium skin, wearing a brown turtleneck, dark pants, and brown shoes.",
+                "A woman with fair skin, wearing a white and blue shirt, blue pants, dark boots, a gray bandana, and a utility belt with pouches",
+                "A man with medium skin tone, wearing a navy blue polo shirt, black pants, and blue shoes, with a dark watch on his wrist and black hair.",
+                "A man with medium skin, wearing sunglasses, maroon polo shirt, beige pants, brown shoes, and a watch"
+            ],
+            "start_pos": [
+                [
+                    9534.697,
+                    25843.106,
+                    1333.053,
+                    0,
+                    -171.9269197604167,
+                    0
+                ],
+                [
+                    9879.883,
+                    25772.285,
+                    1322.04,
+                    0,
+                    -120.5548887921903,
+                    0
+                ],
+                [
+                    9951.997,
+                    25808.2,
+                    1321.588,
+                    0,
+                    57.47393240375408,
+                    0
+                ],
+                [
+                    9296.33,
+                    25853.863,
+                    1345.629,
+                    0,
+                    -175.70906851332964,
+                    0
+                ],
+                [
+                    9642.681,
+                    25922.722,
+                    1328.21,
+                    0,
+                    101.31243147163053,
+                    0
+                ],
+                [
+                    9239.967,
+                    25911.825,
+                    1349.687,
+                    0,
+                    -68.94939981866304,
+                    0
+                ]
+            ],
+            "type": [
+                "None",
+                "None",
+                "None",
+                "None",
+                "None",
+                "None"
+            ]
+        },
+        "drone": {
+            "name": [
+                "drone_0_3SVDX1"
+            ],
+            "app_id": [
+                0
+            ],
+            "animation": [
+                "none"
+            ],
+            "feature_caption": [
+                "Aerial drone with a black and white frame, dual rotors, and a streamlined design."
+            ],
+            "start_pos": [
+                [
+                    9439.102,
+                    25773.09,
+                    1537.756,
+                    0,
+                    46.14965052483697,
+                    0
+                ]
+            ],
+            "type": [
+                "None"
+            ]
+        }
+    },
+    "sample_configs": {
+        "sample_center": [
+            9750.808,
+            26105.256,
+            1323.115
+        ],
+        "sample_radius": 746.882208730546
+    },
+    "refer_agents_category": [
+        "player",
+        "drone"
+    ],
+    "safe_start": [
+        [
+            8912.163,
+            25924.425,
+            1377.36,
+            0,
+            -7.25921405066254,
+            0
+        ],
+        [
+            9683.458,
+            26710.872,
+            1321.538,
+            0,
+            -97.47828780570859,
+            0
+        ],
+        [
+            9712.7,
+            25146.882,
+            1325.25,
+            0,
+            101.68216995134411,
+            0
+        ]
+    ],
+    "obs_dir": "E:\\EQA\\unrealzoo_gym\\example/QA_data_2\\Greek_Island\\relative_distance\\3SVDX1\\obs_3SVDX1",
+    "Questions": {
+        "Question 1": {
+            "question": "Which is closer to the_woman_in_deep_V_top, the_man_in_blue_polo or the_man_in_burgundy_polo_and_light_pants?",
+            "options": [
+                "A. the_man_in_blue_polo",
+                "B. the_man_in_burgundy_polo_and_light_pants"
+            ],
+            "answer": "A. the_man_in_blue_polo"
+        },
+        "Question 2": {
+            "question": "Which is closer to the_woman_in_deep_V_top, White_Drone or the_woman_in_camo_vest?",
+            "options": [
+                "A. White_Drone",
+                "B. the_woman_in_camo_vest"
+            ],
+            "answer": "A. White_Drone"
+        },
+        "Question 3": {
+            "question": "Which is closer to the_woman_in_deep_V_top, the_woman_in_floral_shirt or the_bald_man_in_brown_sweater_and_black_pants?",
+            "options": [
+                "A. the_woman_in_floral_shirt",
+                "B. the_bald_man_in_brown_sweater_and_black_pants"
+            ],
+            "answer": "A. the_woman_in_floral_shirt"
+        },
+        "Question 4": {
+            "question": "Which is closer to the_woman_in_camo_vest, the_woman_in_deep_V_top or the_bald_man_in_brown_sweater_and_black_pants?",
+            "options": [
+                "A. the_woman_in_deep_V_top",
+                "B. the_bald_man_in_brown_sweater_and_black_pants"
+            ],
+            "answer": "B. the_bald_man_in_brown_sweater_and_black_pants"
+        },
+        "Question 5": {
+            "question": "Which is closer to the_woman_in_camo_vest, White_Drone or the_man_in_burgundy_polo_and_light_pants?",
+            "options": [
+                "A. White_Drone",
+                "B. the_man_in_burgundy_polo_and_light_pants"
+            ],
+            "answer": "A. White_Drone"
+        },
+        "Question 6": {
+            "question": "Which is closer to the_bald_man_in_brown_sweater_and_black_pants, the_woman_in_deep_V_top or the_man_in_blue_polo?",
+            "options": [
+                "A. the_woman_in_deep_V_top",
+                "B. the_man_in_blue_polo"
+            ],
+            "answer": "B. the_man_in_blue_polo"
+        },
+        "Question 7": {
+            "question": "Which is closer to the_bald_man_in_brown_sweater_and_black_pants, the_woman_in_camo_vest or White_Drone?",
+            "options": [
+                "A. the_woman_in_camo_vest",
+                "B. White_Drone"
+            ],
+            "answer": "A. the_woman_in_camo_vest"
+        },
+        "Question 8": {
+            "question": "Which is closer to the_woman_in_floral_shirt, the_woman_in_deep_V_top or the_man_in_burgundy_polo_and_light_pants?",
+            "options": [
+                "A. the_woman_in_deep_V_top",
+                "B. the_man_in_burgundy_polo_and_light_pants"
+            ],
+            "answer": "B. the_man_in_burgundy_polo_and_light_pants"
+        }
+    }
+}

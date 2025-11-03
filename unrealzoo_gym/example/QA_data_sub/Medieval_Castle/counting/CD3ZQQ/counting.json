@@ -1,0 +1,138 @@
+{
+    "target_configs": {
+        "player": {
+            "name": [
+                "player_12_CD3ZQQ",
+                "player_16_CD3ZQQ",
+                "player_10_CD3ZQQ",
+                "player_15_CD3ZQQ"
+            ],
+            "app_id": [
+                12,
+                16,
+                10,
+                15
+            ],
+            "animation": [
+                "liedown",
+                "pick_up",
+                "stand",
+                "crouch"
+            ],
+            "feature_caption": [
+                "A man wearing a gray suit, dark shirt, and brown shoes with short dark hair.",
+                "A man with dark skin, wearing a black fedora, black turtleneck, black pants, and black shoes.",
+                "A man with medium skin, wearing sunglasses, maroon polo shirt, beige pants, brown shoes, and a watch",
+                "A bald man with medium skin, wearing a brown turtleneck, dark pants, and brown shoes."
+            ],
+            "start_pos": [
+                [
+                    -20181.179,
+                    13314.631,
+                    10356.152,
+                    0,
+                    95.02279991331869,
+                    0
+                ],
+                [
+                    -20273.725,
+                    13275.759,
+                    10354.189,
+                    0.0,
+                    -90.0,
+                    0.0
+                ],
+                [
+                    -20338.415,
+                    13516.976,
+                    10351.987,
+                    0,
+                    100.96148989697883,
+                    0
+                ],
+                [
+                    -20713.72,
+                    13199.617,
+                    10345.009,
+                    0,
+                    34.84841000438689,
+                    0
+                ]
+            ],
+            "type": [
+                "None",
+                "None",
+                "None",
+                "None"
+            ]
+        }
+    },
+    "sample_configs": {
+        "sample_center": [
+            -20556.397,
+            12788.143,
+            10360.757
+        ],
+        "sample_radius": 960.7828909176394
+    },
+    "refer_agents_category": [
+        "player"
+    ],
+    "safe_start": [
+        [
+            -20830.773,
+            13912.86,
+            10340.82,
+            0,
+            -52.226106691266324,
+            0
+        ],
+        [
+            -19745.171,
+            13748.99,
+            10358.444,
+            0,
+            -146.23868165844786,
+            0
+        ],
+        [
+            -21131.827,
+            13274.874,
+            10366.466,
+            0,
+            3.9383894324469293,
+            0
+        ]
+    ],
+    "obs_dir": "E:\\EQA\\unrealzoo_gym\\example/QA_data_2\\Medieval_Castle\\counting\\CD3ZQQ\\obs_CD3ZQQ",
+    "Questions": {
+        "Question 1": {
+            "question": "How many human figures can be observed across the entire scene?",
+            "answer": "four"
+        },
+        "Question 2": {
+            "question": "Among the human figures, how many possess a black skin complexion?",
+            "answer": "two"
+        },
+        "Question 3": {
+            "question": "Counting the men present, how many are characterized as being bald?",
+            "answer": "one"
+        },
+        "Question 4": {
+            "question": "How many of the men in this scene are wearing eyeglasses?",
+            "answer": "one"
+        },
+        "Question 5": {
+            "question": "How many men in the scene are identified as both bald and having a medium skin tone?",
+            "answer": "one"
+        },
+        "Question 6": {
+            "question": "How many men are wearing glasses, yet are not bald?",
+            "answer": "one"
+        },
+        "Question 7": {
+            "question": "Considering all the men, how many are neither bald nor wearing glasses?",
+            "answer": "two"
+        }
+    }
+}

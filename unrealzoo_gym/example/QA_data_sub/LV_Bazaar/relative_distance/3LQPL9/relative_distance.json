@@ -1,0 +1,188 @@
+{
+    "target_configs": {
+        "player": {
+            "name": [
+                "player_9_3LQPL9",
+                "player_6_3LQPL9"
+            ],
+            "app_id": [
+                9,
+                6
+            ],
+            "animation": [
+                "stand",
+                "pick_up"
+            ],
+            "feature_caption": [
+                "A man with medium skin tone, wearing a navy blue polo shirt, black pants, and blue shoes, with a dark watch on his wrist and black hair.",
+                "A female soldier with light skin, wearing a black beanie, tactical vest, black shirt, pants, and boots, with a white scarf and communication gear."
+            ],
+            "start_pos": [
+                [
+                    -848.452,
+                    -616.765,
+                    207.853,
+                    0,
+                    -92.41766280915425,
+                    0
+                ],
+                [
+                    -654.444,
+                    -918.097,
+                    206.314,
+                    0.0,
+                    -90.0,
+                    0.0
+                ]
+            ],
+            "type": [
+                "None",
+                "None"
+            ]
+        },
+        "drone": {
+            "name": [
+                "drone_0_3LQPL9"
+            ],
+            "app_id": [
+                0
+            ],
+            "animation": [
+                "none"
+            ],
+            "feature_caption": [
+                "Aerial drone with a black and white frame, dual rotors, and a streamlined design."
+            ],
+            "start_pos": [
+                [
+                    -601.923,
+                    -762.931,
+                    408.74,
+                    0,
+                    -37.93608161145437,
+                    0
+                ]
+            ],
+            "type": [
+                "None"
+            ]
+        },
+        "animal": {
+            "name": [
+                "animal_10_3LQPL9"
+            ],
+            "app_id": [
+                10
+            ],
+            "animation": [
+                "None"
+            ],
+            "feature_caption": [
+                "Large Komodo dragon with rugged scales, powerful limbs, and a long tail"
+            ],
+            "start_pos": [
+                [
+                    -1068.75,
+                    -1056.135,
+                    204.264,
+                    0,
+                    162.82982553506633,
+                    0
+                ]
+            ],
+            "type": [
+                "None"
+            ]
+        }
+    },
+    "sample_configs": {
+        "sample_center": [
+            -977.414,
+            -938.385,
+            206.465
+        ],
+        "sample_radius": 614.4668537072657
+    },
+    "refer_agents_category": [
+        "player",
+        "drone",
+        "animal"
+    ],
+    "safe_start": [
+        [
+            63.268,
+            -754.908,
+            201.898,
+            0,
+            -174.4279750980043,
+            0
+        ],
+        [
+            -1200.33,
+            -675.088,
+            201.897,
+            0,
+            -21.876490339134925,
+            0
+        ],
+        [
+            -396.005,
+            -1284.18,
+            241.818,
+            0,
+            131.72040472308223,
+            0
+        ]
+    ],
+    "obs_dir": "E:\\EQA\\unrealzoo_gym\\example/QA_data_2\\LV_Bazaar\\relative_distance\\3LQPL9\\obs_3LQPL9",
+    "Questions": {
+        "Question 1": {
+            "question": "Which is closer to the_man_in_blue_polo, the_woman_in_black_vest or Komodo_Dragon?",
+            "options": [
+                "A. the_woman_in_black_vest",
+                "B. Komodo_Dragon"
+            ],
+            "answer": "A. the_woman_in_black_vest"
+        },
+        "Question 2": {
+            "question": "Which is closer to the_woman_in_black_vest, White_Drone or Komodo_Dragon?",
+            "options": [
+                "A. White_Drone",
+                "B. Komodo_Dragon"
+            ],
+            "answer": "A. White_Drone"
+        },
+        "Question 3": {
+            "question": "Which is closer to White_Drone, the_woman_in_black_vest or Komodo_Dragon?",
+            "options": [
+                "A. the_woman_in_black_vest",
+                "B. Komodo_Dragon"
+            ],
+            "answer": "A. the_woman_in_black_vest"
+        },
+        "Question 4": {
+            "question": "Which is closer to White_Drone, the_man_in_blue_polo or Komodo_Dragon?",
+            "options": [
+                "A. the_man_in_blue_polo",
+                "B. Komodo_Dragon"
+            ],
+            "answer": "A. the_man_in_blue_polo"
+        },
+        "Question 5": {
+            "question": "Which is closer to Komodo_Dragon, the_woman_in_black_vest or White_Drone?",
+            "options": [
+                "A. the_woman_in_black_vest",
+                "B. White_Drone"
+            ],
+            "answer": "A. the_woman_in_black_vest"
+        },
+        "Question 6": {
+            "question": "Which is closer to Komodo_Dragon, the_man_in_blue_polo or White_Drone?",
+            "options": [
+                "A. the_man_in_blue_polo",
+                "B. White_Drone"
+            ],
+            "answer": "A. the_man_in_blue_polo"
+        }
+    }
+}

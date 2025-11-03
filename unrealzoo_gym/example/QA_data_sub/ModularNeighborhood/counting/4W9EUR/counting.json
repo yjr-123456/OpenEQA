@@ -1,0 +1,184 @@
+{
+    "target_configs": {
+        "player": {
+            "name": [
+                "player_6_4W9EUR",
+                "player_16_4W9EUR",
+                "player_7_4W9EUR",
+                "player_10_4W9EUR",
+                "player_1_4W9EUR"
+            ],
+            "app_id": [
+                6,
+                16,
+                7,
+                10,
+                1
+            ],
+            "animation": [
+                "liedown",
+                "pick_up",
+                "in_vehicle",
+                "stand",
+                "crouch"
+            ],
+            "feature_caption": [
+                "A female soldier with light skin, wearing a black beanie, tactical vest, black shirt, pants, and boots, with a white scarf and communication gear.",
+                "A man with dark skin, wearing a black fedora, black turtleneck, black pants, and black shoes.",
+                "A bald man with glasses, dark complexion, wearing a black turtleneck, suit, and shoes",
+                "A man with medium skin, wearing sunglasses, maroon polo shirt, beige pants, brown shoes, and a watch",
+                "A man wearing sunglasses, dark green long-sleeve shirt, light cargo pants, black gloves, and brown boots"
+            ],
+            "start_pos": [
+                [
+                    -5749.809,
+                    11165.8,
+                    199.23,
+                    0,
+                    -171.7159171771096,
+                    0
+                ],
+                [
+                    -5135.624,
+                    11765.508,
+                    208.444,
+                    0.0,
+                    -90.0,
+                    0.0
+                ],
+                [
+                    -5799.506,
+                    11233.677,
+                    199.059,
+                    0.0,
+                    -0.0,
+                    0.0
+                ],
+                [
+                    -5201.033,
+                    11364.931,
+                    199.982,
+                    0,
+                    148.95609690407662,
+                    0
+                ],
+                [
+                    -5282.257,
+                    10918.873,
+                    199.888,
+                    0,
+                    -169.13199291238246,
+                    0
+                ]
+            ],
+            "type": [
+                "None",
+                "None",
+                "None",
+                "None",
+                "None"
+            ]
+        },
+        "car": {
+            "name": [
+                "car_3_4W9EUR",
+                "car_1_4W9EUR"
+            ],
+            "app_id": [
+                3,
+                1
+            ],
+            "animation": [
+                "None",
+                "None"
+            ],
+            "feature_caption": [
+                "Yellow vehicle with black stripes, modern style, compact structure",
+                "White compact car with black grille, sleek design, and four doors"
+            ],
+            "start_pos": [
+                [
+                    -5711.805,
+                    11376.58,
+                    199.151,
+                    0,
+                    165.37414034602722,
+                    0
+                ],
+                [
+                    -6291.142,
+                    11415.203,
+                    199.059,
+                    0,
+                    174.21629057154212,
+                    0
+                ]
+            ],
+            "type": [
+                "BP_Sedan_child_extras_C",
+                "BP_Hatchback_child_extras_C"
+            ]
+        }
+    },
+    "sample_configs": {
+        "sample_center": [
+            -5653.057,
+            10993.118,
+            199.059
+        ],
+        "sample_radius": 1129.733059591837
+    },
+    "refer_agents_category": [
+        "player",
+        "car"
+    ],
+    "safe_start": [
+        [
+            -6526.439,
+            11681.429,
+            207.736,
+            0,
+            -23.65062380931687,
+            0
+        ],
+        [
+            -6006.541,
+            10459.579,
+            207.959,
+            0,
+            62.48874037112856,
+            0
+        ],
+        [
+            -4465.131,
+            10786.836,
+            203.504,
+            0,
+            156.6997781579337,
+            0
+        ]
+    ],
+    "obs_dir": "E:\\EQA\\unrealzoo_gym\\example/QA_data_2\\ModularNeighborhood\\counting\\4W9EUR\\obs_4W9EUR",
+    "Questions": {
+        "Question 1": {
+            "question": "How many humans are in a 'crouch' position in the scene?",
+            "answer": "one"
+        },
+        "Question 2": {
+            "question": "How many individuals are not wearing glasses in the scene?",
+            "answer": "two"
+        },
+        "Question 4": {
+            "question": "Excluding any bald individuals, how many people are in the scene?",
+            "answer": "four"
+        },
+        "Question 5": {
+            "question": "How many men in the scene are wearing glasses?",
+            "answer": "three"
+        },
+        "Question 6": {
+            "question": "How many people in the scene have light skin color?",
+            "answer": "two"
+        }
+    }
+}

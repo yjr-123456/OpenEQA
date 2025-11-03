@@ -1,0 +1,164 @@
+{
+    "target_configs": {
+        "player": {
+            "name": [
+                "player_9_R2QZDU",
+                "player_12_R2QZDU",
+                "player_5_R2QZDU",
+                "player_6_R2QZDU",
+                "player_11_R2QZDU",
+                "player_7_R2QZDU"
+            ],
+            "app_id": [
+                9,
+                12,
+                5,
+                6,
+                11,
+                7
+            ],
+            "animation": [
+                "stand",
+                "crouch",
+                "stand",
+                "crouch",
+                "stand",
+                "liedown"
+            ],
+            "feature_caption": [
+                "A man with medium skin tone, wearing a navy blue polo shirt, black pants, and blue shoes, with a dark watch on his wrist and black hair.",
+                "A man wearing a gray suit, dark shirt, and brown shoes with short dark hair.",
+                "A female soldier wearing green tactical uniform, backpack, and black boots. Hair is tied back. She carries a utility vest and accessories.",
+                "A female soldier with light skin, wearing a black beanie, tactical vest, black shirt, pants, and boots, with a white scarf and communication gear.",
+                "A man with short black hair, wearing a white button-up shirt, dark pants, and black shoes. Light skin tone.",
+                "A bald man with glasses, dark complexion, wearing a black turtleneck, suit, and shoes"
+            ],
+            "start_pos": [
+                [
+                    -47368.16,
+                    16339.902,
+                    -22529.0,
+                    0,
+                    -140.35259777621815,
+                    0
+                ],
+                [
+                    -47484.018,
+                    16425.874,
+                    -22529.458,
+                    0,
+                    -176.3174527801598,
+                    0
+                ],
+                [
+                    -47569.126,
+                    16294.553,
+                    -22526.699,
+                    0,
+                    -171.7838999162221,
+                    0
+                ],
+                [
+                    -47817.717,
+                    16488.183,
+                    -22529.317,
+                    0,
+                    -77.17389755368299,
+                    0
+                ],
+                [
+                    -47103.315,
+                    16229.582,
+                    -22526.813,
+                    0,
+                    -13.76069615331781,
+                    0
+                ],
+                [
+                    -47683.24,
+                    15873.79,
+                    -22526.008,
+                    0,
+                    -176.7906027751099,
+                    0
+                ]
+            ],
+            "type": [
+                "None",
+                "None",
+                "None",
+                "None",
+                "None",
+                "None"
+            ]
+        }
+    },
+    "sample_configs": {
+        "sample_center": [
+            -47878.257,
+            15883.555,
+            -23023.943
+        ],
+        "sample_radius": 1063.6134580893195
+    },
+    "refer_agents_category": [
+        "player"
+    ],
+    "safe_start": [
+        [
+            -47988.854,
+            16048.379,
+            -22522.576,
+            0,
+            25.093778001174623,
+            0
+        ],
+        [
+            -46751.942,
+            16353.015,
+            -23256.47,
+            0,
+            -174.1032988756655,
+            0
+        ],
+        [
+            -47938.691,
+            16489.915,
+            -22529.287,
+            0,
+            -26.28867257087752,
+            0
+        ]
+    ],
+    "obs_dir": "E:\\EQA\\unrealzoo_gym\\example/QA_data_2\\Demonstration_Castle\\counting\\R2QZDU\\obs_R2QZDU",
+    "Questions": {
+        "Question 1": {
+            "question": "How many humans are currently standing in the scene?",
+            "answer": "three"
+        },
+        "Question 2": {
+            "question": "How many individuals are in a crouch position among the group?",
+            "answer": "two"
+        },
+        "Question 3": {
+            "question": "How many women are present in the scene?",
+            "answer": "two"
+        },
+        "Question 4": {
+            "question": "Among all the men in the scene, how many are not bald?",
+            "answer": "three"
+        },
+        "Question 5": {
+            "question": "How many individuals in the scene possess a medium skin color?",
+            "answer": "three"
+        },
+        "Question 6": {
+            "question": "Excluding the person who is bald, how many people are in the scene?",
+            "answer": "five"
+        },
+        "Question 7": {
+            "question": "How many people in the scene have a light skin color?",
+            "answer": "two"
+        }
+    }
+}

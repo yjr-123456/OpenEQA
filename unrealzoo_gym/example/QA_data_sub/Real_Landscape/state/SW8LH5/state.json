@@ -1,0 +1,150 @@
+{
+    "target_configs": {
+        "player": {
+            "name": [
+                "player_6_SW8LH5",
+                "player_3_SW8LH5",
+                "player_9_SW8LH5",
+                "player_11_SW8LH5"
+            ],
+            "app_id": [
+                6,
+                3,
+                9,
+                11
+            ],
+            "animation": [
+                "pick_up",
+                "liedown",
+                "crouch",
+                "stand"
+            ],
+            "feature_caption": [
+                "A female soldier with light skin, wearing a black beanie, tactical vest, black shirt, pants, and boots, with a white scarf and communication gear.",
+                "A woman with medium skin, dark hair in a bun, wearing a dark V-neck shirt, light pants, and brown boots",
+                "A man with medium skin tone, wearing a navy blue polo shirt, black pants, and blue shoes, with a dark watch on his wrist and black hair.",
+                "A man with short black hair, wearing a white button-up shirt, dark pants, and black shoes. Light skin tone."
+            ],
+            "start_pos": [
+                [
+                    16472.434,
+                    -80725.415,
+                    5793.474,
+                    0.0,
+                    -90.001,
+                    0.0
+                ],
+                [
+                    16680.849,
+                    -81265.999,
+                    5656.993,
+                    0,
+                    56.64769561800071,
+                    0
+                ],
+                [
+                    16746.471,
+                    -81653.756,
+                    5604.322,
+                    0,
+                    -63.405373098192285,
+                    0
+                ],
+                [
+                    16826.044,
+                    -81579.186,
+                    5607.509,
+                    0,
+                    -60.88342569362456,
+                    0
+                ]
+            ],
+            "type": [
+                "None",
+                "None",
+                "None",
+                "None"
+            ]
+        }
+    },
+    "sample_configs": {
+        "sample_center": [
+            16074.472,
+            -81380.192,
+            5768.077
+        ],
+        "sample_radius": 993.8772989851803
+    },
+    "refer_agents_category": [
+        "player"
+    ],
+    "safe_start": [
+        [
+            17451.468,
+            -81753.152,
+            5420.3,
+            0,
+            149.84677406394272,
+            0
+        ],
+        [
+            16533.718,
+            -82367.362,
+            5642.03,
+            0,
+            82.08467883840484,
+            0
+        ],
+        [
+            16036.294,
+            -80773.7,
+            5809.578,
+            0,
+            -39.51790648008346,
+            0
+        ]
+    ],
+    "obs_dir": "E:\\EQA\\unrealzoo_gym\\example/QA_data_2\\Real_Landscape\\state\\SW8LH5\\obs_SW8LH5",
+    "Questions": {
+        "Question 1": {
+            "question": "What's the state of the woman in the black vest?",
+            "options": [
+                "A. holding an object",
+                "B. crouching",
+                "C. sitting",
+                "D. running"
+            ],
+            "answer": "A. holding an object"
+        },
+        "Question 2": {
+            "question": "What's the state of the woman in the deep V-neck top?",
+            "options": [
+                "A. lying down",
+                "B. standing",
+                "C. walking",
+                "D. jumping"
+            ],
+            "answer": "A. lying down"
+        },
+        "Question 3": {
+            "question": "What's the state of the man in the blue polo?",
+            "options": [
+                "A. crouch",
+                "B. stand",
+                "C. sit",
+                "D. run"
+            ],
+            "answer": "A. crouch"
+        },
+        "Question 4": {
+            "question": "What's the state of the man in the white shirt?",
+            "options": [
+                "A. stand",
+                "B. sit",
+                "C. lie down",
+                "D. walk"
+            ],
+            "answer": "A. stand"
+        }
+    }
+}

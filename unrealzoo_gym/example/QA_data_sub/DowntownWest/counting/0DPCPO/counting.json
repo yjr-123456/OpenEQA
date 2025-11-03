@@ -1,0 +1,156 @@
+{
+    "target_configs": {
+        "player": {
+            "name": [
+                "player_5_0DPCPO",
+                "player_4_0DPCPO"
+            ],
+            "app_id": [
+                5,
+                4
+            ],
+            "animation": [
+                "stand",
+                "pick_up"
+            ],
+            "feature_caption": [
+                "A female soldier wearing green tactical uniform, backpack, and black boots. Hair is tied back. She carries a utility vest and accessories.",
+                "A woman with fair skin, wearing a white and blue shirt, blue pants, dark boots, a gray bandana, and a utility belt with pouches"
+            ],
+            "start_pos": [
+                [
+                    1076.368,
+                    -4171.126,
+                    101.0,
+                    0,
+                    91.71967816743495,
+                    0
+                ],
+                [
+                    -298.271,
+                    -4869.812,
+                    82.097,
+                    0.0,
+                    -90.0,
+                    0.0
+                ]
+            ],
+            "type": [
+                "None",
+                "None"
+            ]
+        },
+        "drone": {
+            "name": [
+                "drone_0_0DPCPO"
+            ],
+            "app_id": [
+                0
+            ],
+            "animation": [
+                "none"
+            ],
+            "feature_caption": [
+                "Aerial drone with a black and white frame, dual rotors, and a streamlined design."
+            ],
+            "start_pos": [
+                [
+                    225.651,
+                    -5220.707,
+                    282.097,
+                    0,
+                    -109.59973215115365,
+                    0
+                ]
+            ],
+            "type": [
+                "None"
+            ]
+        },
+        "car": {
+            "name": [
+                "car_3_0DPCPO"
+            ],
+            "app_id": [
+                3
+            ],
+            "animation": [
+                "None"
+            ],
+            "feature_caption": [
+                "Yellow vehicle with black stripes, modern style, compact structure"
+            ],
+            "start_pos": [
+                [
+                    424.28,
+                    -4594.434,
+                    82.097,
+                    0,
+                    -40.40639136113987,
+                    0
+                ]
+            ],
+            "type": [
+                "BP_Sedan_child_extras_C"
+            ]
+        }
+    },
+    "sample_configs": {
+        "sample_center": [
+            745.414,
+            -5151.39,
+            82.328
+        ],
+        "sample_radius": 1281.001701289133
+    },
+    "refer_agents_category": [
+        "player",
+        "drone",
+        "car"
+    ],
+    "safe_start": [
+        [
+            -490.771,
+            -4775.388,
+            100.579,
+            0,
+            4.140257879173485,
+            0
+        ],
+        [
+            -478.535,
+            -5604.756,
+            82.097,
+            0,
+            46.83129262601547,
+            0
+        ],
+        [
+            1082.129,
+            -4279.546,
+            101.0,
+            0,
+            -149.07108393561057,
+            0
+        ]
+    ],
+    "obs_dir": "E:\\EQA\\unrealzoo_gym\\example/QA_data_2\\DowntownWest\\counting\\0DPCPO\\obs_0DPCPO",
+    "Questions": {
+        "Question 1": {
+            "question": "How many human figures are present in the scene, considering their current actions?",
+            "answer": "two"
+        },
+        "Question 2": {
+            "question": "How many entities are engaged in the act of holding something?",
+            "answer": "one"
+        },
+        "Question 3": {
+            "question": "How many female individuals are visible in the scene?",
+            "answer": "two"
+        },
+        "Question 4": {
+            "question": "How many diferent colors of electric vehicles are present?",
+            "answer": "two"
+        }
+    }
+}

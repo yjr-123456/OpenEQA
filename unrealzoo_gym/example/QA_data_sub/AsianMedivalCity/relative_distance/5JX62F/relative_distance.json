@@ -1,0 +1,174 @@
+{
+    "target_configs": {
+        "player": {
+            "name": [
+                "player_9_5JX62F",
+                "player_16_5JX62F",
+                "player_3_5JX62F",
+                "player_12_5JX62F"
+            ],
+            "app_id": [
+                9,
+                16,
+                3,
+                12
+            ],
+            "animation": [
+                "liedown",
+                "pick_up",
+                "crouch",
+                "stand"
+            ],
+            "feature_caption": [
+                "A man with medium skin tone, wearing a navy blue polo shirt, black pants, and blue shoes, with a dark watch on his wrist and black hair.",
+                "A man with dark skin, wearing a black fedora, black turtleneck, black pants, and black shoes.",
+                "A woman with medium skin, dark hair in a bun, wearing a dark V-neck shirt, light pants, and brown boots",
+                "A man wearing a gray suit, dark shirt, and brown shoes with short dark hair."
+            ],
+            "start_pos": [
+                [
+                    642.447,
+                    9281.684,
+                    1248.15,
+                    0,
+                    28.497206397582147,
+                    0
+                ],
+                [
+                    938.532,
+                    9669.301,
+                    1248.151,
+                    0.0,
+                    -90.0,
+                    0.0
+                ],
+                [
+                    880.074,
+                    9306.789,
+                    1248.15,
+                    0,
+                    75.6424773150346,
+                    0
+                ],
+                [
+                    812.392,
+                    8981.09,
+                    1248.15,
+                    0,
+                    63.09038584027266,
+                    0
+                ]
+            ],
+            "type": [
+                "None",
+                "None",
+                "None",
+                "None"
+            ]
+        }
+    },
+    "sample_configs": {
+        "sample_center": [
+            92.965,
+            9662.22,
+            1258.25
+        ],
+        "sample_radius": 1190.7650050486236
+    },
+    "refer_agents_category": [
+        "player"
+    ],
+    "safe_start": [
+        [
+            702.078,
+            8647.76,
+            1248.15,
+            0,
+            80.03672625905548,
+            0
+        ],
+        [
+            384.723,
+            9161.144,
+            1248.15,
+            0,
+            18.91235096994557,
+            0
+        ],
+        [
+            1136.096,
+            9965.848,
+            1248.151,
+            0,
+            -115.83878642520591,
+            0
+        ]
+    ],
+    "obs_dir": "E:\\EQA\\unrealzoo_gym\\example/QA_data_2\\AsianMedivalCity\\relative_distance\\5JX62F\\obs_5JX62F",
+    "Questions": {
+        "Question 1": {
+            "question": "Which is closer to the_man_in_blue_polo, the_man_in_fedora_hat or the_woman_in_deep_V_top?",
+            "options": [
+                "A. the_man_in_fedora_hat",
+                "B. the_woman_in_deep_V_top"
+            ],
+            "answer": "B. the_woman_in_deep_V_top"
+        },
+        "Question 2": {
+            "question": "Which is closer to the_man_in_blue_polo, the_man_in_fedora_hat or the_man_in_grey_suit?",
+            "options": [
+                "A. the_man_in_fedora_hat",
+                "B. the_man_in_grey_suit"
+            ],
+            "answer": "B. the_man_in_grey_suit"
+        },
+        "Question 3": {
+            "question": "Which is closer to the_man_in_blue_polo, the_woman_in_deep_V_top or the_man_in_grey_suit?",
+            "options": [
+                "A. the_woman_in_deep_V_top",
+                "B. the_man_in_grey_suit"
+            ],
+            "answer": "A. the_woman_in_deep_V_top"
+        },
+        "Question 4": {
+            "question": "Which is closer to the_man_in_fedora_hat, the_man_in_blue_polo or the_woman_in_deep_V_top?",
+            "options": [
+                "A. the_man_in_blue_polo",
+                "B. the_woman_in_deep_V_top"
+            ],
+            "answer": "B. the_woman_in_deep_V_top"
+        },
+        "Question 5": {
+            "question": "Which is closer to the_man_in_fedora_hat, the_man_in_blue_polo or the_man_in_grey_suit?",
+            "options": [
+                "A. the_man_in_blue_polo",
+                "B. the_man_in_grey_suit"
+            ],
+            "answer": "A. the_man_in_blue_polo"
+        },
+        "Question 6": {
+            "question": "Which is closer to the_man_in_fedora_hat, the_woman_in_deep_V_top or the_man_in_grey_suit?",
+            "options": [
+                "A. the_woman_in_deep_V_top",
+                "B. the_man_in_grey_suit"
+            ],
+            "answer": "A. the_woman_in_deep_V_top"
+        },
+        "Question 7": {
+            "question": "Which is closer to the_woman_in_deep_V_top, the_man_in_blue_polo or the_man_in_fedora_hat?",
+            "options": [
+                "A. the_man_in_blue_polo",
+                "B. the_man_in_fedora_hat"
+            ],
+            "answer": "A. the_man_in_blue_polo"
+        },
+        "Question 8": {
+            "question": "Which is closer to the_man_in_grey_suit, the_man_in_blue_polo or the_man_in_fedora_hat?",
+            "options": [
+                "A. the_man_in_blue_polo",
+                "B. the_man_in_fedora_hat"
+            ],
+            "answer": "A. the_man_in_blue_polo"
+        }
+    }
+}

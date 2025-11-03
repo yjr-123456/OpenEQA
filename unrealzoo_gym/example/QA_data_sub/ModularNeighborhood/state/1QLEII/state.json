@@ -1,0 +1,196 @@
+{
+    "target_configs": {
+        "player": {
+            "name": [
+                "player_9_1QLEII",
+                "player_1_1QLEII",
+                "player_5_1QLEII",
+                "player_6_1QLEII",
+                "player_16_1QLEII",
+                "player_10_1QLEII"
+            ],
+            "app_id": [
+                9,
+                1,
+                5,
+                6,
+                16,
+                10
+            ],
+            "animation": [
+                "crouch",
+                "pick_up",
+                "pick_up",
+                "stand",
+                "stand",
+                "crouch"
+            ],
+            "feature_caption": [
+                "A man with medium skin tone, wearing a navy blue polo shirt, black pants, and blue shoes, with a dark watch on his wrist and black hair.",
+                "A man wearing sunglasses, dark green long-sleeve shirt, light cargo pants, black gloves, and brown boots",
+                "A female soldier wearing green tactical uniform, backpack, and black boots. Hair is tied back. She carries a utility vest and accessories.",
+                "A female soldier with light skin, wearing a black beanie, tactical vest, black shirt, pants, and boots, with a white scarf and communication gear.",
+                "A man with dark skin, wearing a black fedora, black turtleneck, black pants, and black shoes.",
+                "A man with medium skin, wearing sunglasses, maroon polo shirt, beige pants, brown shoes, and a watch"
+            ],
+            "start_pos": [
+                [
+                    -12575.854,
+                    5850.891,
+                    200.059,
+                    0,
+                    -156.60548185850166,
+                    0
+                ],
+                [
+                    -12814.198,
+                    5555.317,
+                    199.309,
+                    0.0,
+                    -90.0,
+                    0.0
+                ],
+                [
+                    -12372.615,
+                    6311.328,
+                    200.086,
+                    0.0,
+                    -90.0,
+                    0.0
+                ],
+                [
+                    -12411.222,
+                    5858.646,
+                    200.086,
+                    0,
+                    82.38892694255634,
+                    0
+                ],
+                [
+                    -12306.978,
+                    6700.739,
+                    199.974,
+                    0,
+                    36.16724550640373,
+                    0
+                ],
+                [
+                    -12819.909,
+                    5690.194,
+                    199.877,
+                    0,
+                    -85.2295920884539,
+                    0
+                ]
+            ],
+            "type": [
+                "None",
+                "None",
+                "None",
+                "None",
+                "None",
+                "None"
+            ]
+        }
+    },
+    "sample_configs": {
+        "sample_center": [
+            -12411.222,
+            5858.646,
+            200.086
+        ],
+        "sample_radius": 1048.5207391272177
+    },
+    "refer_agents_category": [
+        "player"
+    ],
+    "safe_start": [
+        [
+            -11390.502,
+            6342.614,
+            235.3,
+            0,
+            -163.29138970957334,
+            0
+        ],
+        [
+            -12452.635,
+            7017.334,
+            200.017,
+            0,
+            -95.44496170455733,
+            0
+        ],
+        [
+            -12995.662,
+            5993.153,
+            200.033,
+            0,
+            0.1756893369166771,
+            0
+        ]
+    ],
+    "obs_dir": "E:\\EQA\\unrealzoo_gym\\example/QA_data_2\\ModularNeighborhood\\state\\1QLEII\\obs_1QLEII",
+    "Questions": {
+        "Question 1": {
+            "question": "What's the state of the man in the navy blue polo shirt?",
+            "options": [
+                "A. crouch",
+                "B. standing",
+                "C. sitting",
+                "D. lying down"
+            ],
+            "answer": "A. crouch"
+        },
+        "Question 2": {
+            "question": "What's the state of the man wearing sunglasses and light cargo pants?",
+            "options": [
+                "A. standing",
+                "B. holding something",
+                "C. crouching",
+                "D. walking"
+            ],
+            "answer": "B. holding something"
+        },
+        "Question 3": {
+            "question": "What's the state of the woman in the green tactical uniform?",
+            "options": [
+                "A. standing",
+                "B. running",
+                "C. holding something",
+                "D. sitting"
+            ],
+            "answer": "C. holding something"
+        },
+        "Question 4": {
+            "question": "What's the state of the woman wearing a black beanie and tactical vest?",
+            "options": [
+                "A. sitting",
+                "B. stand",
+                "C. kneeling",
+                "D. crouch"
+            ],
+            "answer": "B. stand"
+        },
+        "Question 5": {
+            "question": "What's the state of the man in the black fedora hat?",
+            "options": [
+                "A. stand",
+                "B. sitting",
+                "C. lying down",
+                "D. running"
+            ],
+            "answer": "A. stand"
+        },
+        "Question 6": {
+            "question": "What's the state of the man in the maroon polo shirt?",
+            "options": [
+                "A. stand",
+                "B. sit",
+                "C. crouch",
+                "D. walk"
+            ],
+            "answer": "C. crouch"
+        }
+    }
+}

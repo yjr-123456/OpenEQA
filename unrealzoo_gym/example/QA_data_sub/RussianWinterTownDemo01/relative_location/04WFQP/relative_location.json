@@ -1,0 +1,185 @@
+{
+    "target_configs": {
+        "player": {
+            "name": [
+                "player_6_04WFQP",
+                "player_15_04WFQP",
+                "player_11_04WFQP"
+            ],
+            "app_id": [
+                6,
+                15,
+                11
+            ],
+            "animation": [
+                "in_vehicle",
+                "stand",
+                "liedown"
+            ],
+            "feature_caption": [
+                "A female soldier with light skin, wearing a black beanie, tactical vest, black shirt, pants, and boots, with a white scarf and communication gear.",
+                "A bald man with medium skin, wearing a brown turtleneck, dark pants, and brown shoes.",
+                "A man with short black hair, wearing a white button-up shirt, dark pants, and black shoes. Light skin tone."
+            ],
+            "start_pos": [
+                [
+                    -8285.643,
+                    2312.716,
+                    211.267,
+                    0.0,
+                    -0.0,
+                    -0.0
+                ],
+                [
+                    -7724.577,
+                    2066.467,
+                    270.525,
+                    0,
+                    -9.009768679368023,
+                    0
+                ],
+                [
+                    -7124.352,
+                    1459.59,
+                    214.105,
+                    0,
+                    -155.42941977588413,
+                    0
+                ]
+            ],
+            "type": [
+                "None",
+                "None",
+                "None"
+            ]
+        },
+        "car": {
+            "name": [
+                "car_1_04WFQP"
+            ],
+            "app_id": [
+                1
+            ],
+            "animation": [
+                "None"
+            ],
+            "feature_caption": [
+                "White compact car with black grille, sleek design, and four doors"
+            ],
+            "start_pos": [
+                [
+                    -8325.24,
+                    2114.316,
+                    211.61,
+                    0,
+                    -12.559789289907357,
+                    0
+                ]
+            ],
+            "type": [
+                "BP_Hatchback_child_extras_C"
+            ]
+        }
+    },
+    "sample_configs": {
+        "sample_center": [
+            -7346.837,
+            1562.585,
+            199.154
+        ],
+        "sample_radius": 1323.3141496064218
+    },
+    "refer_agents_category": [
+        "player",
+        "car"
+    ],
+    "safe_start": [
+        [
+            -6707.805,
+            1417.579,
+            237.578,
+            0,
+            151.7534132390999,
+            0
+        ],
+        [
+            -6736.876,
+            2465.848,
+            228.173,
+            0,
+            -154.7262145075638,
+            0
+        ],
+        [
+            -7006.511,
+            1138.318,
+            201.205,
+            0,
+            131.73743051184977,
+            0
+        ]
+    ],
+    "obs_dir": "E:\\EQA\\unrealzoo_gym\\example/QA_data_2\\RussianWinterTownDemo01\\relative_location\\04WFQP\\obs_04WFQP",
+    "Questions": {
+        "Question 1": {
+            "question": "Where is the bald man in the brown sweater and black pants relative to the woman in the black vest?",
+            "options": [
+                "A. In front of",
+                "B. Behind",
+                "C. To the left of",
+                "D. To the right of"
+            ],
+            "answer": "A. In front of"
+        },
+        "Question 2": {
+            "question": "Where is the woman in the black vest relative to the bald man in the brown sweater and black pants?",
+            "options": [
+                "A. In front of",
+                "B. Behind",
+                "C. To the left of",
+                "D. To the right of"
+            ],
+            "answer": "B. Behind"
+        },
+        "Question 3": {
+            "question": "Where is the man in the white shirt relative to the bald man in the brown sweater and black pants?",
+            "options": [
+                "A. To the front-right of",
+                "B. To the back-left of",
+                "C. To the front-left of",
+                "D. Behind"
+            ],
+            "answer": "C. To the front-left of"
+        },
+        "Question 4": {
+            "question": "Where is the man in the white shirt relative to the woman in the black vest?",
+            "options": [
+                "A. Behind",
+                "B. To the right of",
+                "C. In front of",
+                "D. To the left of"
+            ],
+            "answer": "C. In front of"
+        },
+        "Question 5": {
+            "question": "Where is the bald man in the brown sweater and black pants relative to the White Compact Car?",
+            "options": [
+                "A. Behind",
+                "B. In front of",
+                "C. To the left of",
+                "D. To the right of"
+            ],
+            "answer": "B. In front of"
+        },
+        "Question 6": {
+            "question": "Where is the White Compact Car relative to the bald man in the brown sweater and black pants?",
+            "options": [
+                "A. In front of",
+                "B. Above",
+                "C. Behind",
+                "D. To the left of"
+            ],
+            "answer": "C. Behind"
+        }
+    }
+}

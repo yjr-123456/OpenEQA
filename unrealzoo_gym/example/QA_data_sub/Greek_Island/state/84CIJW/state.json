@@ -1,0 +1,150 @@
+{
+    "target_configs": {
+        "player": {
+            "name": [
+                "player_6_84CIJW",
+                "player_15_84CIJW",
+                "player_11_84CIJW",
+                "player_7_84CIJW"
+            ],
+            "app_id": [
+                6,
+                15,
+                11,
+                7
+            ],
+            "animation": [
+                "liedown",
+                "crouch",
+                "pick_up",
+                "stand"
+            ],
+            "feature_caption": [
+                "A female soldier with light skin, wearing a black beanie, tactical vest, black shirt, pants, and boots, with a white scarf and communication gear.",
+                "A bald man with medium skin, wearing a brown turtleneck, dark pants, and brown shoes.",
+                "A man with short black hair, wearing a white button-up shirt, dark pants, and black shoes. Light skin tone.",
+                "A bald man with glasses, dark complexion, wearing a black turtleneck, suit, and shoes"
+            ],
+            "start_pos": [
+                [
+                    9260.549,
+                    26734.275,
+                    1328.147,
+                    0,
+                    130.70712850879204,
+                    0
+                ],
+                [
+                    9302.604,
+                    26559.86,
+                    1331.585,
+                    0,
+                    178.72095699655296,
+                    0
+                ],
+                [
+                    9067.324,
+                    26851.838,
+                    1339.92,
+                    0.0,
+                    -90.0,
+                    0.0
+                ],
+                [
+                    9668.533,
+                    26940.241,
+                    1321.587,
+                    0,
+                    74.74722391967188,
+                    0
+                ]
+            ],
+            "type": [
+                "None",
+                "None",
+                "None",
+                "None"
+            ]
+        }
+    },
+    "sample_configs": {
+        "sample_center": [
+            9573.824,
+            26689.562,
+            1321.674
+        ],
+        "sample_radius": 732.2799724487096
+    },
+    "refer_agents_category": [
+        "player"
+    ],
+    "safe_start": [
+        [
+            9825.044,
+            25967.83,
+            1322.138,
+            0,
+            121.9031014433194,
+            0
+        ],
+        [
+            8696.122,
+            26664.617,
+            1385.865,
+            0,
+            9.653383572240722,
+            0
+        ],
+        [
+            9968.507,
+            27022.516,
+            1327.407,
+            0,
+            -158.7019470378079,
+            0
+        ]
+    ],
+    "obs_dir": "E:\\EQA\\unrealzoo_gym\\example/QA_data_2\\Greek_Island\\state\\84CIJW\\obs_84CIJW",
+    "Questions": {
+        "Question 1": {
+            "question": "What's the state of the woman wearing a black tactical vest?",
+            "options": [
+                "A. liedown",
+                "B. standing",
+                "C. sitting",
+                "D. running"
+            ],
+            "answer": "A. liedown"
+        },
+        "Question 2": {
+            "question": "What's the state of the bald man wearing a brown turtleneck?",
+            "options": [
+                "A. standing",
+                "B. crouch",
+                "C. walking",
+                "D. sitting"
+            ],
+            "answer": "B. crouch"
+        },
+        "Question 3": {
+            "question": "What's the state of the man in the white button-up shirt?",
+            "options": [
+                "A. hold something",
+                "B. wave",
+                "C. point",
+                "D. talk"
+            ],
+            "answer": "A. hold something"
+        },
+        "Question 4": {
+            "question": "What's the state of the bald man with glasses?",
+            "options": [
+                "A. walk",
+                "B. sit",
+                "C. stand",
+                "D. jump"
+            ],
+            "answer": "C. stand"
+        }
+    }
+}

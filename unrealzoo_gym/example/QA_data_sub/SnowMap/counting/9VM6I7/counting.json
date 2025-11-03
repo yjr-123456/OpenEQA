@@ -1,0 +1,164 @@
+{
+    "target_configs": {
+        "player": {
+            "name": [
+                "player_1_9VM6I7",
+                "player_12_9VM6I7",
+                "player_11_9VM6I7",
+                "player_3_9VM6I7",
+                "player_10_9VM6I7",
+                "player_6_9VM6I7"
+            ],
+            "app_id": [
+                1,
+                12,
+                11,
+                3,
+                10,
+                6
+            ],
+            "animation": [
+                "pick_up",
+                "liedown",
+                "crouch",
+                "liedown",
+                "liedown",
+                "stand"
+            ],
+            "feature_caption": [
+                "A man wearing sunglasses, dark green long-sleeve shirt, light cargo pants, black gloves, and brown boots",
+                "A man wearing a gray suit, dark shirt, and brown shoes with short dark hair.",
+                "A man with short black hair, wearing a white button-up shirt, dark pants, and black shoes. Light skin tone.",
+                "A woman with medium skin, dark hair in a bun, wearing a dark V-neck shirt, light pants, and brown boots",
+                "A man with medium skin, wearing sunglasses, maroon polo shirt, beige pants, brown shoes, and a watch",
+                "A female soldier with light skin, wearing a black beanie, tactical vest, black shirt, pants, and boots, with a white scarf and communication gear."
+            ],
+            "start_pos": [
+                [
+                    1534.278,
+                    -1282.364,
+                    95.025,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                [
+                    1947.337,
+                    -1128.893,
+                    94.881,
+                    0,
+                    -169.41895632372146,
+                    0
+                ],
+                [
+                    1881.595,
+                    -843.693,
+                    93.275,
+                    0,
+                    -45.23606390742003,
+                    0
+                ],
+                [
+                    1930.414,
+                    -1263.541,
+                    95.037,
+                    0,
+                    -90.88379868300544,
+                    0
+                ],
+                [
+                    1774.338,
+                    -1339.823,
+                    95.183,
+                    0,
+                    117.85639374646212,
+                    0
+                ],
+                [
+                    1597.807,
+                    -1366.332,
+                    94.782,
+                    0,
+                    43.43169523480756,
+                    0
+                ]
+            ],
+            "type": [
+                "None",
+                "None",
+                "None",
+                "None",
+                "None",
+                "None"
+            ]
+        }
+    },
+    "sample_configs": {
+        "sample_center": [
+            1626.847,
+            -1240.018,
+            94.782
+        ],
+        "sample_radius": 671.1393850847115
+    },
+    "refer_agents_category": [
+        "player"
+    ],
+    "safe_start": [
+        [
+            1488.072,
+            -1842.672,
+            94.966,
+            0,
+            65.60814035208695,
+            0
+        ],
+        [
+            1969.292,
+            -433.26,
+            127.515,
+            0,
+            -103.96289739826676,
+            0
+        ],
+        [
+            2537.412,
+            -1444.169,
+            38.605,
+            0,
+            162.465556748222,
+            0
+        ]
+    ],
+    "obs_dir": "E:\\EQA\\unrealzoo_gym\\example/QA_data_2\\SnowMap\\counting\\9VM6I7\\obs_9VM6I7",
+    "Questions": {
+        "Question 1": {
+            "question": "How many individuals are present in the scene?",
+            "answer": "six"
+        },
+        "Question 2": {
+            "question": "How many individuals are lying down on the snow?",
+            "answer": "three"
+        },
+        "Question 3": {
+            "question": "How many people are engaged in holding an object?",
+            "answer": "one"
+        },
+        "Question 4": {
+            "question": "How many men are depicted in the scene?",
+            "answer": "four"
+        },
+        "Question 5": {
+            "question": "How many women are present among the individuals?",
+            "answer": "two"
+        },
+        "Question 6": {
+            "question": "How many individuals are wearing glasses?",
+            "answer": "two"
+        },
+        "Question 7": {
+            "question": "How many men in the scene are not wearing glasses?",
+            "answer": "two"
+        }
+    }
+}

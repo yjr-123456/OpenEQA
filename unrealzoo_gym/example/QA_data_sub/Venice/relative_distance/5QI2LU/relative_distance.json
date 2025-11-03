@@ -1,0 +1,174 @@
+{
+    "target_configs": {
+        "player": {
+            "name": [
+                "player_9_5QI2LU",
+                "player_6_5QI2LU",
+                "player_1_5QI2LU",
+                "player_12_5QI2LU"
+            ],
+            "app_id": [
+                9,
+                6,
+                1,
+                12
+            ],
+            "animation": [
+                "pick_up",
+                "stand",
+                "liedown",
+                "crouch"
+            ],
+            "feature_caption": [
+                "A man with medium skin tone, wearing a navy blue polo shirt, black pants, and blue shoes, with a dark watch on his wrist and black hair.",
+                "A female soldier with light skin, wearing a black beanie, tactical vest, black shirt, pants, and boots, with a white scarf and communication gear.",
+                "A man wearing sunglasses, dark green long-sleeve shirt, light cargo pants, black gloves, and brown boots",
+                "A man wearing a gray suit, dark shirt, and brown shoes with short dark hair."
+            ],
+            "start_pos": [
+                [
+                    3776.313,
+                    1535.372,
+                    118.275,
+                    0.0,
+                    -90.0,
+                    0.0
+                ],
+                [
+                    3495.693,
+                    1423.823,
+                    118.109,
+                    0,
+                    -54.38043312614977,
+                    0
+                ],
+                [
+                    3603.538,
+                    1496.187,
+                    118.159,
+                    0,
+                    -22.99811912587535,
+                    0
+                ],
+                [
+                    3084.371,
+                    1560.485,
+                    118.15,
+                    0,
+                    155.77877118248932,
+                    0
+                ]
+            ],
+            "type": [
+                "None",
+                "None",
+                "None",
+                "None"
+            ]
+        }
+    },
+    "sample_configs": {
+        "sample_center": [
+            2799.91,
+            1664.162,
+            118.15
+        ],
+        "sample_radius": 1184.8602363853465
+    },
+    "refer_agents_category": [
+        "player"
+    ],
+    "safe_start": [
+        [
+            3759.625,
+            746.127,
+            118.002,
+            0,
+            109.5860194626412,
+            0
+        ],
+        [
+            3776.776,
+            1928.127,
+            118.15,
+            0,
+            -124.06471196226144,
+            0
+        ],
+        [
+            2688.338,
+            1545.767,
+            118.15,
+            0,
+            -2.984891734253617,
+            0
+        ]
+    ],
+    "obs_dir": "E:\\EQA\\unrealzoo_gym\\example/QA_data_2\\Venice\\relative_distance\\5QI2LU\\obs_5QI2LU",
+    "Questions": {
+        "Question 1": {
+            "question": "Which is closer to the_man_in_blue_polo, the_woman_in_black_vest or the_man_in_light_pants_and_sunglasses?",
+            "options": [
+                "A. the_woman_in_black_vest",
+                "B. the_man_in_light_pants_and_sunglasses"
+            ],
+            "answer": "B. the_man_in_light_pants_and_sunglasses"
+        },
+        "Question 2": {
+            "question": "Which is closer to the_man_in_blue_polo, the_woman_in_black_vest or the_man_in_grey_suit?",
+            "options": [
+                "A. the_woman_in_black_vest",
+                "B. the_man_in_grey_suit"
+            ],
+            "answer": "A. the_woman_in_black_vest"
+        },
+        "Question 3": {
+            "question": "Which is closer to the_woman_in_black_vest, the_man_in_blue_polo or the_man_in_light_pants_and_sunglasses?",
+            "options": [
+                "A. the_man_in_blue_polo",
+                "B. the_man_in_light_pants_and_sunglasses"
+            ],
+            "answer": "B. the_man_in_light_pants_and_sunglasses"
+        },
+        "Question 4": {
+            "question": "Which is closer to the_woman_in_black_vest, the_man_in_blue_polo or the_man_in_grey_suit?",
+            "options": [
+                "A. the_man_in_blue_polo",
+                "B. the_man_in_grey_suit"
+            ],
+            "answer": "A. the_man_in_blue_polo"
+        },
+        "Question 5": {
+            "question": "Which is closer to the_man_in_light_pants_and_sunglasses, the_man_in_blue_polo or the_man_in_grey_suit?",
+            "options": [
+                "A. the_man_in_blue_polo",
+                "B. the_man_in_grey_suit"
+            ],
+            "answer": "A. the_man_in_blue_polo"
+        },
+        "Question 6": {
+            "question": "Which is closer to the_man_in_light_pants_and_sunglasses, the_woman_in_black_vest or the_man_in_grey_suit?",
+            "options": [
+                "A. the_woman_in_black_vest",
+                "B. the_man_in_grey_suit"
+            ],
+            "answer": "A. the_woman_in_black_vest"
+        },
+        "Question 7": {
+            "question": "Which is closer to the_man_in_grey_suit, the_man_in_blue_polo or the_woman_in_black_vest?",
+            "options": [
+                "A. the_man_in_blue_polo",
+                "B. the_woman_in_black_vest"
+            ],
+            "answer": "B. the_woman_in_black_vest"
+        },
+        "Question 8": {
+            "question": "Which is closer to the_man_in_grey_suit, the_man_in_blue_polo or the_man_in_light_pants_and_sunglasses?",
+            "options": [
+                "A. the_man_in_blue_polo",
+                "B. the_man_in_light_pants_and_sunglasses"
+            ],
+            "answer": "B. the_man_in_light_pants_and_sunglasses"
+        }
+    }
+}

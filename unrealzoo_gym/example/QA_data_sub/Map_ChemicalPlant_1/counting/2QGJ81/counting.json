@@ -1,0 +1,140 @@
+{
+    "target_configs": {
+        "player": {
+            "name": [
+                "player_10_2QGJ81",
+                "player_12_2QGJ81"
+            ],
+            "app_id": [
+                10,
+                12
+            ],
+            "animation": [
+                "pick_up",
+                "liedown"
+            ],
+            "feature_caption": [
+                "A man with medium skin, wearing sunglasses, maroon polo shirt, beige pants, brown shoes, and a watch",
+                "A man wearing a gray suit, dark shirt, and brown shoes with short dark hair."
+            ],
+            "start_pos": [
+                [
+                    13754.839,
+                    -1114.376,
+                    -12713.017,
+                    0.0,
+                    -90.0,
+                    0.0
+                ],
+                [
+                    13749.317,
+                    -1936.059,
+                    -12713.225,
+                    0,
+                    41.00280704943427,
+                    0
+                ]
+            ],
+            "type": [
+                "None",
+                "None"
+            ]
+        },
+        "drone": {
+            "name": [
+                "drone_0_2QGJ81"
+            ],
+            "app_id": [
+                0
+            ],
+            "animation": [
+                "none"
+            ],
+            "feature_caption": [
+                "Aerial drone with a black and white frame, dual rotors, and a streamlined design."
+            ],
+            "start_pos": [
+                [
+                    13645.365,
+                    -1264.48,
+                    -12512.956,
+                    0,
+                    -24.82642485201339,
+                    0
+                ]
+            ],
+            "type": [
+                "None"
+            ]
+        }
+    },
+    "sample_configs": {
+        "sample_center": [
+            13683.832,
+            -1351.302,
+            -12712.956
+        ],
+        "sample_radius": 788.4123610487801
+    },
+    "refer_agents_category": [
+        "player",
+        "drone"
+    ],
+    "safe_start": [
+        [
+            13704.721,
+            -554.913,
+            -12713.161,
+            0,
+            -89.23561907513343,
+            0
+        ],
+        [
+            13534.663,
+            -1414.368,
+            -12712.956,
+            0,
+            -7.499003718729583,
+            0
+        ],
+        [
+            13870.172,
+            -2173.798,
+            -12710.281,
+            0,
+            101.80093355828124,
+            0
+        ]
+    ],
+    "obs_dir": "E:\\EQA\\unrealzoo_gym\\example/QA_data_2\\Map_ChemicalPlant_1\\counting\\2QGJ81\\obs_2QGJ81",
+    "Questions": {
+        "Question 1": {
+            "question": "How many people are present in the scene?",
+            "answer": "two"
+        },
+        "Question 2": {
+            "question": "How many individuals are holding an object?",
+            "answer": "one"
+        },
+        "Question 3": {
+            "question": "How many drones can be seen in the scene?",
+            "answer": "one"
+        },
+        "Question 4": {
+            "question": "How many people in the scene are wearing glasses?",
+            "answer": "one"
+        },
+        "Question 5": {
+            "question": "How many bald individuals are depicted in the scene?",
+            "answer": "zero"
+        },
+        "Question 6": {
+            "question": "How many men are present in the scene?",
+            "answer": "two"
+        },
+        "Question 7": {
+            "question": "How many individuals are sprawled and still on the ground?",
+            "answer": "one"
+        }
+    }
+}

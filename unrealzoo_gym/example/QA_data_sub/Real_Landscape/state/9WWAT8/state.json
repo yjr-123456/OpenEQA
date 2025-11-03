@@ -1,0 +1,201 @@
+{
+    "target_configs": {
+        "player": {
+            "name": [
+                "player_4_9WWAT8",
+                "player_7_9WWAT8",
+                "player_10_9WWAT8",
+                "player_6_9WWAT8",
+                "player_11_9WWAT8"
+            ],
+            "app_id": [
+                4,
+                7,
+                10,
+                6,
+                11
+            ],
+            "animation": [
+                "crouch",
+                "liedown",
+                "stand",
+                "crouch",
+                "stand"
+            ],
+            "feature_caption": [
+                "A woman with fair skin, wearing a white and blue shirt, blue pants, dark boots, a gray bandana, and a utility belt with pouches",
+                "A bald man with glasses, dark complexion, wearing a black turtleneck, suit, and shoes",
+                "A man with medium skin, wearing sunglasses, maroon polo shirt, beige pants, brown shoes, and a watch",
+                "A female soldier with light skin, wearing a black beanie, tactical vest, black shirt, pants, and boots, with a white scarf and communication gear.",
+                "A man with short black hair, wearing a white button-up shirt, dark pants, and black shoes. Light skin tone."
+            ],
+            "start_pos": [
+                [
+                    16831.071,
+                    -82523.433,
+                    5577.598,
+                    0,
+                    -140.60730946073818,
+                    0
+                ],
+                [
+                    16853.915,
+                    -82427.342,
+                    5552.517,
+                    0,
+                    -157.02817039258167,
+                    0
+                ],
+                [
+                    17098.332,
+                    -82065.186,
+                    5409.836,
+                    0,
+                    88.70195865057173,
+                    0
+                ],
+                [
+                    17263.261,
+                    -82582.655,
+                    5465.203,
+                    0,
+                    40.78312091165725,
+                    0
+                ],
+                [
+                    17670.459,
+                    -82820.611,
+                    5506.768,
+                    0,
+                    53.492180870407736,
+                    0
+                ]
+            ],
+            "type": [
+                "None",
+                "None",
+                "None",
+                "None",
+                "None"
+            ]
+        },
+        "drone": {
+            "name": [
+                "drone_0_9WWAT8"
+            ],
+            "app_id": [
+                0
+            ],
+            "animation": [
+                "none"
+            ],
+            "feature_caption": [
+                "Aerial drone with a black and white frame, dual rotors, and a streamlined design."
+            ],
+            "start_pos": [
+                [
+                    16781.608,
+                    -82059.557,
+                    5739.65,
+                    0,
+                    64.34544617818273,
+                    0
+                ]
+            ],
+            "type": [
+                "None"
+            ]
+        }
+    },
+    "sample_configs": {
+        "sample_center": [
+            17357.643,
+            -82626.018,
+            5450.953
+        ],
+        "sample_radius": 1012.7493731495551
+    },
+    "refer_agents_category": [
+        "player",
+        "drone"
+    ],
+    "safe_start": [
+        [
+            17219.984,
+            -83412.285,
+            5529.511,
+            0,
+            97.8005186723927,
+            0
+        ],
+        [
+            17973.82,
+            -82048.948,
+            5272.342,
+            0,
+            -157.7619787775227,
+            0
+        ],
+        [
+            16533.949,
+            -83162.582,
+            5655.773,
+            0,
+            53.767992047396554,
+            0
+        ]
+    ],
+    "obs_dir": "E:\\EQA\\unrealzoo_gym\\example/QA_data_2\\Real_Landscape\\state\\9WWAT8\\obs_9WWAT8",
+    "Questions": {
+        "Question 1": {
+            "question": "What's the state of the woman in floral shirt?",
+            "options": [
+                "A. stand",
+                "B. crouch",
+                "C. sitting",
+                "D. walking"
+            ],
+            "answer": "B. crouch"
+        },
+        "Question 2": {
+            "question": "What's the state of the bald man in glasses?",
+            "options": [
+                "A. liedown",
+                "B. stand",
+                "C. sitting",
+                "D. running"
+            ],
+            "answer": "A. liedown"
+        },
+        "Question 3": {
+            "question": "What's the state of the man in burgundy polo and light pants?",
+            "options": [
+                "A. sitting",
+                "B. stand",
+                "C. crouch",
+                "D. jumping"
+            ],
+            "answer": "B. stand"
+        },
+        "Question 4": {
+            "question": "What's the state of the woman in black vest?",
+            "options": [
+                "A. stand",
+                "B. liedown",
+                "C. crouch",
+                "D. sitting"
+            ],
+            "answer": "C. crouch"
+        },
+        "Question 5": {
+            "question": "What's the state of the man in white shirt?",
+            "options": [
+                "A. crouch",
+                "B. liedown",
+                "C. stand",
+                "D. running"
+            ],
+            "answer": "C. stand"
+        }
+    }
+}

@@ -1,0 +1,157 @@
+{
+    "target_configs": {
+        "player": {
+            "name": [
+                "player_6_04WFQP",
+                "player_15_04WFQP",
+                "player_11_04WFQP"
+            ],
+            "app_id": [
+                6,
+                15,
+                11
+            ],
+            "animation": [
+                "in_vehicle",
+                "stand",
+                "liedown"
+            ],
+            "feature_caption": [
+                "A female soldier with light skin, wearing a black beanie, tactical vest, black shirt, pants, and boots, with a white scarf and communication gear.",
+                "A bald man with medium skin, wearing a brown turtleneck, dark pants, and brown shoes.",
+                "A man with short black hair, wearing a white button-up shirt, dark pants, and black shoes. Light skin tone."
+            ],
+            "start_pos": [
+                [
+                    -8285.643,
+                    2312.716,
+                    211.267,
+                    0.0,
+                    -0.0,
+                    -0.0
+                ],
+                [
+                    -7724.577,
+                    2066.467,
+                    270.525,
+                    0,
+                    -9.009768679368023,
+                    0
+                ],
+                [
+                    -7124.352,
+                    1459.59,
+                    214.105,
+                    0,
+                    -155.42941977588413,
+                    0
+                ]
+            ],
+            "type": [
+                "None",
+                "None",
+                "None"
+            ]
+        },
+        "car": {
+            "name": [
+                "car_1_04WFQP"
+            ],
+            "app_id": [
+                1
+            ],
+            "animation": [
+                "None"
+            ],
+            "feature_caption": [
+                "White compact car with black grille, sleek design, and four doors"
+            ],
+            "start_pos": [
+                [
+                    -8325.24,
+                    2114.316,
+                    211.61,
+                    0,
+                    -12.559789289907357,
+                    0
+                ]
+            ],
+            "type": [
+                "BP_Hatchback_child_extras_C"
+            ]
+        }
+    },
+    "sample_configs": {
+        "sample_center": [
+            -7346.837,
+            1562.585,
+            199.154
+        ],
+        "sample_radius": 1323.3141496064218
+    },
+    "refer_agents_category": [
+        "player",
+        "car"
+    ],
+    "safe_start": [
+        [
+            -6707.805,
+            1417.579,
+            237.578,
+            0,
+            151.7534132390999,
+            0
+        ],
+        [
+            -6736.876,
+            2465.848,
+            228.173,
+            0,
+            -154.7262145075638,
+            0
+        ],
+        [
+            -7006.511,
+            1138.318,
+            201.205,
+            0,
+            131.73743051184977,
+            0
+        ]
+    ],
+    "obs_dir": "E:\\EQA\\unrealzoo_gym\\example/QA_data_2\\RussianWinterTownDemo01\\relative_distance\\04WFQP\\obs_04WFQP",
+    "Questions": {
+        "Question 1": {
+            "question": "Which is closer to the_woman_in_black_vest, White_Compact_Car or the_bald_man_in_brown_sweater_and_black_pants?",
+            "options": [
+                "A. White_Compact_Car",
+                "B. the_bald_man_in_brown_sweater_and_black_pants"
+            ],
+            "answer": "A. White_Compact_Car"
+        },
+        "Question 2": {
+            "question": "Which is closer to the_bald_man_in_brown_sweater_and_black_pants, the_woman_in_black_vest or the_man_in_white_shirt?",
+            "options": [
+                "A. the_woman_in_black_vest",
+                "B. the_man_in_white_shirt"
+            ],
+            "answer": "A. the_woman_in_black_vest"
+        },
+        "Question 3": {
+            "question": "Which is closer to the_man_in_white_shirt, the_bald_man_in_brown_sweater_and_black_pants or White_Compact_Car?",
+            "options": [
+                "A. the_bald_man_in_brown_sweater_and_black_pants",
+                "B. White_Compact_Car"
+            ],
+            "answer": "A. the_bald_man_in_brown_sweater_and_black_pants"
+        },
+        "Question 4": {
+            "question": "Which is closer to White_Compact_Car, the_bald_man_in_brown_sweater_and_black_pants or the_man_in_white_shirt?",
+            "options": [
+                "A. the_bald_man_in_brown_sweater_and_black_pants",
+                "B. the_man_in_white_shirt"
+            ],
+            "answer": "A. the_bald_man_in_brown_sweater_and_black_pants"
+        }
+    }
+}

@@ -1,0 +1,142 @@
+{
+    "target_configs": {
+        "player": {
+            "name": [
+                "player_9_OZSXDL",
+                "player_4_OZSXDL",
+                "player_11_OZSXDL",
+                "player_12_OZSXDL"
+            ],
+            "app_id": [
+                9,
+                4,
+                11,
+                12
+            ],
+            "animation": [
+                "crouch",
+                "pick_up",
+                "stand",
+                "liedown"
+            ],
+            "feature_caption": [
+                "A man with medium skin tone, wearing a navy blue polo shirt, black pants, and blue shoes, with a dark watch on his wrist and black hair.",
+                "A woman with fair skin, wearing a white and blue shirt, blue pants, dark boots, a gray bandana, and a utility belt with pouches",
+                "A man with short black hair, wearing a white button-up shirt, dark pants, and black shoes. Light skin tone.",
+                "A man wearing a gray suit, dark shirt, and brown shoes with short dark hair."
+            ],
+            "start_pos": [
+                [
+                    -47183.679,
+                    15558.913,
+                    -22529.287,
+                    0,
+                    148.9571333630086,
+                    0
+                ],
+                [
+                    -46820.137,
+                    15667.776,
+                    -22522.583,
+                    0.0,
+                    -90.0,
+                    0.0
+                ],
+                [
+                    -47002.764,
+                    15661.741,
+                    -22529.288,
+                    0,
+                    -153.81929831909918,
+                    0
+                ],
+                [
+                    -46893.666,
+                    16298.279,
+                    -22526.457,
+                    0,
+                    -3.003728309589718,
+                    0
+                ]
+            ],
+            "type": [
+                "None",
+                "None",
+                "None",
+                "None"
+            ]
+        }
+    },
+    "sample_configs": {
+        "sample_center": [
+            -46968.011,
+            15811.556,
+            -22525.937
+        ],
+        "sample_radius": 692.3684881813622
+    },
+    "refer_agents_category": [
+        "player"
+    ],
+    "safe_start": [
+        [
+            -46384.142,
+            16494.089,
+            -22529.288,
+            0,
+            -130.27472703036605,
+            0
+        ],
+        [
+            -47239.464,
+            14920.05,
+            -22523.13,
+            0,
+            73.2159867260232,
+            0
+        ],
+        [
+            -45907.722,
+            15817.57,
+            -23446.428,
+            0,
+            -178.87860091267183,
+            0
+        ]
+    ],
+    "obs_dir": "E:\\EQA\\unrealzoo_gym\\example/QA_data_2\\Demonstration_Castle\\counting\\OZSXDL\\obs_OZSXDL",
+    "Questions": {
+        "Question 1": {
+            "question": "How many human figures are visible within the scene, encompassing both the ancient ruins and the dark chamber?",
+            "answer": "four"
+        },
+        "Question 2": {
+            "question": "Among all the individuals present, how many are identified as men?",
+            "answer": "three"
+        },
+        "Question 3": {
+            "question": "Among all the individuals present, how many are identified as women?",
+            "answer": "one"
+        },
+        "Question 4": {
+            "question": "How many people in the scene are noted to have a medium skin complexion?",
+            "answer": "two"
+        },
+        "Question 5": {
+            "question": "Excluding the person who is standing, how many individuals are in other distinct postures?",
+            "answer": "three"
+        },
+        "Question 6": {
+            "question": "How many individuals in the scene are actively engaged in picking something up?",
+            "answer": "one"
+        },
+        "Question 7": {
+            "question": "How many people are wearing glasses in the scene?",
+            "answer": "zero"
+        },
+        "Question 8": {
+            "question": "How many people with bald heads are present in the scene?",
+            "answer": "zero"
+        }
+    }
+}

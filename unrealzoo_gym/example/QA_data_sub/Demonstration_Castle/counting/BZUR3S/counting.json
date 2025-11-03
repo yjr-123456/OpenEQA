@@ -1,0 +1,134 @@
+{
+    "target_configs": {
+        "player": {
+            "name": [
+                "player_5_BZUR3S",
+                "player_15_BZUR3S",
+                "player_9_BZUR3S",
+                "player_12_BZUR3S"
+            ],
+            "app_id": [
+                5,
+                15,
+                9,
+                12
+            ],
+            "animation": [
+                "liedown",
+                "pick_up",
+                "stand",
+                "crouch"
+            ],
+            "feature_caption": [
+                "A female soldier wearing green tactical uniform, backpack, and black boots. Hair is tied back. She carries a utility vest and accessories.",
+                "A bald man with medium skin, wearing a brown turtleneck, dark pants, and brown shoes.",
+                "A man with medium skin tone, wearing a navy blue polo shirt, black pants, and blue shoes, with a dark watch on his wrist and black hair.",
+                "A man wearing a gray suit, dark shirt, and brown shoes with short dark hair."
+            ],
+            "start_pos": [
+                [
+                    -44780.054,
+                    16229.031,
+                    -22529.288,
+                    0,
+                    18.628421799504565,
+                    0
+                ],
+                [
+                    -44909.273,
+                    16151.128,
+                    -22529.287,
+                    0.0,
+                    -90.0,
+                    0.0
+                ],
+                [
+                    -44743.144,
+                    15341.321,
+                    -22529.288,
+                    0,
+                    -44.8318344305942,
+                    0
+                ],
+                [
+                    -44731.269,
+                    16106.506,
+                    -22523.427,
+                    0,
+                    124.6165436071056,
+                    0
+                ]
+            ],
+            "type": [
+                "None",
+                "None",
+                "None",
+                "None"
+            ]
+        }
+    },
+    "sample_configs": {
+        "sample_center": [
+            -45450.716,
+            15307.028,
+            -22522.707
+        ],
+        "sample_radius": 1340.1405000323452
+    },
+    "refer_agents_category": [
+        "player"
+    ],
+    "safe_start": [
+        [
+            -44912.728,
+            14962.451,
+            -22522.577,
+            0,
+            83.01829449914753,
+            0
+        ],
+        [
+            -44917.397,
+            16495.337,
+            -22522.714,
+            0,
+            -76.78034239843173,
+            0
+        ],
+        [
+            -44445.61,
+            15033.845,
+            -22522.566,
+            0,
+            110.50943604429021,
+            0
+        ]
+    ],
+    "obs_dir": "E:\\EQA\\unrealzoo_gym\\example/QA_data_2\\Demonstration_Castle\\counting\\BZUR3S\\obs_BZUR3S",
+    "Questions": {
+        "Question 1": {
+            "question": "How many humans are present in the scene?",
+            "answer": "four"
+        },
+        "Question 2": {
+            "question": "How many men are depicted in the scene?",
+            "answer": "three"
+        },
+        "Question 3": {
+            "question": "How many humans are bald in the scene?",
+            "answer": "one"
+        },
+        "Question 4": {
+            "question": "How many humans are not wearing glasses?",
+            "answer": "four"
+        },
+        "Question 5": {
+            "question": "How many men in the scene are not bald?",
+            "answer": "two"
+        },
+        "Question 6": {
+            "question": "How many non-bald humans are in the scene?",
+            "answer": "three"
+        }
+    }
+}

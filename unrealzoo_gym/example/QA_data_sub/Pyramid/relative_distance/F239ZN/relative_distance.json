@@ -1,0 +1,189 @@
+{
+    "target_configs": {
+        "player": {
+            "name": [
+                "player_15_F239ZN",
+                "player_7_F239ZN",
+                "player_11_F239ZN"
+            ],
+            "app_id": [
+                15,
+                7,
+                11
+            ],
+            "animation": [
+                "crouch",
+                "pick_up",
+                "liedown"
+            ],
+            "feature_caption": [
+                "A bald man with medium skin, wearing a brown turtleneck, dark pants, and brown shoes.",
+                "A bald man with glasses, dark complexion, wearing a black turtleneck, suit, and shoes",
+                "A man with short black hair, wearing a white button-up shirt, dark pants, and black shoes. Light skin tone."
+            ],
+            "start_pos": [
+                [
+                    20512.222,
+                    1768.7,
+                    198.15,
+                    0,
+                    78.5113143454538,
+                    0
+                ],
+                [
+                    20012.098,
+                    2003.904,
+                    198.105,
+                    0.0,
+                    -90.0,
+                    0.0
+                ],
+                [
+                    19960.889,
+                    2286.048,
+                    197.995,
+                    0,
+                    174.67605108060883,
+                    0
+                ]
+            ],
+            "type": [
+                "None",
+                "None",
+                "None"
+            ]
+        },
+        "animal": {
+            "name": [
+                "animal_0_F239ZN"
+            ],
+            "app_id": [
+                0
+            ],
+            "animation": [
+                "None"
+            ],
+            "feature_caption": [
+                "Beagle with tricolor coat, floppy ears, and a wagging tail"
+            ],
+            "start_pos": [
+                [
+                    20174.628,
+                    1927.472,
+                    198.15,
+                    0,
+                    31.75829912238845,
+                    0
+                ]
+            ],
+            "type": [
+                "None"
+            ]
+        }
+    },
+    "sample_configs": {
+        "sample_center": [
+            20736.781,
+            1847.479,
+            197.995
+        ],
+        "sample_radius": 1091.2638012535904
+    },
+    "refer_agents_category": [
+        "player",
+        "animal"
+    ],
+    "safe_start": [
+        [
+            20070.983,
+            1714.782,
+            197.995,
+            0,
+            71.55417737934837,
+            0
+        ],
+        [
+            19648.002,
+            2244.478,
+            198.15,
+            0,
+            -25.62352981770685,
+            0
+        ],
+        [
+            20736.781,
+            1847.479,
+            197.995,
+            0,
+            165.3901395501719,
+            0
+        ]
+    ],
+    "obs_dir": "E:\\EQA\\unrealzoo_gym\\example/QA_data_2\\Pyramid\\relative_distance\\F239ZN\\obs_F239ZN",
+    "Questions": {
+        "Question 1": {
+            "question": "Which is closer to the_bald_man_in_brown_sweater_and_black_pants, Beagle_Dog or the_bald_man_in_glasses?",
+            "options": [
+                "A. Beagle_Dog",
+                "B. the_bald_man_in_glasses"
+            ],
+            "answer": "A. Beagle_Dog"
+        },
+        "Question 2": {
+            "question": "Which is closer to the_bald_man_in_brown_sweater_and_black_pants, the_bald_man_in_glasses or the_man_in_white_shirt?",
+            "options": [
+                "A. the_bald_man_in_glasses",
+                "B. the_man_in_white_shirt"
+            ],
+            "answer": "A. the_bald_man_in_glasses"
+        },
+        "Question 3": {
+            "question": "Which is closer to the_bald_man_in_glasses, Beagle_Dog or the_man_in_white_shirt?",
+            "options": [
+                "A. Beagle_Dog",
+                "B. the_man_in_white_shirt"
+            ],
+            "answer": "A. Beagle_Dog"
+        },
+        "Question 4": {
+            "question": "Which is closer to the_bald_man_in_glasses, the_man_in_white_shirt or the_bald_man_in_brown_sweater_and_black_pants?",
+            "options": [
+                "A. the_man_in_white_shirt",
+                "B. the_bald_man_in_brown_sweater_and_black_pants"
+            ],
+            "answer": "A. the_man_in_white_shirt"
+        },
+        "Question 5": {
+            "question": "Which is closer to the_man_in_white_shirt, the_bald_man_in_glasses or Beagle_Dog?",
+            "options": [
+                "A. the_bald_man_in_glasses",
+                "B. Beagle_Dog"
+            ],
+            "answer": "A. the_bald_man_in_glasses"
+        },
+        "Question 6": {
+            "question": "Which is closer to the_man_in_white_shirt, Beagle_Dog or the_bald_man_in_brown_sweater_and_black_pants?",
+            "options": [
+                "A. Beagle_Dog",
+                "B. the_bald_man_in_brown_sweater_and_black_pants"
+            ],
+            "answer": "A. Beagle_Dog"
+        },
+        "Question 7": {
+            "question": "Which is closer to Beagle_Dog, the_bald_man_in_glasses or the_bald_man_in_brown_sweater_and_black_pants?",
+            "options": [
+                "A. the_bald_man_in_glasses",
+                "B. the_bald_man_in_brown_sweater_and_black_pants"
+            ],
+            "answer": "A. the_bald_man_in_glasses"
+        },
+        "Question 8": {
+            "question": "Which is closer to Beagle_Dog, the_bald_man_in_glasses or the_man_in_white_shirt?",
+            "options": [
+                "A. the_bald_man_in_glasses",
+                "B. the_man_in_white_shirt"
+            ],
+            "answer": "A. the_bald_man_in_glasses"
+        }
+    }
+}

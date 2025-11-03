@@ -1,0 +1,200 @@
+{
+    "target_configs": {
+        "player": {
+            "name": [
+                "player_4_4P4A58",
+                "player_9_4P4A58",
+                "player_5_4P4A58",
+                "player_6_4P4A58",
+                "player_3_4P4A58",
+                "player_12_4P4A58"
+            ],
+            "app_id": [
+                4,
+                9,
+                5,
+                6,
+                3,
+                12
+            ],
+            "animation": [
+                "stand",
+                "liedown",
+                "crouch",
+                "crouch",
+                "liedown",
+                "pick_up"
+            ],
+            "feature_caption": [
+                "A woman with fair skin, wearing a white and blue shirt, blue pants, dark boots, a gray bandana, and a utility belt with pouches",
+                "A man with medium skin tone, wearing a navy blue polo shirt, black pants, and blue shoes, with a dark watch on his wrist and black hair.",
+                "A female soldier wearing green tactical uniform, backpack, and black boots. Hair is tied back. She carries a utility vest and accessories.",
+                "A female soldier with light skin, wearing a black beanie, tactical vest, black shirt, pants, and boots, with a white scarf and communication gear.",
+                "A woman with medium skin, dark hair in a bun, wearing a dark V-neck shirt, light pants, and brown boots",
+                "A man wearing a gray suit, dark shirt, and brown shoes with short dark hair."
+            ],
+            "start_pos": [
+                [
+                    732.07,
+                    733.227,
+                    118.101,
+                    0,
+                    -53.027438484696546,
+                    0
+                ],
+                [
+                    850.614,
+                    635.554,
+                    118.101,
+                    0,
+                    6.580123215741594,
+                    0
+                ],
+                [
+                    666.793,
+                    834.92,
+                    118.15,
+                    0,
+                    -97.64207839018341,
+                    0
+                ],
+                [
+                    840.022,
+                    837.912,
+                    118.101,
+                    0,
+                    17.736355389595474,
+                    0
+                ],
+                [
+                    553.904,
+                    575.168,
+                    118.15,
+                    0,
+                    125.52215478992832,
+                    0
+                ],
+                [
+                    481.103,
+                    597.705,
+                    118.15,
+                    0.0,
+                    -90.0,
+                    0.0
+                ]
+            ],
+            "type": [
+                "None",
+                "None",
+                "None",
+                "None",
+                "None",
+                "None"
+            ]
+        }
+    },
+    "sample_configs": {
+        "sample_center": [
+            714.446,
+            45.066,
+            118.15
+        ],
+        "sample_radius": 1002.7291659663301
+    },
+    "refer_agents_category": [
+        "player"
+    ],
+    "safe_start": [
+        [
+            1206.49,
+            329.497,
+            118.089,
+            0,
+            144.3053853968397,
+            0
+        ],
+        [
+            714.446,
+            45.066,
+            118.15,
+            0,
+            92.35451666461587,
+            0
+        ],
+        [
+            227.57,
+            901.692,
+            118.15,
+            0,
+            -23.42977792696808,
+            0
+        ]
+    ],
+    "obs_dir": "E:\\EQA\\unrealzoo_gym\\example/QA_data_2\\Venice\\relative_distance\\4P4A58\\obs_4P4A58",
+    "Questions": {
+        "Question 1": {
+            "question": "Which is closer to the woman in floral shirt, the man in blue polo or the woman in deep V top?",
+            "options": [
+                "A. the man in blue polo",
+                "B. the woman in deep V top"
+            ],
+            "answer": "A. the man in blue polo"
+        },
+        "Question 2": {
+            "question": "Which is closer to the woman in floral shirt, the woman in camo vest or the man in grey suit?",
+            "options": [
+                "A. the woman in camo vest",
+                "B. the man in grey suit"
+            ],
+            "answer": "A. the woman in camo vest"
+        },
+        "Question 3": {
+            "question": "Which is closer to the man in blue polo, the woman in floral shirt or the woman in deep V top?",
+            "options": [
+                "A. the woman in floral shirt",
+                "B. the woman in deep V top"
+            ],
+            "answer": "A. the woman in floral shirt"
+        },
+        "Question 4": {
+            "question": "Which is closer to the man in blue polo, the woman in black vest or the man in grey suit?",
+            "options": [
+                "A. the woman in black vest",
+                "B. the man in grey suit"
+            ],
+            "answer": "A. the woman in black vest"
+        },
+        "Question 5": {
+            "question": "Which is closer to the woman in camo vest, the woman in floral shirt or the man in blue polo?",
+            "options": [
+                "A. the woman in floral shirt",
+                "B. the man in blue polo"
+            ],
+            "answer": "A. the woman in floral shirt"
+        },
+        "Question 6": {
+            "question": "Which is closer to the woman in camo vest, the woman in floral shirt or the woman in deep V top?",
+            "options": [
+                "A. the woman in floral shirt",
+                "B. the woman in deep V top"
+            ],
+            "answer": "A. the woman in floral shirt"
+        },
+        "Question 7": {
+            "question": "Which is closer to the woman in black vest, the woman in floral shirt or the woman in deep V top?",
+            "options": [
+                "A. the woman in floral shirt",
+                "B. the woman in deep V top"
+            ],
+            "answer": "A. the woman in floral shirt"
+        },
+        "Question 8": {
+            "question": "Which is closer to the woman in deep V top, the man in grey suit or the woman in black vest?",
+            "options": [
+                "A. the man in grey suit",
+                "B. the woman in black vest"
+            ],
+            "answer": "A. the man in grey suit"
+        }
+    }
+}

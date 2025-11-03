@@ -1,0 +1,190 @@
+{
+    "target_configs": {
+        "player": {
+            "name": [
+                "player_15_4QIJ8P",
+                "player_9_4QIJ8P",
+                "player_12_4QIJ8P",
+                "player_4_4QIJ8P"
+            ],
+            "app_id": [
+                15,
+                9,
+                12,
+                4
+            ],
+            "animation": [
+                "pick_up",
+                "crouch",
+                "stand",
+                "liedown"
+            ],
+            "feature_caption": [
+                "A bald man with medium skin, wearing a brown turtleneck, dark pants, and brown shoes.",
+                "A man with medium skin tone, wearing a navy blue polo shirt, black pants, and blue shoes, with a dark watch on his wrist and black hair.",
+                "A man wearing a gray suit, dark shirt, and brown shoes with short dark hair.",
+                "A woman with fair skin, wearing a white and blue shirt, blue pants, dark boots, a gray bandana, and a utility belt with pouches"
+            ],
+            "start_pos": [
+                [
+                    13806.93,
+                    -3095.951,
+                    198.4,
+                    0.0,
+                    -90.0,
+                    0.0
+                ],
+                [
+                    13736.156,
+                    -2934.509,
+                    198.15,
+                    0,
+                    -162.86669228865563,
+                    0
+                ],
+                [
+                    13930.078,
+                    -2500.187,
+                    198.105,
+                    0,
+                    73.85296959762707,
+                    0
+                ],
+                [
+                    13920.393,
+                    -2810.727,
+                    198.15,
+                    0,
+                    -57.70527189754833,
+                    0
+                ]
+            ],
+            "type": [
+                "None",
+                "None",
+                "None",
+                "None"
+            ]
+        }
+    },
+    "sample_configs": {
+        "sample_center": [
+            14374.311,
+            -2921.795,
+            198.15
+        ],
+        "sample_radius": 838.2816383235527
+    },
+    "refer_agents_category": [
+        "player"
+    ],
+    "safe_start": [
+        [
+            13477.202,
+            -2188.576,
+            198.135,
+            0,
+            -60.14802267479128,
+            0
+        ],
+        [
+            14045.148,
+            -3664.679,
+            198.135,
+            0,
+            103.34659842165358,
+            0
+        ],
+        [
+            14316.476,
+            -2434.113,
+            197.917,
+            0,
+            -139.39771497576683,
+            0
+        ]
+    ],
+    "obs_dir": "E:\\EQA\\unrealzoo_gym\\example/QA_data_2\\Pyramid\\relative_location\\4QIJ8P\\obs_4QIJ8P",
+    "Questions": {
+        "Question 1": {
+            "question": "Where is the man in blue polo relative to the bald man in brown sweater and black pants?",
+            "options": [
+                "A. To the front-right of",
+                "B. To the back-left of",
+                "C. To the right of",
+                "D. In front of"
+            ],
+            "answer": "B. To the back-left of"
+        },
+        "Question 2": {
+            "question": "Where is the man in grey suit relative to the bald man in brown sweater and black pants?",
+            "options": [
+                "A. To the front of",
+                "B. Behind",
+                "C. To the left of",
+                "D. To the right of"
+            ],
+            "answer": "B. Behind"
+        },
+        "Question 3": {
+            "question": "Where is the bald man in brown sweater and black pants relative to the man in blue polo?",
+            "options": [
+                "A. To the back-right of",
+                "B. To the right of",
+                "C. To the front-left of",
+                "D. Behind"
+            ],
+            "answer": "C. To the front-left of"
+        },
+        "Question 4": {
+            "question": "Where is the man in grey suit relative to the man in blue polo?",
+            "options": [
+                "A. To the back-left of",
+                "B. To the front-right of",
+                "C. To the left of",
+                "D. Behind"
+            ],
+            "answer": "B. To the front-right of"
+        },
+        "Question 5": {
+            "question": "Where is the woman in floral shirt relative to the man in blue polo?",
+            "options": [
+                "A. To the front-right of",
+                "B. Behind",
+                "C. To the left of",
+                "D. In front of"
+            ],
+            "answer": "A. To the front-right of"
+        },
+        "Question 6": {
+            "question": "Where is the bald man in brown sweater and black pants relative to the man in grey suit?",
+            "options": [
+                "A. To the right of",
+                "B. Behind",
+                "C. To the left of",
+                "D. In front of"
+            ],
+            "answer": "C. To the left of"
+        },
+        "Question 7": {
+            "question": "Where is the man in blue polo relative to the man in grey suit?",
+            "options": [
+                "A. To the front-right of",
+                "B. To the back-left of",
+                "C. To the right of",
+                "D. In front of"
+            ],
+            "answer": "B. To the back-left of"
+        },
+        "Question 8": {
+            "question": "Where is the woman in floral shirt relative to the man in grey suit?",
+            "options": [
+                "A. To the right of",
+                "B. Behind",
+                "C. To the left of",
+                "D. In front of"
+            ],
+            "answer": "C. To the left of"
+        }
+    }
+}
