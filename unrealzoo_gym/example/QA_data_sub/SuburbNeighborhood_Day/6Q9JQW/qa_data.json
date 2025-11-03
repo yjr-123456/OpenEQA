@@ -1,0 +1,444 @@
+{
+    "target_configs": {
+        "player": {
+            "name": [
+                "player_19_6Q9JQW",
+                "player_16_6Q9JQW",
+                "player_4_6Q9JQW",
+                "player_2_6Q9JQW",
+                "player_15_6Q9JQW",
+                "player_6_6Q9JQW"
+            ],
+            "app_id": [
+                19,
+                16,
+                4,
+                2,
+                15,
+                6
+            ],
+            "animation": [
+                "crouch",
+                "liedown",
+                "crouch",
+                "stand",
+                "stand",
+                "pick_up"
+            ],
+            "feature_caption": [
+                "A man with dark skin, wearing a black turtleneck, pants, and shoes.",
+                "A man with dark skin, wearing a black fedora, black turtleneck, black pants, and black shoes.",
+                "A woman with fair skin, wearing a white and blue shirt, blue pants, dark boots, a gray bandana, and a utility belt with pouches",
+                "A woman with short dark hair, light skin, wearing a green shirt, grey cargo pants, dark gloves, and brown shoes.",
+                "A bald man with medium skin, wearing a brown turtleneck, dark pants, and brown shoes.",
+                "A female soldier with light skin, wearing a black beanie, tactical vest, black shirt, pants, and boots, with a white scarf and communication gear."
+            ],
+            "start_pos": [
+                [
+                    -1712.134,
+                    -87.529,
+                    98.15,
+                    0,
+                    16.8124612688776,
+                    0
+                ],
+                [
+                    -1345.452,
+                    184.819,
+                    98.15,
+                    0,
+                    159.01527974526255,
+                    0
+                ],
+                [
+                    -1143.688,
+                    118.433,
+                    98.15,
+                    0,
+                    -21.635874025589118,
+                    0
+                ],
+                [
+                    -895.242,
+                    -632.115,
+                    98.15,
+                    0,
+                    -27.81147750233916,
+                    0
+                ],
+                [
+                    -892.265,
+                    305.118,
+                    98.355,
+                    0,
+                    166.2551213443948,
+                    0
+                ],
+                [
+                    -1077.406,
+                    312.732,
+                    98.275,
+                    0.0,
+                    -90.0,
+                    0.0
+                ]
+            ],
+            "type": [
+                "None",
+                "None",
+                "None",
+                "None",
+                "None",
+                "None"
+            ]
+        },
+        "drone": {
+            "name": [
+                "drone_0_6Q9JQW"
+            ],
+            "app_id": [
+                0
+            ],
+            "animation": [
+                "none"
+            ],
+            "feature_caption": [
+                "Aerial drone with a black and white frame, dual rotors, and a streamlined design."
+            ],
+            "start_pos": [
+                [
+                    -1191.026,
+                    240.892,
+                    298.15,
+                    0,
+                    41.34844990158629,
+                    0
+                ]
+            ],
+            "type": [
+                "None"
+            ]
+        },
+        "car": {
+            "name": [
+                "car_1_6Q9JQW",
+                "car_3_6Q9JQW"
+            ],
+            "app_id": [
+                1,
+                3
+            ],
+            "animation": [
+                "None",
+                "None"
+            ],
+            "feature_caption": [
+                "White compact car with black grille, sleek design, and four doors",
+                "Yellow vehicle with black stripes, modern style, compact structure"
+            ],
+            "start_pos": [
+                [
+                    -1375.482,
+                    -102.251,
+                    98.15,
+                    0,
+                    -39.56955804011457,
+                    0
+                ],
+                [
+                    -2015.273,
+                    -123.785,
+                    98.15,
+                    0,
+                    -9.544070690902073,
+                    0
+                ]
+            ],
+            "type": [
+                "BP_Hatchback_child_extras_C",
+                "BP_Sedan_child_extras_C"
+            ]
+        }
+    },
+    "sample_configs": {
+        "sample_center": [
+            -1240.667,
+            -59.986,
+            98.15
+        ],
+        "sample_radius": 977.2289029861151
+    },
+    "refer_agents_category": [
+        "player",
+        "drone",
+        "car"
+    ],
+    "safe_start": [
+        [
+            -2110.032,
+            698.615,
+            114.096,
+            0,
+            -39.58668094695204,
+            0
+        ],
+        [
+            -230.9,
+            -133.993,
+            98.15,
+            0,
+            171.54671174169454,
+            0
+        ],
+        [
+            -2340.445,
+            -234.213,
+            98.307,
+            0,
+            13.865577585194348,
+            0
+        ]
+    ],
+    "Questions": {
+        "relative_distance": {
+            "Question 1": {
+                "question": "Which is closer to the_man_in_black_turleneck_sweater, the_man_in_fedora_hat or the_man_in_green_sweater?",
+                "options": [
+                    "A. the_man_in_fedora_hat",
+                    "B. the_man_in_green_sweater"
+                ],
+                "answer": "A. the_man_in_fedora_hat"
+            },
+            "Question 2": {
+                "question": "Which is closer to the_man_in_black_turleneck_sweater, White_Compact_Car or the_bald_man_in_brown_sweater_and_black_pants?",
+                "options": [
+                    "A. White_Compact_Car",
+                    "B. the_bald_man_in_brown_sweater_and_black_pants"
+                ],
+                "answer": "A. White_Compact_Car"
+            },
+            "Question 3": {
+                "question": "Which is closer to the_man_in_fedora_hat, the_man_in_black_turleneck_sweater or the_woman_in_floral_shirt?",
+                "options": [
+                    "A. the_man_in_black_turleneck_sweater",
+                    "B. the_woman_in_floral_shirt"
+                ],
+                "answer": "B. the_woman_in_floral_shirt"
+            },
+            "Question 4": {
+                "question": "Which is closer to the_woman_in_camo_vest, the_man_in_green_sweater or the_bald_man_in_brown_sweater_and_black_pants?",
+                "options": [
+                    "A. the_man_in_green_sweater",
+                    "B. the_bald_man_in_brown_sweater_and_black_pants"
+                ],
+                "answer": "B. the_bald_man_in_brown_sweater_and_black_pants"
+            },
+            "Question 5": {
+                "question": "Which is closer to the_woman_in_floral_shirt, the_man_in_fedora_hat or the_bald_man_in_brown_sweater_and_black_pants?",
+                "options": [
+                    "A. the_man_in_fedora_hat",
+                    "B. the_bald_man_in_brown_sweater_and_black_pants"
+                ],
+                "answer": "A. the_man_in_fedora_hat"
+            },
+            "Question 6": {
+                "question": "Which is closer to the_woman_in_floral_shirt, the_man_in_green_sweater or White_Drone?",
+                "options": [
+                    "A. the_man_in_green_sweater",
+                    "B. White_Drone"
+                ],
+                "answer": "B. White_Drone"
+            },
+            "Question 7": {
+                "question": "Which is closer to the_bald_man_in_brown_sweater_and_black_pants, the_woman_in_black_vest or the_woman_in_floral_shirt?",
+                "options": [
+                    "A. the_woman_in_black_vest",
+                    "B. the_woman_in_floral_shirt"
+                ],
+                "answer": "A. the_woman_in_black_vest"
+            },
+            "Question 8": {
+                "question": "Which is closer to the_bald_man_in_brown_sweater_and_black_pants, the_man_in_fedora_hat or White_Drone?",
+                "options": [
+                    "A. the_man_in_fedora_hat",
+                    "B. White_Drone"
+                ],
+                "answer": "B. White_Drone"
+            }
+        },
+        "counting": {
+            "Question 1": {
+                "question": "How many people are in a crouch position?",
+                "answer": "two"
+            },
+            "Question 2": {
+                "question": "How many men are in the scene?",
+                "answer": "four"
+            },
+            "Question 3": {
+                "question": "How many individuals in the scene are bald?",
+                "answer": "one"
+            },
+            "Question 4": {
+                "question": "How many people are not wearing glasses?",
+                "answer": "five"
+            },
+            "Question 5": {
+                "question": "How many people have black skin color?",
+                "answer": "two"
+            },
+            "Question 6": {
+                "question": "How many cars are present in the scene?",
+                "answer": "three"
+            },
+            "Question 7": {
+                "question": "How many drones are present in the scene?",
+                "answer": "one"
+            }
+        },
+        "state": {
+            "Question 1": {
+                "question": "What's the state of the man in the black turtleneck sweater?",
+                "options": [
+                    "A. crouch",
+                    "B. stand",
+                    "C. lying down",
+                    "D. sitting"
+                ],
+                "answer": "A. crouch"
+            },
+            "Question 2": {
+                "question": "What's the state of the man in the fedora hat?",
+                "options": [
+                    "A. standing",
+                    "B. crouching",
+                    "C. holding something",
+                    "D. lying down"
+                ],
+                "answer": "D. lying down"
+            },
+            "Question 3": {
+                "question": "What's the state of the woman in the floral shirt?",
+                "options": [
+                    "A. stand",
+                    "B. crouch",
+                    "C. holding something",
+                    "D. walk"
+                ],
+                "answer": "B. crouch"
+            },
+            "Question 4": {
+                "question": "What's the state of the man in the green sweater?",
+                "options": [
+                    "A. crouch",
+                    "B. sit",
+                    "C. stand",
+                    "D. run"
+                ],
+                "answer": "C. stand"
+            },
+            "Question 5": {
+                "question": "What's the state of the bald man?",
+                "options": [
+                    "A. lying down",
+                    "B. sitting",
+                    "C. stand",
+                    "D. crouching"
+                ],
+                "answer": "C. stand"
+            },
+            "Question 6": {
+                "question": "What's the state of the woman in the black vest?",
+                "options": [
+                    "A. holding something",
+                    "B. sitting",
+                    "C. walking",
+                    "D. running"
+                ],
+                "answer": "A. holding something"
+            }
+        },
+        "relative_location": {
+            "Question 1": {
+                "question": "Where is the woman in floral shirt relative to the the_man_in_black_turleneck_sweater?",
+                "options": [
+                    "A. In front of",
+                    "B. Behind",
+                    "C. To the left of",
+                    "D. To the right of"
+                ],
+                "answer": "A. In front of"
+            },
+            "Question 2": {
+                "question": "Where is the Yellow_Car relative to the the_man_in_black_turleneck_sweater?",
+                "options": [
+                    "A. In front of",
+                    "B. Behind",
+                    "C. To the left of",
+                    "D. To the right of"
+                ],
+                "answer": "B. Behind"
+            },
+            "Question 3": {
+                "question": "Where is the the_man_in_black_turleneck_sweater relative to the the_woman_in_floral_shirt?",
+                "options": [
+                    "A. In front of",
+                    "B. Behind",
+                    "C. To the left of",
+                    "D. To the right of"
+                ],
+                "answer": "B. Behind"
+            },
+            "Question 4": {
+                "question": "Where is the the_man_in_green_sweater relative to the the_woman_in_floral_shirt?",
+                "options": [
+                    "A. In front of",
+                    "B. Behind",
+                    "C. To the left of",
+                    "D. To the right of"
+                ],
+                "answer": "C. To the left of"
+            },
+            "Question 5": {
+                "question": "Where is the the_woman_in_floral_shirt relative to the the_man_in_green_sweater?",
+                "options": [
+                    "A. In front of",
+                    "B. Behind",
+                    "C. To the left of",
+                    "D. To the right of"
+                ],
+                "answer": "D. To the right of"
+            },
+            "Question 6": {
+                "question": "Where is the White_Compact_Car relative to the the_man_in_green_sweater?",
+                "options": [
+                    "A. To the front-left of",
+                    "B. To the back-right of",
+                    "C. To the left of",
+                    "D. To the right of"
+                ],
+                "answer": "B. To the back-right of"
+            },
+            "Question 7": {
+                "question": "Where is the the_man_in_green_sweater relative to the the_bald_man_in_brown_sweater_and_black_pants?",
+                "options": [
+                    "A. In front of",
+                    "B. Behind",
+                    "C. To the left of",
+                    "D. To the right of"
+                ],
+                "answer": "C. To the left of"
+            },
+            "Question 8": {
+                "question": "Where is the the_woman_in_black_vest relative to the White_Compact_Car?",
+                "options": [
+                    "A. In front of",
+                    "B. Behind",
+                    "C. To the left of",
+                    "D. To the right of"
+                ],
+                "answer": "D. To the right of"
+            }
+        }
+    }
+}

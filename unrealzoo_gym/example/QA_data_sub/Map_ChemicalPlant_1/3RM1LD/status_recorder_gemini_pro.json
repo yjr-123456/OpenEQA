@@ -1,0 +1,226 @@
+{
+  "relative_distance": {
+    "Question 1": {
+      "status": "pending",
+      "timestamp": "2025-11-03T22:31:55.170821",
+      "created_by": "state_generator",
+      "agent_answer": null,
+      "ground_truth": null,
+      "is_correct": null
+    },
+    "Question 2": {
+      "status": "pending",
+      "timestamp": "2025-11-03T22:31:55.170821",
+      "created_by": "state_generator",
+      "agent_answer": null,
+      "ground_truth": null,
+      "is_correct": null
+    },
+    "Question 3": {
+      "status": "pending",
+      "timestamp": "2025-11-03T22:31:55.170821",
+      "created_by": "state_generator",
+      "agent_answer": null,
+      "ground_truth": null,
+      "is_correct": null
+    },
+    "Question 4": {
+      "status": "pending",
+      "timestamp": "2025-11-03T22:31:55.170821",
+      "created_by": "state_generator",
+      "agent_answer": null,
+      "ground_truth": null,
+      "is_correct": null
+    },
+    "Question 5": {
+      "status": "pending",
+      "timestamp": "2025-11-03T22:31:55.170821",
+      "created_by": "state_generator",
+      "agent_answer": null,
+      "ground_truth": null,
+      "is_correct": null
+    },
+    "Question 6": {
+      "status": "pending",
+      "timestamp": "2025-11-03T22:31:55.170821",
+      "created_by": "state_generator",
+      "agent_answer": null,
+      "ground_truth": null,
+      "is_correct": null
+    },
+    "Question 7": {
+      "status": "pending",
+      "timestamp": "2025-11-03T22:31:55.170821",
+      "created_by": "state_generator",
+      "agent_answer": null,
+      "ground_truth": null,
+      "is_correct": null
+    },
+    "Question 8": {
+      "status": "pending",
+      "timestamp": "2025-11-03T22:31:55.170821",
+      "created_by": "state_generator",
+      "agent_answer": null,
+      "ground_truth": null,
+      "is_correct": null
+    }
+  },
+  "counting": {
+    "Question 1": {
+      "status": "pending",
+      "timestamp": "2025-11-03T22:31:55.170821",
+      "created_by": "state_generator",
+      "agent_answer": null,
+      "ground_truth": null,
+      "is_correct": null
+    },
+    "Question 2": {
+      "status": "pending",
+      "timestamp": "2025-11-03T22:31:55.170821",
+      "created_by": "state_generator",
+      "agent_answer": null,
+      "ground_truth": null,
+      "is_correct": null
+    },
+    "Question 3": {
+      "status": "pending",
+      "timestamp": "2025-11-03T22:31:55.170821",
+      "created_by": "state_generator",
+      "agent_answer": null,
+      "ground_truth": null,
+      "is_correct": null
+    },
+    "Question 4": {
+      "status": "pending",
+      "timestamp": "2025-11-03T22:31:55.170821",
+      "created_by": "state_generator",
+      "agent_answer": null,
+      "ground_truth": null,
+      "is_correct": null
+    },
+    "Question 5": {
+      "status": "pending",
+      "timestamp": "2025-11-03T22:31:55.170821",
+      "created_by": "state_generator",
+      "agent_answer": null,
+      "ground_truth": null,
+      "is_correct": null
+    }
+  },
+  "state": {
+    "Question 1": {
+      "status": "pending",
+      "timestamp": "2025-11-03T22:31:55.170821",
+      "created_by": "state_generator",
+      "agent_answer": null,
+      "ground_truth": null,
+      "is_correct": null
+    },
+    "Question 2": {
+      "status": "pending",
+      "timestamp": "2025-11-03T22:31:55.170821",
+      "created_by": "state_generator",
+      "agent_answer": null,
+      "ground_truth": null,
+      "is_correct": null
+    },
+    "Question 3": {
+      "status": "pending",
+      "timestamp": "2025-11-03T22:31:55.170821",
+      "created_by": "state_generator",
+      "agent_answer": null,
+      "ground_truth": null,
+      "is_correct": null
+    },
+    "Question 4": {
+      "status": "pending",
+      "timestamp": "2025-11-03T22:31:55.170821",
+      "created_by": "state_generator",
+      "agent_answer": null,
+      "ground_truth": null,
+      "is_correct": null
+    },
+    "Question 5": {
+      "status": "pending",
+      "timestamp": "2025-11-03T22:31:55.170821",
+      "created_by": "state_generator",
+      "agent_answer": null,
+      "ground_truth": null,
+      "is_correct": null
+    },
+    "Question 6": {
+      "status": "pending",
+      "timestamp": "2025-11-03T22:31:55.170821",
+      "created_by": "state_generator",
+      "agent_answer": null,
+      "ground_truth": null,
+      "is_correct": null
+    }
+  },
+  "relative_location": {
+    "Question 1": {
+      "status": "pending",
+      "timestamp": "2025-11-03T22:31:55.170821",
+      "created_by": "state_generator",
+      "agent_answer": null,
+      "ground_truth": null,
+      "is_correct": null
+    },
+    "Question 2": {
+      "status": "pending",
+      "timestamp": "2025-11-03T22:31:55.170821",
+      "created_by": "state_generator",
+      "agent_answer": null,
+      "ground_truth": null,
+      "is_correct": null
+    },
+    "Question 3": {
+      "status": "pending",
+      "timestamp": "2025-11-03T22:31:55.170821",
+      "created_by": "state_generator",
+      "agent_answer": null,
+      "ground_truth": null,
+      "is_correct": null
+    },
+    "Question 4": {
+      "status": "pending",
+      "timestamp": "2025-11-03T22:31:55.170821",
+      "created_by": "state_generator",
+      "agent_answer": null,
+      "ground_truth": null,
+      "is_correct": null
+    },
+    "Question 5": {
+      "status": "pending",
+      "timestamp": "2025-11-03T22:31:55.170821",
+      "created_by": "state_generator",
+      "agent_answer": null,
+      "ground_truth": null,
+      "is_correct": null
+    },
+    "Question 6": {
+      "status": "pending",
+      "timestamp": "2025-11-03T22:31:55.170821",
+      "created_by": "state_generator",
+      "agent_answer": null,
+      "ground_truth": null,
+      "is_correct": null
+    },
+    "Question 7": {
+      "status": "pending",
+      "timestamp": "2025-11-03T22:31:55.170821",
+      "created_by": "state_generator",
+      "agent_answer": null,
+      "ground_truth": null,
+      "is_correct": null
+    },
+    "Question 8": {
+      "status": "pending",
+      "timestamp": "2025-11-03T22:31:55.170821",
+      "created_by": "state_generator",
+      "agent_answer": null,
+      "ground_truth": null,
+      "is_correct": null
+    }
+  }
+}

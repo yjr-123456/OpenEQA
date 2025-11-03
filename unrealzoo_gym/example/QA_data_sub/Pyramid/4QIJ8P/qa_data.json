@@ -1,0 +1,333 @@
+{
+    "target_configs": {
+        "player": {
+            "name": [
+                "player_15_4QIJ8P",
+                "player_9_4QIJ8P",
+                "player_12_4QIJ8P",
+                "player_4_4QIJ8P"
+            ],
+            "app_id": [
+                15,
+                9,
+                12,
+                4
+            ],
+            "animation": [
+                "pick_up",
+                "crouch",
+                "stand",
+                "liedown"
+            ],
+            "feature_caption": [
+                "A bald man with medium skin, wearing a brown turtleneck, dark pants, and brown shoes.",
+                "A man with medium skin tone, wearing a navy blue polo shirt, black pants, and blue shoes, with a dark watch on his wrist and black hair.",
+                "A man wearing a gray suit, dark shirt, and brown shoes with short dark hair.",
+                "A woman with fair skin, wearing a white and blue shirt, blue pants, dark boots, a gray bandana, and a utility belt with pouches"
+            ],
+            "start_pos": [
+                [
+                    13806.93,
+                    -3095.951,
+                    198.4,
+                    0.0,
+                    -90.0,
+                    0.0
+                ],
+                [
+                    13736.156,
+                    -2934.509,
+                    198.15,
+                    0,
+                    -162.86669228865563,
+                    0
+                ],
+                [
+                    13930.078,
+                    -2500.187,
+                    198.105,
+                    0,
+                    73.85296959762707,
+                    0
+                ],
+                [
+                    13920.393,
+                    -2810.727,
+                    198.15,
+                    0,
+                    -57.70527189754833,
+                    0
+                ]
+            ],
+            "type": [
+                "None",
+                "None",
+                "None",
+                "None"
+            ]
+        }
+    },
+    "sample_configs": {
+        "sample_center": [
+            14374.311,
+            -2921.795,
+            198.15
+        ],
+        "sample_radius": 838.2816383235527
+    },
+    "refer_agents_category": [
+        "player"
+    ],
+    "safe_start": [
+        [
+            13477.202,
+            -2188.576,
+            198.135,
+            0,
+            -60.14802267479128,
+            0
+        ],
+        [
+            14045.148,
+            -3664.679,
+            198.135,
+            0,
+            103.34659842165358,
+            0
+        ],
+        [
+            14316.476,
+            -2434.113,
+            197.917,
+            0,
+            -139.39771497576683,
+            0
+        ]
+    ],
+    "Questions": {
+        "relative_distance": {
+            "Question 1": {
+                "question": "Which is closer to the_bald_man_in_brown_sweater_and_black_pants, the_man_in_blue_polo or the_man_in_grey_suit?",
+                "options": [
+                    "A. the_man_in_blue_polo",
+                    "B. the_man_in_grey_suit"
+                ],
+                "answer": "A. the_man_in_blue_polo"
+            },
+            "Question 2": {
+                "question": "Which is closer to the_bald_man_in_brown_sweater_and_black_pants, the_man_in_blue_polo or the_woman_in_floral_shirt?",
+                "options": [
+                    "A. the_man_in_blue_polo",
+                    "B. the_woman_in_floral_shirt"
+                ],
+                "answer": "A. the_man_in_blue_polo"
+            },
+            "Question 3": {
+                "question": "Which is closer to the_bald_man_in_brown_sweater_and_black_pants, the_man_in_grey_suit or the_woman_in_floral_shirt?",
+                "options": [
+                    "A. the_man_in_grey_suit",
+                    "B. the_woman_in_floral_shirt"
+                ],
+                "answer": "B. the_woman_in_floral_shirt"
+            },
+            "Question 4": {
+                "question": "Which is closer to the_man_in_blue_polo, the_bald_man_in_brown_sweater_and_black_pants or the_man_in_grey_suit?",
+                "options": [
+                    "A. the_bald_man_in_brown_sweater_and_black_pants",
+                    "B. the_man_in_grey_suit"
+                ],
+                "answer": "A. the_bald_man_in_brown_sweater_and_black_pants"
+            },
+            "Question 5": {
+                "question": "Which is closer to the_man_in_blue_polo, the_man_in_grey_suit or the_woman_in_floral_shirt?",
+                "options": [
+                    "A. the_man_in_grey_suit",
+                    "B. the_woman_in_floral_shirt"
+                ],
+                "answer": "B. the_woman_in_floral_shirt"
+            },
+            "Question 6": {
+                "question": "Which is closer to the_man_in_grey_suit, the_bald_man_in_brown_sweater_and_black_pants or the_man_in_blue_polo?",
+                "options": [
+                    "A. the_bald_man_in_brown_sweater_and_black_pants",
+                    "B. the_man_in_blue_polo"
+                ],
+                "answer": "B. the_man_in_blue_polo"
+            },
+            "Question 7": {
+                "question": "Which is closer to the_man_in_grey_suit, the_bald_man_in_brown_sweater_and_black_pants or the_woman_in_floral_shirt?",
+                "options": [
+                    "A. the_bald_man_in_brown_sweater_and_black_pants",
+                    "B. the_woman_in_floral_shirt"
+                ],
+                "answer": "B. the_woman_in_floral_shirt"
+            },
+            "Question 8": {
+                "question": "Which is closer to the_man_in_grey_suit, the_man_in_blue_polo or the_woman_in_floral_shirt?",
+                "options": [
+                    "A. the_man_in_blue_polo",
+                    "B. the_woman_in_floral_shirt"
+                ],
+                "answer": "B. the_woman_in_floral_shirt"
+            }
+        },
+        "counting": {
+            "Question 1": {
+                "question": "How many figures in the scene are in an upright or active posture?",
+                "answer": "Three"
+            },
+            "Question 2": {
+                "question": "How many individuals in the scene are characterized by a lack of hair on their head?",
+                "answer": "One"
+            },
+            "Question 3": {
+                "question": "How many of the people present are *not* wearing glasses?",
+                "answer": "Four"
+            },
+            "Question 4": {
+                "question": "How many male figures in the scene are *not* bald?",
+                "answer": "Two"
+            },
+            "Question 5": {
+                "question": "What is the total count of individuals who have either a medium or black skin tone?",
+                "answer": "Three"
+            },
+            "Question 6": {
+                "question": "How many humans are engaged in an action other than standing or lying down?",
+                "answer": "Two"
+            },
+            "Question 7": {
+                "question": "Excluding the person who is lying down, how many other distinct postures are observed among the figures?",
+                "answer": "Three"
+            },
+            "Question 8": {
+                "question": "How many individuals in the scene are female?",
+                "answer": "One"
+            }
+        },
+        "state": {
+            "Question 1": {
+                "question": "What is the state of the bald man in the brown sweater?",
+                "options": [
+                    "A. hold_object",
+                    "B. liedown",
+                    "C. sit",
+                    "D. crouch"
+                ],
+                "answer": "A. hold_object"
+            },
+            "Question 2": {
+                "question": "What is the state of the man in the blue polo?",
+                "options": [
+                    "A. crouch",
+                    "B. stand",
+                    "C. hold_object",
+                    "D. liedown"
+                ],
+                "answer": "A. crouch"
+            },
+            "Question 3": {
+                "question": "What is the state of the man in the grey suit?",
+                "options": [
+                    "A. stand",
+                    "B. crouch",
+                    "C. walk",
+                    "D. hold_object"
+                ],
+                "answer": "A. stand"
+            },
+            "Question 4": {
+                "question": "What is the state of the woman in the floral shirt?",
+                "options": [
+                    "A. liedown",
+                    "B. stand",
+                    "C. sit",
+                    "D. crouch"
+                ],
+                "answer": "A. liedown"
+            }
+        },
+        "relative_location": {
+            "Question 1": {
+                "question": "Where is the man in blue polo relative to the bald man in brown sweater and black pants?",
+                "options": [
+                    "A. To the front-right of",
+                    "B. To the back-left of",
+                    "C. To the right of",
+                    "D. In front of"
+                ],
+                "answer": "B. To the back-left of"
+            },
+            "Question 2": {
+                "question": "Where is the man in grey suit relative to the bald man in brown sweater and black pants?",
+                "options": [
+                    "A. To the front of",
+                    "B. Behind",
+                    "C. To the left of",
+                    "D. To the right of"
+                ],
+                "answer": "B. Behind"
+            },
+            "Question 3": {
+                "question": "Where is the bald man in brown sweater and black pants relative to the man in blue polo?",
+                "options": [
+                    "A. To the back-right of",
+                    "B. To the right of",
+                    "C. To the front-left of",
+                    "D. Behind"
+                ],
+                "answer": "C. To the front-left of"
+            },
+            "Question 4": {
+                "question": "Where is the man in grey suit relative to the man in blue polo?",
+                "options": [
+                    "A. To the back-left of",
+                    "B. To the front-right of",
+                    "C. To the left of",
+                    "D. Behind"
+                ],
+                "answer": "B. To the front-right of"
+            },
+            "Question 5": {
+                "question": "Where is the woman in floral shirt relative to the man in blue polo?",
+                "options": [
+                    "A. To the front-right of",
+                    "B. Behind",
+                    "C. To the left of",
+                    "D. In front of"
+                ],
+                "answer": "A. To the front-right of"
+            },
+            "Question 6": {
+                "question": "Where is the bald man in brown sweater and black pants relative to the man in grey suit?",
+                "options": [
+                    "A. To the right of",
+                    "B. Behind",
+                    "C. To the left of",
+                    "D. In front of"
+                ],
+                "answer": "C. To the left of"
+            },
+            "Question 7": {
+                "question": "Where is the man in blue polo relative to the man in grey suit?",
+                "options": [
+                    "A. To the front-right of",
+                    "B. To the back-left of",
+                    "C. To the right of",
+                    "D. In front of"
+                ],
+                "answer": "B. To the back-left of"
+            },
+            "Question 8": {
+                "question": "Where is the woman in floral shirt relative to the man in grey suit?",
+                "options": [
+                    "A. To the right of",
+                    "B. Behind",
+                    "C. To the left of",
+                    "D. In front of"
+                ],
+                "answer": "C. To the left of"
+            }
+        }
+    }
+}

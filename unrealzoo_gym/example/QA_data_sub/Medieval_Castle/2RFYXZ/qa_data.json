@@ -1,0 +1,352 @@
+{
+    "target_configs": {
+        "player": {
+            "name": [
+                "player_7_2RFYXZ",
+                "player_3_2RFYXZ",
+                "player_15_2RFYXZ",
+                "player_10_2RFYXZ",
+                "player_1_2RFYXZ"
+            ],
+            "app_id": [
+                7,
+                3,
+                15,
+                10,
+                1
+            ],
+            "animation": [
+                "stand",
+                "crouch",
+                "crouch",
+                "stand",
+                "crouch"
+            ],
+            "feature_caption": [
+                "A bald man with glasses, dark complexion, wearing a black turtleneck, suit, and shoes",
+                "A woman with medium skin, dark hair in a bun, wearing a dark V-neck shirt, light pants, and brown boots",
+                "A bald man with medium skin, wearing a brown turtleneck, dark pants, and brown shoes.",
+                "A man with medium skin, wearing sunglasses, maroon polo shirt, beige pants, brown shoes, and a watch",
+                "A man wearing sunglasses, dark green long-sleeve shirt, light cargo pants, black gloves, and brown boots"
+            ],
+            "start_pos": [
+                [
+                    -22935.691,
+                    17255.167,
+                    10353.334,
+                    0,
+                    56.42415490408527,
+                    0
+                ],
+                [
+                    -23107.306,
+                    17069.056,
+                    10363.563,
+                    0,
+                    104.58270852582302,
+                    0
+                ],
+                [
+                    -23506.519,
+                    16873.86,
+                    10359.805,
+                    0,
+                    -166.50617683425557,
+                    0
+                ],
+                [
+                    -24124.984,
+                    17039.87,
+                    10391.031,
+                    0,
+                    -37.61369632204611,
+                    0
+                ],
+                [
+                    -24219.481,
+                    16844.856,
+                    10391.046,
+                    0,
+                    -175.8852530019234,
+                    0
+                ]
+            ],
+            "type": [
+                "None",
+                "None",
+                "None",
+                "None",
+                "None"
+            ]
+        }
+    },
+    "sample_configs": {
+        "sample_center": [
+            -23823.668,
+            16286.97,
+            10390.865
+        ],
+        "sample_radius": 1514.274385088216
+    },
+    "refer_agents_category": [
+        "player"
+    ],
+    "safe_start": [
+        [
+            -24610.973,
+            16681.116,
+            10390.976,
+            0,
+            18.003576195179168,
+            0
+        ],
+        [
+            -22440.901,
+            17461.211,
+            10322.832,
+            0,
+            -158.65619981290882,
+            0
+        ],
+        [
+            -22936.482,
+            16140.37,
+            10341.188,
+            0,
+            126.24420694305472,
+            0
+        ]
+    ],
+    "Questions": {
+        "relative_distance": {
+            "Question 1": {
+                "question": "Which is closer to the_bald_man_in_glasses, the_woman_in_deep_V_top or the_bald_man_in_brown_sweater_and_black_pants?",
+                "options": [
+                    "A. the_woman_in_deep_V_top",
+                    "B. the_bald_man_in_brown_sweater_and_black_pants"
+                ],
+                "answer": "A. the_woman_in_deep_V_top"
+            },
+            "Question 2": {
+                "question": "Which is closer to the_bald_man_in_glasses, the_bald_man_in_brown_sweater_and_black_pants or the_man_in_burgundy_polo_and_light_pants?",
+                "options": [
+                    "A. the_bald_man_in_brown_sweater_and_black_pants",
+                    "B. the_man_in_burgundy_polo_and_light_pants"
+                ],
+                "answer": "A. the_bald_man_in_brown_sweater_and_black_pants"
+            },
+            "Question 3": {
+                "question": "Which is closer to the_bald_man_in_brown_sweater_and_black_pants, the_woman_in_deep_V_top or the_man_in_light_pants_and_sunglasses?",
+                "options": [
+                    "A. the_woman_in_deep_V_top",
+                    "B. the_man_in_light_pants_and_sunglasses"
+                ],
+                "answer": "A. the_woman_in_deep_V_top"
+            },
+            "Question 4": {
+                "question": "Which is closer to the_woman_in_deep_V_top, the_bald_man_in_glasses or the_bald_man_in_brown_sweater_and_black_pants?",
+                "options": [
+                    "A. the_bald_man_in_glasses",
+                    "B. the_bald_man_in_brown_sweater_and_black_pants"
+                ],
+                "answer": "A. the_bald_man_in_glasses"
+            },
+            "Question 5": {
+                "question": "Which is closer to the_woman_in_deep_V_top, the_bald_man_in_brown_sweater_and_black_pants or the_man_in_burgundy_polo_and_light_pants?",
+                "options": [
+                    "A. the_bald_man_in_brown_sweater_and_black_pants",
+                    "B. the_man_in_burgundy_polo_and_light_pants"
+                ],
+                "answer": "A. the_bald_man_in_brown_sweater_and_black_pants"
+            },
+            "Question 6": {
+                "question": "Which is closer to the_bald_man_in_brown_sweater_and_black_pants, the_woman_in_deep_V_top or the_bald_man_in_glasses?",
+                "options": [
+                    "A. the_woman_in_deep_V_top",
+                    "B. the_bald_man_in_glasses"
+                ],
+                "answer": "A. the_woman_in_deep_V_top"
+            },
+            "Question 7": {
+                "question": "Which is closer to the_man_in_burgundy_polo_and_light_pants, the_bald_man_in_brown_sweater_and_black_pants or the_woman_in_deep_V_top?",
+                "options": [
+                    "A. the_bald_man_in_brown_sweater_and_black_pants",
+                    "B. the_woman_in_deep_V_top"
+                ],
+                "answer": "A. the_bald_man_in_brown_sweater_and_black_pants"
+            },
+            "Question 8": {
+                "question": "Which is closer to the_man_in_burgundy_polo_and_light_pants, the_man_in_light_pants_and_sunglasses or the_bald_man_in_brown_sweater_and_black_pants?",
+                "options": [
+                    "A. the_man_in_light_pants_and_sunglasses",
+                    "B. the_bald_man_in_brown_sweater_and_black_pants"
+                ],
+                "answer": "A. the_man_in_light_pants_and_sunglasses"
+            }
+        },
+        "counting": {
+            "Question 1": {
+                "question": "How many people are scattered within the ancient castle's courtyard?",
+                "answer": "five"
+            },
+            "Question 2": {
+                "question": "How many figures are in a crouch position in the scene?",
+                "answer": "three"
+            },
+            "Question 3": {
+                "question": "How many men are present among the figures in the courtyard?",
+                "answer": "four"
+            },
+            "Question 4": {
+                "question": "How many individuals are wearing glasses in the scene?",
+                "answer": "three"
+            },
+            "Question 5": {
+                "question": "How many people in the scene have a bald head?",
+                "answer": "two"
+            },
+            "Question 6": {
+                "question": "Among all the people, how many are men who also have a bald head?",
+                "answer": "two"
+            },
+            "Question 7": {
+                "question": "How many people have a light skin color and are not wearing glasses?",
+                "answer": "one"
+            }
+        },
+        "state": {
+            "Question 1": {
+                "question": "What is the state of the bald man in glasses?",
+                "options": [
+                    "A. stand",
+                    "B. crouch",
+                    "C. sitting",
+                    "D. lying down"
+                ],
+                "answer": "A. stand"
+            },
+            "Question 2": {
+                "question": "What is the state of the woman in the deep V-top?",
+                "options": [
+                    "A. standing",
+                    "B. walking",
+                    "C. crouch",
+                    "D. running"
+                ],
+                "answer": "C. crouch"
+            },
+            "Question 3": {
+                "question": "What is the state of the bald man in the brown sweater and black pants?",
+                "options": [
+                    "A. standing",
+                    "B. sitting",
+                    "C. crouch",
+                    "D. lying down"
+                ],
+                "answer": "C. crouch"
+            },
+            "Question 4": {
+                "question": "What is the state of the man in the burgundy polo and light pants?",
+                "options": [
+                    "A. crouch",
+                    "B. sitting",
+                    "C. stand",
+                    "D. kneeling"
+                ],
+                "answer": "C. stand"
+            },
+            "Question 5": {
+                "question": "What is the state of the man in light pants and sunglasses?",
+                "options": [
+                    "A. standing",
+                    "B. sitting",
+                    "C. walking",
+                    "D. crouch"
+                ],
+                "answer": "D. crouch"
+            }
+        },
+        "relative_location": {
+            "Question 1": {
+                "question": "Where is the woman in deep V-top relative to the bald man in glasses?",
+                "options": [
+                    "A. To the front-right of",
+                    "B. To the back-left of",
+                    "C. In front of",
+                    "D. To the right of"
+                ],
+                "answer": "B. To the back-left of"
+            },
+            "Question 2": {
+                "question": "Where is the man in burgundy polo and light pants relative to the bald man in glasses?",
+                "options": [
+                    "A. In front of",
+                    "B. To the left of",
+                    "C. Behind",
+                    "D. To the front-right of"
+                ],
+                "answer": "C. Behind"
+            },
+            "Question 3": {
+                "question": "Where is the bald man in glasses relative to the woman in deep V-top?",
+                "options": [
+                    "A. To the back-left of",
+                    "B. To the front-right of",
+                    "C. Behind",
+                    "D. To the left of"
+                ],
+                "answer": "B. To the front-right of"
+            },
+            "Question 4": {
+                "question": "Where is the woman in deep V-top relative to the bald man in brown sweater and black pants?",
+                "options": [
+                    "A. To the back-left of",
+                    "B. To the right of",
+                    "C. To the front-right of",
+                    "D. Behind"
+                ],
+                "answer": "C. To the front-right of"
+            },
+            "Question 5": {
+                "question": "Where is the bald man in glasses relative to the man in burgundy polo and light pants?",
+                "options": [
+                    "A. Behind",
+                    "B. To the left of",
+                    "C. In front of",
+                    "D. To the back-right of"
+                ],
+                "answer": "C. In front of"
+            },
+            "Question 6": {
+                "question": "Where is the man in light pants and sunglasses relative to the man in burgundy polo and light pants?",
+                "options": [
+                    "A. In front of",
+                    "B. To the back-right of",
+                    "C. To the back-left of",
+                    "D. To the front-left of"
+                ],
+                "answer": "C. To the back-left of"
+            },
+            "Question 7": {
+                "question": "Where is the man in burgundy polo and light pants relative to the man in light pants and sunglasses?",
+                "options": [
+                    "A. Behind",
+                    "B. To the front-right of",
+                    "C. To the back-left of",
+                    "D. To the left of"
+                ],
+                "answer": "B. To the front-right of"
+            },
+            "Question 8": {
+                "question": "Where is the bald man in brown sweater and black pants relative to the bald man in glasses?",
+                "options": [
+                    "A. In front of",
+                    "B. To the back-left of",
+                    "C. To the right of",
+                    "D. Behind"
+                ],
+                "answer": "B. To the back-left of"
+            }
+        }
+    }
+}

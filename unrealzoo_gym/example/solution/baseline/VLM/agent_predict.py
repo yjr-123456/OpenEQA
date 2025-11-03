@@ -43,21 +43,22 @@ def setup_logging(logger_base_dir="logs", env_name=None, question_type=None, bat
     """
     # 创建日志目录（支持多级目录）
             
-    if logger_base_dir:
-        log_base_dir = f"{logger_base_dir}/experiment_results/logs/{model}"
-    else:
-        base_dir = os.path.dirname(os.path.abspath(__file__))
-        log_base_dir = os.path.join(base_dir, "experiment_results","logs", model)
-    os.makedirs(log_base_dir, exist_ok=True)        
-    if env_name and question_type and batch_id:
-    # 按环境名和问题类型创建子目录
-        log_dir = os.path.join(log_base_dir, env_name, question_type, batch_id)
-    elif env_name and question_type:
-        log_dir = os.path.join(log_base_dir, env_name, question_type)
-    elif env_name:
-        log_dir = os.path.join(log_base_dir, env_name)
-    else:
-        log_dir = log_base_dir
+    # if logger_base_dir:
+    #     log_base_dir = f"{logger_base_dir}/experiment_results/logs/{model}"
+    # else:
+    #     base_dir = os.path.dirname(os.path.abspath(__file__))
+    #     log_base_dir = os.path.join(base_dir, "experiment_results","logs", model)
+    # os.makedirs(log_base_dir, exist_ok=True)        
+    # if env_name and question_type and batch_id:
+    # # 按环境名和问题类型创建子目录
+    #     log_dir = os.path.join(log_base_dir, env_name, question_type, batch_id)
+    # elif env_name and question_type:
+    #     log_dir = os.path.join(log_base_dir, env_name, question_type)
+    # elif env_name:
+    #     log_dir = os.path.join(log_base_dir, env_name)
+    # else:
+    #     log_dir = log_base_dir
+    log_dir = logger_base_dir
     os.makedirs(log_dir, exist_ok=True)
     safe_env_name = sanitize_filename(env_name) if env_name else "unknown"
     safe_question_type = sanitize_filename(question_type) if question_type else "general"
@@ -65,18 +66,18 @@ def setup_logging(logger_base_dir="logs", env_name=None, question_type=None, bat
     
     # 生成日志文件名
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    if env_name and question_type and batch_id:
-        log_filename = os.path.join(log_dir, f"agent_{safe_env_name}_{safe_question_type}_{safe_batch_id}_{timestamp}.log")
-        logger_name = f"agent_{safe_env_name}_{safe_question_type}_{safe_batch_id}"
-    elif env_name and question_type:
-        log_filename = os.path.join(log_dir, f"agent_{safe_env_name}_{safe_question_type}_{timestamp}.log")
-        logger_name = f"agent_{safe_env_name}_{safe_question_type}"
-    elif env_name:
-        log_filename = os.path.join(log_dir, f"agent_{safe_env_name}_{timestamp}.log")
-        logger_name = f"agent_{safe_env_name}"
-    else:
-        log_filename = os.path.join(log_dir, f"agent_log_{timestamp}.log")
-        logger_name = "agent"
+    # if env_name and question_type and batch_id:
+    #     log_filename = os.path.join(log_dir, f"agent_{safe_env_name}_{safe_question_type}_{safe_batch_id}_{timestamp}.log")
+    #     logger_name = f"agent_{safe_env_name}_{safe_question_type}_{safe_batch_id}"
+    # elif env_name and question_type:
+    #     log_filename = os.path.join(log_dir, f"agent_{safe_env_name}_{safe_question_type}_{timestamp}.log")
+    #     logger_name = f"agent_{safe_env_name}_{safe_question_type}"
+    # elif env_name:
+    #     log_filename = os.path.join(log_dir, f"agent_{safe_env_name}_{timestamp}.log")
+    #     logger_name = f"agent_{safe_env_name}"
+    # else:
+    log_filename = os.path.join(log_dir, f"agent_{model}_{timestamp}.log")
+    logger_name = f"agent_{model}"
     
     # 创建独立的logger实例（避免不同环境间冲突）
     logger = logging.getLogger(logger_name)

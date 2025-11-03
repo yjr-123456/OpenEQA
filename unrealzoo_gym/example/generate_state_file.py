@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 断点续传状态文件生成器
-用于为run_baseline.py生成初始的状态文件
+用于为run_baseline.py生成初始的状态文件 (适配合并后的QA数据结构)
 """
 
 import os
@@ -25,14 +25,14 @@ def load_json_file(file_path):
         print(f"An unexpected error occurred loading {file_path}: {e}")
         return None
 
-def generate_state_file(qa_path, env_list, question_type_folders, model,mode="empty"):
+def generate_state_file(qa_path, env_list, model, mode="empty"):
     """
-    生成状态文件
+    生成状态文件 (新版：适配合并后的qa_data.json)
     
     Args:
-        qa_path: QA数据路径
+        qa_path: QA数据路径 (例如 merged_QA_data)
         env_list: 环境列表
-        question_type_folders: 问题类型文件夹列表
+        model: 模型名称
         mode: 生成模式
             - "empty": 生成空状态文件（所有问题标记为未完成）
             - "template": 生成模板文件（包含结构但无状态）
@@ -47,55 +47,51 @@ def generate_state_file(qa_path, env_list, question_type_folders, model,mode="em
         print(f"\n=== 处理环境: {env_name} ===")
         total_environments += 1
         
-        for q_type_folder_name in question_type_folders:
-            print(f"  处理问题类型: {q_type_folder_name}")
-            
-            type_specific_folder_dir = os.path.join(qa_path, env_name, q_type_folder_name)
-            if not os.path.isdir(type_specific_folder_dir):
-                print(f"    警告: 文件夹不存在 {type_specific_folder_dir}, 跳过")
-                continue
-            
-            # 状态文件路径
-            state_file_path = os.path.join(type_specific_folder_dir, f"status_recorder_{model}.json")
+        env_dir = os.path.join(qa_path, env_name)
+        if not os.path.isdir(env_dir):
+            print(f"    警告: 环境文件夹不存在 {env_dir}, 跳过")
+            continue
 
-            # 获取所有场景文件夹
-            scenario_folder_names = [d for d in os.listdir(type_specific_folder_dir) 
-                                   if os.path.isdir(os.path.join(type_specific_folder_dir, d))]
-            
-            if not scenario_folder_names:
-                print(f"    警告: 没有找到场景文件夹在 {type_specific_folder_dir}")
+        # 获取所有场景文件夹
+        scenario_folder_names = [d for d in os.listdir(env_dir) 
+                               if os.path.isdir(os.path.join(env_dir, d))]
+        
+        if not scenario_folder_names:
+            print(f"    警告: 没有找到场景文件夹在 {env_dir}")
+            continue
+        
+        env_scenarios = 0
+        env_questions = 0
+
+        for scenario_folder_name in scenario_folder_names:
+            scenario_dir = os.path.join(env_dir, scenario_folder_name)
+            qa_file_path = os.path.join(scenario_dir, "qa_data.json")
+            state_file_path = os.path.join(scenario_dir, f"status_recorder_{model}.json")
+
+            if not os.path.isfile(qa_file_path):
+                print(f"    警告: qa_data.json 文件不存在于 {scenario_dir}, 跳过")
+                continue
+
+            # 加载QA数据
+            qa_data = load_json_file(qa_file_path)
+            if qa_data is None or "Questions" not in qa_data:
+                print(f"    警告: {qa_file_path} 中没有找到 'Questions' 键, 跳过")
                 continue
             
             # 初始化状态数据
             state_data = {}
-            current_scenarios = 0
-            current_questions = 0
-            
-            for scenario_folder_name in scenario_folder_names:
-                current_scenarios += 1
-                id_folder_path = os.path.join(type_specific_folder_dir, scenario_folder_name)
-                file_path = os.path.join(id_folder_path, f"{q_type_folder_name}.json")
-                
-                if not os.path.isfile(file_path):
-                    print(f"    警告: JSON文件不存在 {file_path}, 跳过")
+            scenario_questions = 0
+
+            # 遍历所有问题类型
+            for q_type, questions in qa_data["Questions"].items():
+                if not isinstance(questions, dict):
                     continue
                 
-                # 加载QA数据
-                qa_data = load_json_file(file_path)
-                if qa_data is None:
-                    continue
-                
-                qa_dict = qa_data.get("Questions", {})
-                if not qa_dict:
-                    print(f"    警告: 没有找到问题在 {file_path}")
-                    continue
-                
-                # 为每个问题创建状态记录
-                scenario_state = {}
-                for question_id in qa_dict.keys():
+                type_state = {}
+                # 遍历该类型下的所有问题
+                for question_id in questions.keys():
                     if mode == "empty" or mode == "reset":
-                        # 标记为未完成，包含完整的字段结构
-                        scenario_state[question_id] = {
+                        type_state[question_id] = {
                             "status": "pending",
                             "timestamp": datetime.now().isoformat(),
                             "created_by": "state_generator",
@@ -104,8 +100,7 @@ def generate_state_file(qa_path, env_list, question_type_folders, model,mode="em
                             "is_correct": None
                         }
                     elif mode == "template":
-                        # 只创建结构，不设置状态
-                        scenario_state[question_id] = {
+                        type_state[question_id] = {
                             "status": None,
                             "timestamp": None,
                             "created_by": "state_generator",
@@ -113,104 +108,91 @@ def generate_state_file(qa_path, env_list, question_type_folders, model,mode="em
                             "ground_truth": None,
                             "is_correct": None
                         }
-                    
-                    current_questions += 1
+                    scenario_questions += 1
                 
-                state_data[scenario_folder_name] = scenario_state
-                print(f"    场景 {scenario_folder_name}: {len(qa_dict)} 个问题")
+                state_data[q_type] = type_state
             
             # 保存状态文件
             try:
-                # 如果是重置模式，先备份现有文件
                 if mode == "reset" and os.path.exists(state_file_path):
                     backup_path = state_file_path + f".backup_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
                     os.rename(state_file_path, backup_path)
-                    print(f"    现有状态文件已备份到: {backup_path}")
-                
+                    print(f"    场景 {scenario_folder_name}: 现有状态文件已备份")
+
                 with open(state_file_path, 'w', encoding='utf-8') as f:
                     json.dump(state_data, f, indent=2, ensure_ascii=False)
                 
-                print(f"    ✓ 状态文件已生成: {state_file_path}")
-                print(f"    包含 {current_scenarios} 个场景, {current_questions} 个问题")
-                
-                total_scenarios += current_scenarios
-                total_questions += current_questions
-                
+                print(f"    ✓ 场景 {scenario_folder_name}: 状态文件已生成, 包含 {scenario_questions} 个问题")
+                env_scenarios += 1
+                env_questions += scenario_questions
+
             except Exception as e:
-                print(f"    ✗ 保存状态文件失败: {e}")
-    
+                print(f"    ✗ 场景 {scenario_folder_name}: 保存状态文件失败: {e}")
+
+        print(f"  环境 {env_name} 处理完成: {env_scenarios} 个场景, {env_questions} 个问题")
+        total_scenarios += env_scenarios
+        total_questions += env_questions
+
     print(f"\n=== 生成完成 ===")
     print(f"总计处理: {total_environments} 个环境, {total_scenarios} 个场景, {total_questions} 个问题")
     return True
 
 def scan_qa_structure(qa_path):
-    """扫描QA数据结构"""
+    """扫描QA数据结构 (新版)"""
     print("=== 扫描QA数据结构 ===")
     
     if not os.path.exists(qa_path):
         print(f"错误: QA路径不存在: {qa_path}")
-        return None, None
+        return None
     
-    env_list = []
-    question_types = set()
+    env_list = [item for item in os.listdir(qa_path) if os.path.isdir(os.path.join(qa_path, item))]
     
-    for item in os.listdir(qa_path):
-        env_path = os.path.join(qa_path, item)
-        if os.path.isdir(env_path):
-            env_list.append(item)
-            print(f"发现环境: {item}")
-            
-            # 扫描问题类型
-            for sub_item in os.listdir(env_path):
-                sub_path = os.path.join(env_path, sub_item)
-                if os.path.isdir(sub_path):
-                    question_types.add(sub_item)
-    
-    question_type_list = list(question_types)
     print(f"发现 {len(env_list)} 个环境: {env_list}")
-    print(f"发现 {len(question_type_list)} 种问题类型: {question_type_list}")
-    
-    return env_list, question_type_list
+    return env_list
 
-def check_existing_states(qa_path, env_list, model, question_type_folders):
+def check_existing_states(qa_path, env_list, model):
     """检查现有状态文件"""
     print("\n=== 检查现有状态文件 ===")
     
     existing_files = []
     for env_name in env_list:
-        for q_type in question_type_folders:
-            type_specific_folder_dir = os.path.join(qa_path, env_name, q_type)
-            state_file_path = os.path.join(type_specific_folder_dir, f"status_recorder_{model}.json")
+        env_path = os.path.join(qa_path, env_name)
+        
+        if not os.path.isdir(env_path):
+            print(f"  跳过不存在的环境: {env_path}")
+            continue
+        
+        state_file_path = os.path.join(env_path, f"status_recorder_{model}.json")
 
-            if os.path.exists(state_file_path):
-                existing_files.append(state_file_path)
+        if os.path.exists(state_file_path):
+            existing_files.append(state_file_path)
+            
+            # 分析现有文件
+            try:
+                with open(state_file_path, 'r', encoding='utf-8') as f:
+                    state_data = json.load(f)
                 
-                # 分析现有文件
-                try:
-                    with open(state_file_path, 'r', encoding='utf-8') as f:
-                        state_data = json.load(f)
-                    
-                    total_scenarios = len(state_data)
-                    total_questions = sum(len(scenario_data) for scenario_data in state_data.values())
-                    completed_questions = 0
-                    correct_answers = 0
-                    
-                    for scenario_data in state_data.values():
-                        if isinstance(scenario_data, dict):
-                            for question_id, question_info in scenario_data.items():
-                                if isinstance(question_info, dict) and question_info.get("status") == "completed":
-                                    completed_questions += 1
-                                    if question_info.get("is_correct", False):
-                                        correct_answers += 1
-                    
-                    accuracy = (correct_answers / completed_questions * 100) if completed_questions > 0 else 0
-                    
-                    print(f"  {state_file_path}")
-                    print(f"    场景: {total_scenarios}, 问题: {total_questions}")
-                    print(f"    已完成: {completed_questions}, 正确: {correct_answers}, 准确率: {accuracy:.1f}%")
-                    
-                except Exception as e:
-                    print(f"  {state_file_path} (读取失败: {e})")
+                total_scenarios = len(state_data)
+                total_questions = sum(len(questions) for questions in state_data.values())
+                completed_questions = 0
+                correct_answers = 0
+                
+                for questions in state_data.values():
+                    if isinstance(questions, dict):
+                        for question_info in questions.values():
+                            if isinstance(question_info, dict) and question_info.get("status") == "completed":
+                                completed_questions += 1
+                                if question_info.get("is_correct", False):
+                                    correct_answers += 1
+                
+                accuracy = (correct_answers / completed_questions * 100) if completed_questions > 0 else 0
+                
+                print(f"  {state_file_path}")
+                print(f"    场景: {total_scenarios}, 问题: {total_questions}")
+                print(f"    已完成: {completed_questions}, 正确: {correct_answers}, 准确率: {accuracy:.1f}%")
+                
+            except Exception as e:
+                print(f"  {state_file_path} (读取失败: {e})")
     
     if not existing_files:
         print("  没有发现现有状态文件")
@@ -530,133 +512,48 @@ def list_question_types_with_status(qa_path, env_list):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="生成断点续传状态文件")
+    parser = argparse.ArgumentParser(description="生成断点续传状态文件 (适配合并后数据)")
     parser.add_argument("-p", "--qa_path", 
-                       default=os.path.join(os.path.dirname(__file__), 'QA_Data'),
-                       help="QA数据路径")
+                       default=os.path.join(os.path.dirname(__file__), 'merged_QA_data'),
+                       help="合并后的QA数据路径")
     parser.add_argument("-m", "--mode", 
-                       choices=["empty", "template", "reset", "scan", "analyze", "reset_type", "reset_scenario", "list_types"],
+                       choices=["empty", "template", "reset", "scan"],
                        default="scan",
-                       help="运行模式: empty(生成空状态), template(生成模板), reset(重置现有), "
-                            "scan(仅扫描), analyze(详细分析), reset_type(按问题类型重置), "
-                            "reset_scenario(重置特定场景), list_types(列出问题类型状态)")
+                       help="运行模式: empty(生成空状态), template(生成模板), reset(重置现有), scan(仅扫描)")
     parser.add_argument("-e", "--envs", 
                        nargs="+",
                        help="指定环境列表(默认使用所有发现的环境)")
-    parser.add_argument("-t", "--types", 
-                       nargs="+", 
-                       help="指定问题类型列表(默认使用所有发现的类型)")
     parser.add_argument("-f", "--force", 
                        action="store_true",
                        help="强制覆盖现有文件")
-    parser.add_argument("--state-file", 
-                       help="指定要分析的状态文件路径(用于analyze模式)")
-    parser.add_argument("--reset-mode", 
-                       choices=["pending", "remove", "backup"],
-                       default="pending",
-                       help="重置模式: pending(重置为待处理), remove(移除记录), backup(备份后重置)")
-    parser.add_argument("--scenarios", 
-                       nargs="+",
-                       help="指定要重置的场景名称列表(用于reset_scenario模式)")
-    parser.add_argument("--env", 
-                       help="指定单个环境名称(用于reset_scenario模式)")
-    parser.add_argument("--type", 
-                       help="指定单个问题类型(用于reset_scenario模式)")
     parser.add_argument("--model", type=str, default="doubao", required=True, help="模型名称")
+    
     args = parser.parse_args()
     
-    print("=== 断点续传状态文件生成器 ===")
+    print("=== 断点续传状态文件生成器 (新版) ===")
     print(f"QA数据路径: {args.qa_path}")
     print(f"运行模式: {args.mode}")
     
-    # 如果是分析模式且指定了文件
-    if args.mode == "analyze" and args.state_file:
-        if os.path.exists(args.state_file):
-            analyze_state_file(args.state_file)
-        else:
-            print(f"错误: 状态文件不存在: {args.state_file}")
-        return 0
-    
     # 扫描QA数据结构
-    discovered_envs, discovered_types = scan_qa_structure(args.qa_path)
+    discovered_envs = scan_qa_structure(args.qa_path)
     if discovered_envs is None:
         return 1
     
-    # 确定要使用的环境和类型
     env_list = args.envs if args.envs else discovered_envs
-    question_type_folders = args.types if args.types else discovered_types
-    
     print(f"\n将处理的环境: {env_list}")
-    print(f"将处理的问题类型: {question_type_folders}")
     
-    # 新增模式处理
-    if args.mode == "reset_type":
-        if not args.types:
-            print("错误: reset_type模式需要指定 --types 参数")
-            return 1
-        
-        print(f"\n将重置问题类型: {args.types}")
-        print(f"重置模式: {args.reset_mode}")
-        
-        response = input("确认要重置这些问题类型的状态吗? (y/N): ")
-        if response.lower() not in ['y', 'yes']:
-            print("操作已取消")
-            return 0
-
-        success = reset_by_question_type(args.qa_path, env_list, args.types, args.model, args.reset_mode)
-        if success:
-            print("\n✓ 按问题类型重置成功!")
-        return 0
-    
-    elif args.mode == "reset_scenario":
-        if not args.env or not args.type or not args.scenarios:
-            print("错误: reset_scenario模式需要指定 --env, --type 和 --scenarios 参数")
-            return 1
-        
-        print(f"\n将重置环境 {args.env} 中问题类型 {args.type} 的场景: {args.scenarios}")
-        print(f"重置模式: {args.reset_mode}")
-        
-        response = input("确认要重置这些场景的状态吗? (y/N): ")
-        if response.lower() not in ['y', 'yes']:
-            print("操作已取消")
-            return 0
-
-        success = reset_specific_scenarios(args.qa_path, args.env, args.type, args.scenarios, args.model, args.reset_mode)
-        if success:
-            print("\n✓ 场景重置成功!")
-        return 0
-    
-    elif args.mode == "list_types":
-        list_question_types_with_status(args.qa_path, env_list)
-        return 0
-    
-    # 检查现有状态文件
-    existing_files = check_existing_states(args.qa_path, env_list, args.model, question_type_folders)
-
     if args.mode == "scan":
         print("\n=== 扫描完成 ===")
+        # 可以在这里加入检查现有状态文件的逻辑
         return 0
     
-    if args.mode == "analyze":
-        print("\n=== 详细分析所有状态文件 ===")
-        for state_file in existing_files:
-            analyze_state_file(state_file)
-        return 0
-    
-    # 如果存在文件且未强制覆盖，询问用户
-    if existing_files and not args.force and args.mode != "reset":
-        print(f"\n发现 {len(existing_files)} 个现有状态文件")
-        response = input("是否继续? 这将覆盖现有文件 (y/N): ")
-        if response.lower() not in ['y', 'yes']:
-            print("操作已取消")
-            return 0
+    # 可以在这里加入检查现有状态文件和强制覆盖的逻辑
     
     # 生成状态文件
-    success = generate_state_file(args.qa_path, env_list, question_type_folders, args.model, args.mode)
+    success = generate_state_file(args.qa_path, env_list, args.model, args.mode)
 
     if success:
         print("\n✓ 状态文件生成成功!")
-        print("现在可以使用 'python run_baseline.py --resume' 进行断点续传")
         return 0
     else:
         print("\n✗ 状态文件生成失败!")

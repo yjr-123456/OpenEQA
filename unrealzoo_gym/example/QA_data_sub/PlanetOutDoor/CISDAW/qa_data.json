@@ -1,0 +1,375 @@
+{
+    "target_configs": {
+        "player": {
+            "name": [
+                "player_15_CISDAW",
+                "player_4_CISDAW",
+                "player_16_CISDAW",
+                "player_5_CISDAW",
+                "player_3_CISDAW",
+                "player_6_CISDAW"
+            ],
+            "app_id": [
+                15,
+                4,
+                16,
+                5,
+                3,
+                6
+            ],
+            "animation": [
+                "liedown",
+                "stand",
+                "pick_up",
+                "pick_up",
+                "crouch",
+                "crouch"
+            ],
+            "feature_caption": [
+                "A bald man with medium skin, wearing a brown turtleneck, dark pants, and brown shoes.",
+                "A woman with fair skin, wearing a white and blue shirt, blue pants, dark boots, a gray bandana, and a utility belt with pouches",
+                "A man with dark skin, wearing a black fedora, black turtleneck, black pants, and black shoes.",
+                "A female soldier wearing green tactical uniform, backpack, and black boots. Hair is tied back. She carries a utility vest and accessories.",
+                "A woman with medium skin, dark hair in a bun, wearing a dark V-neck shirt, light pants, and brown boots",
+                "A female soldier with light skin, wearing a black beanie, tactical vest, black shirt, pants, and boots, with a white scarf and communication gear."
+            ],
+            "start_pos": [
+                [
+                    -58736.816,
+                    77053.919,
+                    -6236.641,
+                    0,
+                    -89.53809779861146,
+                    0
+                ],
+                [
+                    -58706.598,
+                    76754.387,
+                    -6221.251,
+                    0,
+                    -116.25831707700908,
+                    0
+                ],
+                [
+                    -58772.002,
+                    77327.473,
+                    -6234.987,
+                    0.0,
+                    -90.003,
+                    0.0
+                ],
+                [
+                    -58856.816,
+                    76863.953,
+                    -6226.301,
+                    0.0,
+                    -90.001,
+                    0.0
+                ],
+                [
+                    -59211.537,
+                    77217.237,
+                    -6192.985,
+                    0,
+                    -110.34043874718986,
+                    0
+                ],
+                [
+                    -58556.943,
+                    76545.971,
+                    -6209.302,
+                    0,
+                    -105.36730247238293,
+                    0
+                ]
+            ],
+            "type": [
+                "None",
+                "None",
+                "None",
+                "None",
+                "None",
+                "None"
+            ]
+        }
+    },
+    "sample_configs": {
+        "sample_center": [
+            -58320.467,
+            76538.927,
+            -6224.149
+        ],
+        "sample_radius": 1320.3041532976642
+    },
+    "refer_agents_category": [
+        "player"
+    ],
+    "safe_start": [
+        [
+            -58395.31,
+            76113.221,
+            -6218.844,
+            0,
+            115.90352358399508,
+            0
+        ],
+        [
+            -58111.182,
+            76670.881,
+            -6263.468,
+            0,
+            157.39588039967498,
+            0
+        ],
+        [
+            -59199.093,
+            77611.157,
+            -6187.777,
+            0,
+            -58.91293296779792,
+            0
+        ]
+    ],
+    "Questions": {
+        "relative_distance": {
+            "Question 1": {
+                "question": "Which is closer to the_bald_man_in_brown_sweater_and_black_pants, the_woman_in_camo_vest or the_woman_in_deep_V_top?",
+                "options": [
+                    "A. the_woman_in_camo_vest",
+                    "B. the_woman_in_deep_V_top"
+                ],
+                "answer": "A. the_woman_in_camo_vest"
+            },
+            "Question 2": {
+                "question": "Which is closer to the_bald_man_in_brown_sweater_and_black_pants, the_man_in_fedora_hat or the_woman_in_black_vest?",
+                "options": [
+                    "A. the_man_in_fedora_hat",
+                    "B. the_woman_in_black_vest"
+                ],
+                "answer": "A. the_man_in_fedora_hat"
+            },
+            "Question 3": {
+                "question": "Which is closer to the_woman_in_floral_shirt, the_woman_in_camo_vest or the_man_in_fedora_hat?",
+                "options": [
+                    "A. the_woman_in_camo_vest",
+                    "B. the_man_in_fedora_hat"
+                ],
+                "answer": "A. the_woman_in_camo_vest"
+            },
+            "Question 4": {
+                "question": "Which is closer to the_woman_in_floral_shirt, the_woman_in_black_vest or the_woman_in_deep_V_top?",
+                "options": [
+                    "A. the_woman_in_black_vest",
+                    "B. the_woman_in_deep_V_top"
+                ],
+                "answer": "A. the_woman_in_black_vest"
+            },
+            "Question 5": {
+                "question": "Which is closer to the_man_in_fedora_hat, the_bald_man_in_brown_sweater_and_black_pants or the_woman_in_floral_shirt?",
+                "options": [
+                    "A. the_bald_man_in_brown_sweater_and_black_pants",
+                    "B. the_woman_in_floral_shirt"
+                ],
+                "answer": "A. the_bald_man_in_brown_sweater_and_black_pants"
+            },
+            "Question 6": {
+                "question": "Which is closer to the_woman_in_camo_vest, the_woman_in_floral_shirt or the_man_in_fedora_hat?",
+                "options": [
+                    "A. the_woman_in_floral_shirt",
+                    "B. the_man_in_fedora_hat"
+                ],
+                "answer": "A. the_woman_in_floral_shirt"
+            },
+            "Question 7": {
+                "question": "Which is closer to the_woman_in_deep_V_top, the_man_in_fedora_hat or the_woman_in_floral_shirt?",
+                "options": [
+                    "A. the_man_in_fedora_hat",
+                    "B. the_woman_in_floral_shirt"
+                ],
+                "answer": "A. the_man_in_fedora_hat"
+            },
+            "Question 8": {
+                "question": "Which is closer to the_woman_in_black_vest, the_woman_in_floral_shirt or the_woman_in_deep_V_top?",
+                "options": [
+                    "A. the_woman_in_floral_shirt",
+                    "B. the_woman_in_deep_V_top"
+                ],
+                "answer": "A. the_woman_in_floral_shirt"
+            }
+        },
+        "counting": {
+            "Question 1": {
+                "question": "How many human figures are present in the scene?",
+                "answer": "six"
+            },
+            "Question 2": {
+                "question": "How many male figures can be seen among the figures?",
+                "answer": "two"
+            },
+            "Question 3": {
+                "question": "What is the total number of women in the scene?",
+                "answer": "four"
+            },
+            "Question 4": {
+                "question": "How many individuals in the scene have a bald head?",
+                "answer": "one"
+            },
+            "Question 5": {
+                "question": "How many figures are in a crouch position?",
+                "answer": "two"
+            },
+            "Question 6": {
+                "question": "How many figures are lying motionless on the ground?",
+                "answer": "one"
+            },
+            "Question 7": {
+                "question": "How many individuals in the scene have a light skin color?",
+                "answer": "five"
+            }
+        },
+        "state": {
+            "Question 1": {
+                "question": "What's the state of the bald man?",
+                "options": [
+                    "A. lying down",
+                    "B. standing",
+                    "C. crouching",
+                    "D. holding something"
+                ],
+                "answer": "A. lying down"
+            },
+            "Question 2": {
+                "question": "What's the state of the woman in the floral shirt?",
+                "options": [
+                    "A. standing",
+                    "B. holding something",
+                    "C. crouching",
+                    "D. lying down"
+                ],
+                "answer": "A. standing"
+            },
+            "Question 3": {
+                "question": "What's the state of the man in the fedora hat?",
+                "options": [
+                    "A. holding something",
+                    "B. sitting",
+                    "C. lying down",
+                    "D. crouching"
+                ],
+                "answer": "A. holding something"
+            },
+            "Question 4": {
+                "question": "What's the state of the woman in the camo vest?",
+                "options": [
+                    "A. holding something",
+                    "B. crouching",
+                    "C. sitting",
+                    "D. lying down"
+                ],
+                "answer": "A. holding something"
+            },
+            "Question 5": {
+                "question": "What's the state of the woman in the deep V-neck top?",
+                "options": [
+                    "A. crouching",
+                    "B. standing",
+                    "C. holding something",
+                    "D. lying down"
+                ],
+                "answer": "A. crouching"
+            },
+            "Question 6": {
+                "question": "What's the state of the woman in the black vest?",
+                "options": [
+                    "A. crouching",
+                    "B. lying down",
+                    "C. standing",
+                    "D. holding something"
+                ],
+                "answer": "A. crouching"
+            }
+        },
+        "relative_location": {
+            "Question 1": {
+                "question": "Where is the man in fedora hat relative to the woman in floral shirt?",
+                "options": [
+                    "A. To the front of",
+                    "B. Behind",
+                    "C. To the right of",
+                    "D. To the left of"
+                ],
+                "answer": "C. To the right of"
+            },
+            "Question 2": {
+                "question": "Where is the woman in deep V top relative to the man in fedora hat?",
+                "options": [
+                    "A. To the front of",
+                    "B. To the left of",
+                    "C. To the right of",
+                    "D. Behind"
+                ],
+                "answer": "B. To the left of"
+            },
+            "Question 3": {
+                "question": "Where is the bald man in brown sweater and black pants relative to the woman in camo vest?",
+                "options": [
+                    "A. To the front-left of",
+                    "B. To the back-right of",
+                    "C. In front of",
+                    "D. Behind"
+                ],
+                "answer": "B. To the back-right of"
+            },
+            "Question 4": {
+                "question": "Where is the woman in floral shirt relative to the woman in deep V top?",
+                "options": [
+                    "A. To the front-right of",
+                    "B. To the front-left of",
+                    "C. Behind",
+                    "D. To the back-right of"
+                ],
+                "answer": "B. To the front-left of"
+            },
+            "Question 5": {
+                "question": "Where is the woman in floral shirt relative to the woman in black vest?",
+                "options": [
+                    "A. To the front-left of",
+                    "B. Behind",
+                    "C. To the back-right of",
+                    "D. To the front of"
+                ],
+                "answer": "C. To the back-right of"
+            },
+            "Question 6": {
+                "question": "Where is the woman in black vest relative to the woman in floral shirt?",
+                "options": [
+                    "A. To the back-right of",
+                    "B. In front of",
+                    "C. To the front-left of",
+                    "D. Behind"
+                ],
+                "answer": "C. To the front-left of"
+            },
+            "Question 7": {
+                "question": "Where is the woman in camo vest relative to the man in fedora hat?",
+                "options": [
+                    "A. Behind",
+                    "B. To the left of",
+                    "C. In front of",
+                    "D. To the right of"
+                ],
+                "answer": "C. In front of"
+            },
+            "Question 8": {
+                "question": "Where is the man in fedora hat relative to the woman in camo vest?",
+                "options": [
+                    "A. In front of",
+                    "B. To the left of",
+                    "C. Behind",
+                    "D. To the right of"
+                ],
+                "answer": "C. Behind"
+            }
+        }
+    }
+}

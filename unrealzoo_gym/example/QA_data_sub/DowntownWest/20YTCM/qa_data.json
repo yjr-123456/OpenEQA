@@ -1,0 +1,311 @@
+{
+    "target_configs": {
+        "player": {
+            "name": [
+                "player_5_20YTCM",
+                "player_15_20YTCM"
+            ],
+            "app_id": [
+                5,
+                15
+            ],
+            "animation": [
+                "stand",
+                "in_vehicle"
+            ],
+            "feature_caption": [
+                "A female soldier wearing green tactical uniform, backpack, and black boots. Hair is tied back. She carries a utility vest and accessories.",
+                "A bald man with medium skin, wearing a brown turtleneck, dark pants, and brown shoes."
+            ],
+            "start_pos": [
+                [
+                    750.346,
+                    5457.649,
+                    82.238,
+                    0,
+                    -65.07491161238012,
+                    0
+                ],
+                [
+                    463.976,
+                    4037.351,
+                    73.82,
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            ],
+            "type": [
+                "None",
+                "None"
+            ]
+        },
+        "car": {
+            "name": [
+                "car_3_20YTCM",
+                "car_1_20YTCM"
+            ],
+            "app_id": [
+                3,
+                1
+            ],
+            "animation": [
+                "None",
+                "None"
+            ],
+            "feature_caption": [
+                "Yellow vehicle with black stripes, modern style, compact structure",
+                "White compact car with black grille, sleek design, and four doors"
+            ],
+            "start_pos": [
+                [
+                    453.71,
+                    4237.09,
+                    82.097,
+                    0,
+                    82.92381835202875,
+                    0
+                ],
+                [
+                    835.453,
+                    5160.746,
+                    82.168,
+                    0,
+                    82.48699714774426,
+                    0
+                ]
+            ],
+            "type": [
+                "BP_Sedan_child_extras_C",
+                "BP_Hatchback_child_extras_C"
+            ]
+        },
+        "animal": {
+            "name": [
+                "animal_16_20YTCM"
+            ],
+            "app_id": [
+                16
+            ],
+            "animation": [
+                "None"
+            ],
+            "feature_caption": [
+                "Extinct saber-toothed puma with muscular build, speckled coat, and large canine teeth"
+            ],
+            "start_pos": [
+                [
+                    -7.865,
+                    4527.073,
+                    82.097,
+                    0,
+                    29.41082099990649,
+                    0
+                ]
+            ],
+            "type": [
+                "None",
+                "None"
+            ]
+        }
+    },
+    "sample_configs": {
+        "sample_center": [
+            426.232,
+            4659.184,
+            82.097
+        ],
+        "sample_radius": 1265.6669056684648
+    },
+    "refer_agents_category": [
+        "player",
+        "car",
+        "animal"
+    ],
+    "safe_start": [
+        [
+            -464.092,
+            5096.986,
+            102.185,
+            0,
+            -27.124536697246644,
+            0
+        ],
+        [
+            1081.548,
+            4822.317,
+            102.265,
+            0,
+            -166.24321309946305,
+            0
+        ],
+        [
+            1064.523,
+            3513.906,
+            100.635,
+            0,
+            120.2678190514577,
+            0
+        ]
+    ],
+    "Questions": {
+        "relative_distance": {
+            "Question 1": {
+                "question": "Which is closer to the_woman_in_camo_vest, Yellow_Car or White_Compact_Car?",
+                "options": [
+                    "A. Yellow_Car",
+                    "B. White_Compact_Car"
+                ],
+                "answer": "B. White_Compact_Car"
+            },
+            "Question 2": {
+                "question": "Which is closer to the_bald_man_in_brown_sweater_and_black_pants, Yellow_Car or Puma?",
+                "options": [
+                    "A. Yellow_Car",
+                    "B. Puma"
+                ],
+                "answer": "A. Yellow_Car"
+            },
+            "Question 3": {
+                "question": "Which is closer to Yellow_Car, the_bald_man_in_brown_sweater_and_black_pants or White_Compact_Car?",
+                "options": [
+                    "A. the_bald_man_in_brown_sweater_and_black_pants",
+                    "B. White_Compact_Car"
+                ],
+                "answer": "A. the_bald_man_in_brown_sweater_and_black_pants"
+            },
+            "Question 4": {
+                "question": "Which is closer to White_Compact_Car, the_woman_in_camo_vest or Yellow_Car?",
+                "options": [
+                    "A. the_woman_in_camo_vest",
+                    "B. Yellow_Car"
+                ],
+                "answer": "A. the_woman_in_camo_vest"
+            },
+            "Question 5": {
+                "question": "Which is closer to Puma, Yellow_Car or White_Compact_Car?",
+                "options": [
+                    "A. Yellow_Car",
+                    "B. White_Compact_Car"
+                ],
+                "answer": "A. Yellow_Car"
+            },
+            "Question 6": {
+                "question": "Which is closer to Yellow_Car, Puma or the_woman_in_camo_vest?",
+                "options": [
+                    "A. Puma",
+                    "B. the_woman_in_camo_vest"
+                ],
+                "answer": "A. Puma"
+            }
+        },
+        "counting": {
+            "Question 1": {
+                "question": "How many human individuals are in the scene?",
+                "answer": "two"
+            },
+            "Question 2": {
+                "question": "What is the count of human figures in the scene who are bald?",
+                "answer": "one"
+            },
+            "Question 3": {
+                "question": "How many cars are in the scene?",
+                "answer": "two"
+            }
+        },
+        "state": {
+            "Question 1": {
+                "question": "What's the state of the woman in the camo vest?",
+                "options": [
+                    "A. sitting",
+                    "B. standing",
+                    "C. crouch",
+                    "D. running"
+                ],
+                "answer": "B. standing"
+            },
+            "Question 2": {
+                "question": "What's the state of the bald man?",
+                "options": [
+                    "A. walking",
+                    "B. standing",
+                    "C. in a car",
+                    "D. lying down"
+                ],
+                "answer": "C. in a car"
+            }
+        },
+        "relative_location": {
+            "Question 1": {
+                "question": "Where is the bald man in the brown sweater and black pants relative to the woman in the camo vest?",
+                "options": [
+                    "A. In front of",
+                    "B. Behind",
+                    "C. To the left of",
+                    "D. To the right of"
+                ],
+                "answer": "C. To the left of"
+            },
+            "Question 2": {
+                "question": "Where is the Yellow Car relative to the woman in the camo vest?",
+                "options": [
+                    "A. In front of",
+                    "B. Behind",
+                    "C. To the left of",
+                    "D. To the right of"
+                ],
+                "answer": "C. To the left of"
+            },
+            "Question 3": {
+                "question": "Where is the bald man in the brown sweater and black pants relative to the White Compact Car?",
+                "options": [
+                    "A. In front of",
+                    "B. Behind",
+                    "C. To the left of",
+                    "D. To the right of"
+                ],
+                "answer": "B. Behind"
+            },
+            "Question 4": {
+                "question": "Where is the Yellow Car relative to the White Compact Car?",
+                "options": [
+                    "A. In front of",
+                    "B. Behind",
+                    "C. To the left of",
+                    "D. To the right of"
+                ],
+                "answer": "B. Behind"
+            },
+            "Question 5": {
+                "question": "Where is the Puma relative to the White Compact Car?",
+                "options": [
+                    "A. In front of",
+                    "B. To the back right of",
+                    "C. To the left of",
+                    "D. To the right of"
+                ],
+                "answer": "B. To the back right of"
+            },
+            "Question 6": {
+                "question": "Where is the woman in the camo vest relative to the Puma?",
+                "options": [
+                    "A. In front of",
+                    "B. Behind",
+                    "C. To the left of",
+                    "D. To the right of"
+                ],
+                "answer": "A. In front of"
+            },
+            "Question 7": {
+                "question": "Where is the bald man in the brown sweater and black pants relative to the Puma?",
+                "options": [
+                    "A. In front of",
+                    "B. Behind",
+                    "C. To the left of",
+                    "D. To the right of"
+                ],
+                "answer": "C. To the left of"
+            }
+        }
+    }
+}

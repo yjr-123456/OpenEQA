@@ -121,7 +121,9 @@ use_docker = False  # True: use nvidia docker   False: do not use nvidia-docker
 
 #OpenWorld EQA
 for env in ['Map_ChemicalPlant_1', 'Old_Town', 'MiddleEast', 'Demo_Roof', 'UrbanCity','track_train','supermarket','SuburbNeighborhood_Day','SuburbNeighborhood_Night','ContainerYard_Day','ContainerYard_Night','ModularSciFiVillage',
-    "ModularNeighborhood","RuralAustralia_Example_01","ModularVictorianCity","Cabin_Lake","Pyramid","ModularGothic_Day","Greek_Island"]:
+    "ModularNeighborhood","RuralAustralia_Example_01","ModularVictorianCity","Cabin_Lake","Pyramid","ModularGothic_Day","Greek_Island","AsianMedivalCity",
+    "LV_Bazaar", "StonePineForest","DowntownWest","PlanetOutDoor", "RussianWinterTownDemo01", "Arctic","Medieval_Castle", "SnowMap", "Real_Landscape", "Demonstration_Castle",
+    "Venice"]:
     for i in range(6):  # reset type
         for action in ['Discrete', 'Continuous']:  # action type
             for obs in ['Color', 'Depth', 'Rgbd','ColorMask']:  # observation type

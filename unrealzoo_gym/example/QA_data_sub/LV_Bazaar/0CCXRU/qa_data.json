@@ -1,0 +1,321 @@
+{
+    "target_configs": {
+        "player": {
+            "name": [
+                "player_7_0CCXRU",
+                "player_6_0CCXRU",
+                "player_5_0CCXRU",
+                "player_3_0CCXRU"
+            ],
+            "app_id": [
+                7,
+                6,
+                5,
+                3
+            ],
+            "animation": [
+                "crouch",
+                "pick_up",
+                "stand",
+                "liedown"
+            ],
+            "feature_caption": [
+                "A bald man with glasses, dark complexion, wearing a black turtleneck, suit, and shoes",
+                "A female soldier with light skin, wearing a black beanie, tactical vest, black shirt, pants, and boots, with a white scarf and communication gear.",
+                "A female soldier wearing green tactical uniform, backpack, and black boots. Hair is tied back. She carries a utility vest and accessories.",
+                "A woman with medium skin, dark hair in a bun, wearing a dark V-neck shirt, light pants, and brown boots"
+            ],
+            "start_pos": [
+                [
+                    82.213,
+                    -656.032,
+                    201.897,
+                    0,
+                    60.52624610109035,
+                    0
+                ],
+                [
+                    236.488,
+                    -555.537,
+                    201.898,
+                    0.0,
+                    -90.0,
+                    0.0
+                ],
+                [
+                    150.904,
+                    -318.64,
+                    214.337,
+                    0,
+                    149.15516245980865,
+                    0
+                ],
+                [
+                    -212.473,
+                    -305.086,
+                    211.969,
+                    0,
+                    -168.29492836470178,
+                    0
+                ]
+            ],
+            "type": [
+                "None",
+                "None",
+                "None",
+                "None"
+            ]
+        }
+    },
+    "sample_configs": {
+        "sample_center": [
+            -146.971,
+            -260.382,
+            227.23
+        ],
+        "sample_radius": 684.5600916191922
+    },
+    "refer_agents_category": [
+        "player"
+    ],
+    "safe_start": [
+        [
+            198.858,
+            -56.242,
+            213.117,
+            0,
+            -108.48374744909925,
+            0
+        ],
+        [
+            111.339,
+            -1264.557,
+            217.383,
+            0,
+            93.34236079121524,
+            0
+        ],
+        [
+            666.046,
+            -575.473,
+            201.898,
+            0,
+            169.0295112463329,
+            0
+        ]
+    ],
+    "Questions": {
+        "relative_distance": {
+            "Question 1": {
+                "question": "Which is closer to the_bald_man_in_glasses, the_woman_in_black_vest or the_woman_in_camo_vest?",
+                "options": [
+                    "A. the_woman_in_black_vest",
+                    "B. the_woman_in_camo_vest"
+                ],
+                "answer": "A. the_woman_in_black_vest"
+            },
+            "Question 2": {
+                "question": "Which is closer to the_bald_man_in_glasses, the_woman_in_black_vest or the_woman_in_deep_V_top?",
+                "options": [
+                    "A. the_woman_in_black_vest",
+                    "B. the_woman_in_deep_V_top"
+                ],
+                "answer": "A. the_woman_in_black_vest"
+            },
+            "Question 3": {
+                "question": "Which is closer to the_bald_man_in_glasses, the_woman_in_camo_vest or the_woman_in_deep_V_top?",
+                "options": [
+                    "A. the_woman_in_camo_vest",
+                    "B. the_woman_in_deep_V_top"
+                ],
+                "answer": "A. the_woman_in_camo_vest"
+            },
+            "Question 4": {
+                "question": "Which is closer to the_woman_in_black_vest, the_bald_man_in_glasses or the_woman_in_deep_V_top?",
+                "options": [
+                    "A. the_bald_man_in_glasses",
+                    "B. the_woman_in_deep_V_top"
+                ],
+                "answer": "A. the_bald_man_in_glasses"
+            },
+            "Question 5": {
+                "question": "Which is closer to the_woman_in_black_vest, the_woman_in_camo_vest or the_woman_in_deep_V_top?",
+                "options": [
+                    "A. the_woman_in_camo_vest",
+                    "B. the_woman_in_deep_V_top"
+                ],
+                "answer": "A. the_woman_in_camo_vest"
+            },
+            "Question 6": {
+                "question": "Which is closer to the_woman_in_camo_vest, the_woman_in_black_vest or the_woman_in_deep_V_top?",
+                "options": [
+                    "A. the_woman_in_black_vest",
+                    "B. the_woman_in_deep_V_top"
+                ],
+                "answer": "A. the_woman_in_black_vest"
+            },
+            "Question 7": {
+                "question": "Which is closer to the_woman_in_deep_V_top, the_woman_in_black_vest or the_woman_in_camo_vest?",
+                "options": [
+                    "A. the_woman_in_black_vest",
+                    "B. the_woman_in_camo_vest"
+                ],
+                "answer": "B. the_woman_in_camo_vest"
+            }
+        },
+        "counting": {
+            "Question 1": {
+                "question": "How many individuals are in a crouching posture in the scene?",
+                "answer": "one"
+            },
+            "Question 2": {
+                "question": "How many figures are in a standing position?",
+                "answer": "two"
+            },
+            "Question 3": {
+                "question": "How many people in the scene are observed to be lying down?",
+                "answer": "one"
+            },
+            "Question 4": {
+                "question": "How many people are holding something?",
+                "answer": "one"
+            },
+            "Question 5": {
+                "question": "Among all the individuals present, how many are identified as male?",
+                "answer": "one"
+            },
+            "Question 6": {
+                "question": "How many individuals in the scene are not wearing glasses?",
+                "answer": "three"
+            },
+            "Question 7": {
+                "question": "How many people in the scene do not have a bald head?",
+                "answer": "three"
+            }
+        },
+        "state": {
+            "Question 1": {
+                "question": "What's the state of the bald man?",
+                "options": [
+                    "A. crouch",
+                    "B. standing",
+                    "C. sitting",
+                    "D. lying down"
+                ],
+                "answer": "A. crouch"
+            },
+            "Question 2": {
+                "question": "What's the state of the woman in the black vest?",
+                "options": [
+                    "A. crouching",
+                    "B. holding something",
+                    "C. running",
+                    "D. sitting"
+                ],
+                "answer": "B. holding something"
+            },
+            "Question 3": {
+                "question": "What's the state of the woman in the camo vest?",
+                "options": [
+                    "A. sitting",
+                    "B. walking",
+                    "C. stand",
+                    "D. jumping"
+                ],
+                "answer": "C. stand"
+            },
+            "Question 4": {
+                "question": "What's the state of the woman in the deep V-neck top?",
+                "options": [
+                    "A. sitting",
+                    "B. liedown",
+                    "C. standing",
+                    "D. jumping"
+                ],
+                "answer": "B. liedown"
+            }
+        },
+        "relative_location": {
+            "Question 1": {
+                "question": "Where is the woman in black vest relative to the bald man in glasses?",
+                "options": [
+                    "A. To the front-right of",
+                    "B. Behind",
+                    "C. To the left of",
+                    "D. In front of"
+                ],
+                "answer": "A. To the front-right of"
+            },
+            "Question 2": {
+                "question": "Where is the woman in camo vest relative to the bald man in glasses?",
+                "options": [
+                    "A. To the front of",
+                    "B. To the right of",
+                    "C. To the left of",
+                    "D. Behind"
+                ],
+                "answer": "B. To the right of"
+            },
+            "Question 3": {
+                "question": "Where is the woman in deep V top relative to the bald man in glasses?",
+                "options": [
+                    "A. In front of",
+                    "B. To the left of",
+                    "C. To the back-right of",
+                    "D. To the right of"
+                ],
+                "answer": "C. To the back-right of"
+            },
+            "Question 4": {
+                "question": "Where is the bald man in glasses relative to the woman in black vest?",
+                "options": [
+                    "A. Behind",
+                    "B. To the front-left of",
+                    "C. To the right of",
+                    "D. In front of"
+                ],
+                "answer": "B. To the front-left of"
+            },
+            "Question 5": {
+                "question": "Where is the woman in camo vest relative to the woman in black vest?",
+                "options": [
+                    "A. In front of",
+                    "B. To the left of",
+                    "C. Behind",
+                    "D. To the right of"
+                ],
+                "answer": "C. Behind"
+            },
+            "Question 6": {
+                "question": "Where is the woman in deep V top relative to the woman in black vest?",
+                "options": [
+                    "A. To the front-right of",
+                    "B. To the back-left of",
+                    "C. To the right of",
+                    "D. In front of"
+                ],
+                "answer": "B. To the back-left of"
+            },
+            "Question 7": {
+                "question": "Where is the bald man in glasses relative to the woman in camo vest?",
+                "options": [
+                    "A. To the right of",
+                    "B. In front of",
+                    "C. To the left of",
+                    "D. Behind"
+                ],
+                "answer": "C. To the left of"
+            },
+            "Question 8": {
+                "question": "Where is the woman in black vest relative to the woman in camo vest?",
+                "options": [
+                    "A. To the right of",
+                    "B. To the left of",
+                    "C. Behind",
+                    "D. In front of"
+                ],
+                "answer": "B. To the left of"
+            }
+        }
+    }
+}

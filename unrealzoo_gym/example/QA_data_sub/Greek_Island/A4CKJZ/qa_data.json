@@ -1,0 +1,397 @@
+{
+    "target_configs": {
+        "player": {
+            "name": [
+                "player_7_A4CKJZ",
+                "player_15_A4CKJZ",
+                "player_5_A4CKJZ",
+                "player_10_A4CKJZ",
+                "player_12_A4CKJZ",
+                "player_3_A4CKJZ"
+            ],
+            "app_id": [
+                7,
+                15,
+                5,
+                10,
+                12,
+                3
+            ],
+            "animation": [
+                "crouch",
+                "stand",
+                "liedown",
+                "stand",
+                "liedown",
+                "pick_up"
+            ],
+            "feature_caption": [
+                "A bald man with glasses, dark complexion, wearing a black turtleneck, suit, and shoes",
+                "A bald man with medium skin, wearing a brown turtleneck, dark pants, and brown shoes.",
+                "A female soldier wearing green tactical uniform, backpack, and black boots. Hair is tied back. She carries a utility vest and accessories.",
+                "A man with medium skin, wearing sunglasses, maroon polo shirt, beige pants, brown shoes, and a watch",
+                "A man wearing a gray suit, dark shirt, and brown shoes with short dark hair.",
+                "A woman with medium skin, dark hair in a bun, wearing a dark V-neck shirt, light pants, and brown boots"
+            ],
+            "start_pos": [
+                [
+                    9834.446,
+                    24384.727,
+                    1321.666,
+                    0,
+                    -123.12580851865005,
+                    0
+                ],
+                [
+                    10027.22,
+                    24536.814,
+                    1321.588,
+                    0,
+                    126.97727590192306,
+                    0
+                ],
+                [
+                    9591.987,
+                    24763.831,
+                    1325.207,
+                    0,
+                    -13.059170576222044,
+                    0
+                ],
+                [
+                    9745.952,
+                    24761.093,
+                    1321.826,
+                    0,
+                    72.50765707259416,
+                    0
+                ],
+                [
+                    9762.171,
+                    24900.793,
+                    1322.242,
+                    0,
+                    -34.163364690693925,
+                    0
+                ],
+                [
+                    9496.413,
+                    24751.936,
+                    1327.559,
+                    0.0,
+                    -0.0,
+                    0.0
+                ]
+            ],
+            "type": [
+                "None",
+                "None",
+                "None",
+                "None",
+                "None",
+                "None"
+            ]
+        },
+        "drone": {
+            "name": [
+                "drone_0_A4CKJZ"
+            ],
+            "app_id": [
+                0
+            ],
+            "animation": [
+                "none"
+            ],
+            "feature_caption": [
+                "Aerial drone with a black and white frame, dual rotors, and a streamlined design."
+            ],
+            "start_pos": [
+                [
+                    9863.41,
+                    24820.506,
+                    1521.711,
+                    0,
+                    49.88648850916283,
+                    0
+                ]
+            ],
+            "type": [
+                "None"
+            ]
+        }
+    },
+    "sample_configs": {
+        "sample_center": [
+            9473.656,
+            24221.717,
+            1321.588
+        ],
+        "sample_radius": 937.8248753715212
+    },
+    "refer_agents_category": [
+        "player",
+        "drone"
+    ],
+    "safe_start": [
+        [
+            10263.602,
+            24422.507,
+            1331.341,
+            0,
+            150.88853287598195,
+            0
+        ],
+        [
+            9437.052,
+            24054.194,
+            1321.587,
+            0,
+            63.51548074403993,
+            0
+        ],
+        [
+            9230.097,
+            25052.084,
+            1343.583,
+            0,
+            -33.378456624671806,
+            0
+        ]
+    ],
+    "Questions": {
+        "relative_distance": {
+            "Question 1": {
+                "question": "Which is closer to the_bald_man_in_glasses, the_bald_man_in_brown_sweater_and_black_pants or the_woman_in_camo_vest?",
+                "options": [
+                    "A. the_bald_man_in_brown_sweater_and_black_pants",
+                    "B. the_woman_in_camo_vest"
+                ],
+                "answer": "A. the_bald_man_in_brown_sweater_and_black_pants"
+            },
+            "Question 2": {
+                "question": "Which is closer to the_bald_man_in_glasses, the_bald_man_in_brown_sweater_and_black_pants or the_man_in_burgundy_polo_and_light_pants?",
+                "options": [
+                    "A. the_bald_man_in_brown_sweater_and_black_pants",
+                    "B. the_man_in_burgundy_polo_and_light_pants"
+                ],
+                "answer": "A. the_bald_man_in_brown_sweater_and_black_pants"
+            },
+            "Question 3": {
+                "question": "Which is closer to the_bald_man_in_glasses, the_bald_man_in_brown_sweater_and_black_pants or the_man_in_grey_suit?",
+                "options": [
+                    "A. the_bald_man_in_brown_sweater_and_black_pants",
+                    "B. the_man_in_grey_suit"
+                ],
+                "answer": "A. the_bald_man_in_brown_sweater_and_black_pants"
+            },
+            "Question 4": {
+                "question": "Which is closer to the_bald_man_in_brown_sweater_and_black_pants, the_bald_man_in_glasses or the_woman_in_camo_vest?",
+                "options": [
+                    "A. the_bald_man_in_glasses",
+                    "B. the_woman_in_camo_vest"
+                ],
+                "answer": "A. the_bald_man_in_glasses"
+            },
+            "Question 5": {
+                "question": "Which is closer to the_bald_man_in_brown_sweater_and_black_pants, the_bald_man_in_glasses or the_man_in_burgundy_polo_and_light_pants?",
+                "options": [
+                    "A. the_bald_man_in_glasses",
+                    "B. the_man_in_burgundy_polo_and_light_pants"
+                ],
+                "answer": "A. the_bald_man_in_glasses"
+            },
+            "Question 6": {
+                "question": "Which is closer to the_woman_in_camo_vest, the_woman_in_deep_V_top or the_bald_man_in_glasses?",
+                "options": [
+                    "A. the_woman_in_deep_V_top",
+                    "B. the_bald_man_in_glasses"
+                ],
+                "answer": "A. the_woman_in_deep_V_top"
+            },
+            "Question 7": {
+                "question": "Which is closer to the_woman_in_camo_vest, the_man_in_burgundy_polo_and_light_pants or the_bald_man_in_brown_sweater_and_black_pants?",
+                "options": [
+                    "A. the_man_in_burgundy_polo_and_light_pants",
+                    "B. the_bald_man_in_brown_sweater_and_black_pants"
+                ],
+                "answer": "A. the_man_in_burgundy_polo_and_light_pants"
+            },
+            "Question 8": {
+                "question": "Which is closer to the_man_in_burgundy_polo_and_light_pants, the_man_in_grey_suit or the_bald_man_in_glasses?",
+                "options": [
+                    "A. the_man_in_grey_suit",
+                    "B. the_bald_man_in_glasses"
+                ],
+                "answer": "A. the_man_in_grey_suit"
+            }
+        },
+        "counting": {
+            "Question 1": {
+                "question": "How many individuals are in a state of lying down in the scene?",
+                "answer": "two"
+            },
+            "Question 2": {
+                "question": "How many people are in a crouched position?",
+                "answer": "one"
+            },
+            "Question 3": {
+                "question": "How many individuals in the scene are both male and bald?",
+                "answer": "two"
+            },
+            "Question 4": {
+                "question": "How many people are wearing glasses in the scene?",
+                "answer": "two"
+            },
+            "Question 5": {
+                "question": "Excluding those who are bald, how many people are present in the scene?",
+                "answer": "four"
+            },
+            "Question 6": {
+                "question": "How many people in the scene have a medium skin tone?",
+                "answer": "three"
+            },
+            "Question 7": {
+                "question": "How many drones are present in the scene?",
+                "answer": "one"
+            },
+            "Question 8": {
+                "question": "How many women in the scene are not wearing glasses?",
+                "answer": "two"
+            }
+        },
+        "state": {
+            "Question 1": {
+                "question": "What's the state of the bald man in glasses?",
+                "options": [
+                    "A. crouch",
+                    "B. stand",
+                    "C. hold something",
+                    "D. liedown"
+                ],
+                "answer": "A. crouch"
+            },
+            "Question 2": {
+                "question": "What's the state of the bald man in a brown sweater and black pants?",
+                "options": [
+                    "A. stand",
+                    "B. crouch",
+                    "C. hold something",
+                    "D. liedown"
+                ],
+                "answer": "A. stand"
+            },
+            "Question 3": {
+                "question": "What's the state of the woman in the camo vest?",
+                "options": [
+                    "A. liedown",
+                    "B. stand",
+                    "C. crouch",
+                    "D. hold something"
+                ],
+                "answer": "A. liedown"
+            },
+            "Question 4": {
+                "question": "What's the state of the man in the burgundy polo and light pants?",
+                "options": [
+                    "A. stand",
+                    "B. crouch",
+                    "C. hold something",
+                    "D. liedown"
+                ],
+                "answer": "A. stand"
+            },
+            "Question 5": {
+                "question": "What's the state of the man in the grey suit?",
+                "options": [
+                    "A. liedown",
+                    "B. stand",
+                    "C. crouch",
+                    "D. hold something"
+                ],
+                "answer": "A. liedown"
+            },
+            "Question 6": {
+                "question": "What's the state of the woman in the deep V-top?",
+                "options": [
+                    "A. hold something",
+                    "B. sitting",
+                    "C. crouch",
+                    "D. liedown"
+                ],
+                "answer": "A. hold something"
+            }
+        },
+        "relative_location": {
+            "Question 1": {
+                "question": "Where is the bald man in brown sweater and black pants relative to the bald man in glasses?",
+                "options": [
+                    "A. To the front-right of",
+                    "B. Behind",
+                    "C. To the left of",
+                    "D. To the back-left of"
+                ],
+                "answer": "A. To the front-right of"
+            },
+            "Question 2": {
+                "question": "Where is the bald man in glasses relative to the bald man in brown sweater and black pants?",
+                "options": [
+                    "A. To the front-right of",
+                    "B. To the back-left of",
+                    "C. To the right of",
+                    "D. In front of"
+                ],
+                "answer": "B. To the back-left of"
+            },
+            "Question 3": {
+                "question": "Where is the bald man in glasses relative to the man in burgundy polo and light pants?",
+                "options": [
+                    "A. To the right of",
+                    "B. Behind",
+                    "C. To the left of",
+                    "D. In front of"
+                ],
+                "answer": "C. To the left of"
+            },
+            "Question 4": {
+                "question": "Where is the bald man in glasses relative to the woman in deep V top?",
+                "options": [
+                    "A. To the back-right of",
+                    "B. To the front-left of",
+                    "C. Behind",
+                    "D. To the right of"
+                ],
+                "answer": "B. To the front-left of"
+            },
+            "Question 5": {
+                "question": "Where is the woman in deep V top relative to the bald man in glasses?",
+                "options": [
+                    "A. In front of",
+                    "B. To the back-right of",
+                    "C. To the front-left of",
+                    "D. To the left of"
+                ],
+                "answer": "B. To the back-right of"
+            },
+            "Question 6": {
+                "question": "Where is the woman in deep V top relative to the bald man in brown sweater and black pants?",
+                "options": [
+                    "A. In front of",
+                    "B. To the front-right of",
+                    "C. Behind",
+                    "D. To the left of"
+                ],
+                "answer": "C. Behind"
+            },
+            "Question 7": {
+                "question": "Where is the White Drone relative to the bald man in glasses?",
+                "options": [
+                    "A. Slightly below and to the left of",
+                    "B. Slightly above and to the right of",
+                    "C. In front of",
+                    "D. Behind"
+                ],
+                "answer": "B. Slightly above and to the right of"
+            }
+        }
+    }
+}
