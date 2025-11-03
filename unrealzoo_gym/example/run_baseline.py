@@ -31,7 +31,7 @@ if __name__ == '__main__':
     parser.add_argument("-s", "--seed", type=int, default=0)
     parser.add_argument("-t", "--time-dilation", type=int, default=-1)
     parser.add_argument("-d", "--early-done", type=int, default=-1)
-    parser.add_argument("-q", "--QA_path", default=os.path.join(current_dir, 'merged_QA_data'))
+    parser.add_argument("-q", "--QA_path", default=os.path.join(current_dir, 'QA_data_sub'))
     parser.add_argument("-p", "--pid_port", type=int, default=50007, help="UnrealCV watchdog pid")
     parser.add_argument("--use_pid", type=bool,default=False, help="Whether to use pid watchdog to monitor the UE process")
     parser.add_argument("--question_types", nargs='+', default=["counting"], help="List of question types to evaluate")

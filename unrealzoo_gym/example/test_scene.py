@@ -116,8 +116,6 @@ def get_key_collection():
     collection = 0
     if key_state['p']:
         collection = 1
-    elif key_state['n']:
-        collection = 2
     return collection
 
 
@@ -228,39 +226,32 @@ def process_in_vehicle_players(config_data):
 listener = keyboard.Listener(
     on_press=on_press,
     on_release=on_release)
-
+listener.start()
 
 if __name__ == '__main__':
     env_list = [
-        # "ModularNeighborhood",
-        # "Map_ChemicalPlant_1",
-        # "Pyramid",
-        # "Greek_Island",
-        # "SuburbNeighborhood_Day",
-
-        # "LV_Bazaar",
-        # "DowntownWest",
-        # "PlanetOutDoor",
-        # "RussianWinterTownDemo01",
-        # "AsianMedivalCity",
-        
-        # "Medieval_Castle",
-        # "SnowMap",
-        # "Real_Landscape",
-        # "Demonstration_Castle",
-        "Venice"
+        "ModularNeighborhood",
+        "ModularSciFiVillage", 
+        "Cabin_Lake",
+        "Pyramid",
+        "RuralAustralia_Example_01",
+        "ModularVictorianCity",
+        "Map_ChemicalPlant_1"
     ]
-    listener.start()
     for env_name in env_list:
+        question_type = None
+        save_dir = None
+        total_questions = 0
+        correct_answers = 0
+        results = []
+        results_filename = None
         parser = argparse.ArgumentParser()
         parser.add_argument("-e", "--env_id", default=f'UnrealCvEQA_general-{env_name}-DiscreteColorMask-v0')
         parser.add_argument("-s", "--seed", type=int, default=0)
         parser.add_argument("-t", "--time-dilation", type=int, default=-1)
         parser.add_argument("-d", "--early-done", type=int, default=-1)
-        parser.add_argument("-q", "--QA_path", default=os.path.join(os.path.dirname(__file__), 'QA_data_2'))
-        parser.add_argument("-g", "--GT_path", default=os.path.join(os.path.dirname(__file__), 'GT_info'))
-        # parser.add_argument("--resume", action='store_true', default=True, help="Resume from previous progress")
-        parser.add_argument("--save_dir", default="./filtered_scenes", help="Directory to save filtered scenes")
+        parser.add_argument("-p", "--QA_path", default=os.path.join(os.path.dirname(__file__), 'GT_info'))
+        parser.add_argument("--resume", action='store_true', help="Resume from previous progress")
         args = parser.parse_args()
         
         # init agent
@@ -271,25 +262,25 @@ if __name__ == '__main__':
         if args.time_dilation > 0:
             env = time_dilation.TimeDilationWrapper(env, args.time_dilation)
         if args.early_done > 0:
-            env = early_done.EarlyDoneWrapper(env, args.early_done)        
+            env = early_done.EarlyDoneWrapper(env, args.early_done)
         
-        env_dir = f"{args.QA_path}/{env_name}/counting"
-        state_dir = f"{args.GT_path}/{env_name}/status_recorder.json"
-        os.makedirs(args.save_dir, exist_ok=True)
+        
+        env_dir = f"{args.QA_path}/{env_name}"
+
         scenario_folder_names = [d for d in os.listdir(env_dir) 
                                     if os.path.isdir(os.path.join(env_dir, d))]
-        status_file = json.load(open(state_dir, 'r'))
+        status_file = json.load(open(f"{env_dir}/status_recorder.json", 'r'))
         for scenario_folder_name in scenario_folder_names:
-            if status_file.get(scenario_folder_name, False) == False:
-                print(f"Skipping already processed scenario: {scenario_folder_name}")
-                continue
+            # if status_file.get(scenario_folder_name, False) == False:
+            #     print(f"Skipping already processed scenario: {scenario_folder_name}")
+            #     continue
             id_folder_path = os.path.join(env_dir, scenario_folder_name)
-            file_path = os.path.join(id_folder_path, f"counting.json")
-                
+            file_path = os.path.join(id_folder_path, f"gt_info.json")
+            
             if not os.path.isfile(file_path):
                 print(f"Warning: JSON file not found in {id_folder_path}, skipping.")
                 continue
-            
+                    
             # 加载QA数据
             QA_data_loaded = load_json_file(file_path)
             if QA_data_loaded is None:
@@ -305,60 +296,25 @@ if __name__ == '__main__':
             # 环境设置代码
             target_configs = QA_data_loaded.get("target_configs", {})
             safe_start_config = QA_data_loaded.get("safe_start")
-            # if len(safe_start_config) > 1:
-            #     safe_start_config = [safe_start_config]
+            if len(safe_start_config) > 1:
+                safe_start_config = [safe_start_config]
             refer_agents_category_config = QA_data_loaded.get("refer_agents_category")
             agent_num = sum(len(target_configs.get(t, {}).get("name", [])) for t in target_configs)
             start_pose = QA_data_loaded.get("safe_start", [])
-            if len(start_pose) != 6:
+            if len(start_pose) == 1:
                 start_pose = start_pose[0]
             assert len(start_pose) == 6
-            try:      
-                unwrapped_env = env.unwrapped
-                if len(safe_start_config) != 6:
-                    unwrapped_env.safe_start = [safe_start_config[0]]
-                else:
-                    unwrapped_env.safe_start = [safe_start_config]
-                unwrapped_env.target_configs = target_configs
-                unwrapped_env.refer_agents_category = list(target_configs.keys())
-                env = augmentation.RandomPopulationWrapper(env, num_min=agent_num + 1, num_max=agent_num + 1)
-                env = configUE.ConfigUEWrapper(env, resolution=(1024,1024), offscreen=False)       
-                print(f"Resetting environment for file: {os.path.basename(file_path)}")
-                states, info = env.reset()
-            except Exception as e:
-                print(f"Error during environment reset for {file_path}: {e}")
-                with open(state_dir, 'w') as f:
-                    status_file[scenario_folder_name] = False
-                    json.dump(status_file, f, indent=4)
-                continue
-            obs = states[0][...,3].squeeze()
-            print(f"Initial observation shape: {obs.shape}")
-            obs = cv2.cvtColor(obs, cv2.COLOR_BGR2RGB)
-            collection_choice = 0
-            key_state['p'] = False
-            key_state['n'] = False
-            save = False
-            print("'p' to skip and mark as unqualified, 'n' to save the filtered scene.")
-            while collection_choice ==0:
-                collection_choice = get_key_collection()
-                time.sleep(0.1)
-            if collection_choice == 2:
-                save = True
-            with open(state_dir, 'w') as f:
-                status_file[scenario_folder_name] = False
-                json.dump(status_file, f, indent=4)
-            if save:
-                save_path = os.path.join(args.save_dir, env_name)
-                if not os.path.exists(save_path):
-                    os.makedirs(save_path, exist_ok=True)
-                    save_dict = {}
-                else:
-                    save_dict = json.load(open(os.path.join(save_path, "saved_scene.json"), 'r'))
-                save_dict[scenario_folder_name] = False
-                with open(os.path.join(save_path, "saved_scene.json"), 'w') as f:
-                    json.dump(save_dict, f, indent=4)
-                print(f"Saved filtered scene to {save_path}")
+                    
+            unwrapped_env = env.unwrapped
+            unwrapped_env.safe_start = safe_start_config
+            unwrapped_env.target_configs = target_configs
+            unwrapped_env.refer_agents_category = list(target_configs.keys())
+            env = augmentation.RandomPopulationWrapper(env, num_min=agent_num + 1, num_max=agent_num + 1)
+            env = configUE.ConfigUEWrapper(env, resolution=(1024,1024), offscreen=False)
+
+            print(f"Resetting environment for file: {os.path.basename(file_path)}")
+            states, info = env.reset()
             # env.close()
             cv2.destroyAllWindows()
-    listener.stop()
+
 

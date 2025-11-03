@@ -208,7 +208,7 @@ def main():
     parser.add_argument('--question_types', nargs='+', required=True, help='问题类型列表，如 counting state')
     parser.add_argument('--id', help='WatchDog实例ID (默认自动生成)')
     parser.add_argument('--log-dir', default='logs', help='日志目录')
-    parser.add_argument('--silence', type=int, default=180, help='最大日志静默时间(秒)')
+    parser.add_argument('--silence', type=int, default=150, help='最大日志静默时间(秒)')
     parser.add_argument('--interval', type=int, default=10, help='检查间隔(秒)')
     parser.add_argument('--max-restarts', type=int, default=200, help='最大重启次数')
     parser.add_argument('--pid-port', type=int, default=50007, help='监听PID的端口')
