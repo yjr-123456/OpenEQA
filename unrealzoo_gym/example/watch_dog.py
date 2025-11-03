@@ -41,8 +41,19 @@ class WatchDog:
         print(f"WatchDog 实例 [{self.instance_id}] 已初始化")
         print(f"监控脚本: {self.script_path} {' '.join(self.script_args)}")
         print(f"监听端口: {self.pid_port}")
-
         self.start_pid_server(port=self.pid_port)
+        self.process_check_interval = 10
+
+    def check_managed_processes(self):
+        missing_pids = []
+        for pid in list(self.managed_pids):
+            if not psutil.pid_exists(pid):
+                missing_pids.append(pid)
+                self.managed_pids.discard(pid)
+        if missing_pids:
+            print(f"检测到托管进程已退出: {missing_pids}")
+            self.save_state()
+        return missing_pids
 
     def save_state(self):
         state = {
@@ -119,15 +130,19 @@ class WatchDog:
             print(f"日志文件: {log_path}")
 
             with open(log_path, "w", encoding="utf-8") as log_file:
-                cmd = [sys.executable, self.script_path] + self.script_args
+                cmd = [sys.executable, "-u", self.script_path] + self.script_args
+                os.environ["PYTHONIOENCODING"] = "utf-8"
                 self.current_process = subprocess.Popen(
                     cmd,
                     stdout=log_file,
-                    stderr=log_file
+                    stderr=log_file,
+                    bufsize=1,
+                    text=True
                 )
             print(f"程序已启动，PID: {self.current_process.pid}")
             self.save_state()
             time.sleep(10)
+            last_pid_check = time.time()
             while True:
                 if self.current_process.poll() is not None:
                     print(f"进程已退出，返回码: {self.current_process.returncode}")
@@ -142,6 +157,17 @@ class WatchDog:
                     if self.current_process.poll() is None:
                         self.current_process.kill()
                     break
+                now = time.time()
+                if now - last_pid_check >= self.process_check_interval:
+                    missing_pids = self.check_managed_processes()
+                    last_pid_check = now
+                    if missing_pids:
+                        print("关键托管进程缺失，终止并准备重启主程序")
+                        self.current_process.terminate()
+                        time.sleep(5)
+                        if self.current_process.poll() is None:
+                            self.current_process.kill()
+                        break
                 self.save_state()
                 print(f"监控中... [{self.instance_id}] 静默 {silence_duration:.0f}s / {self.max_silence}s, 管理 {len(self.managed_pids)} 个进程")
                 time.sleep(self.check_interval)
@@ -175,7 +201,6 @@ class WatchDog:
                                 print(f"PID解析失败: {e}")
         t = threading.Thread(target=server, daemon=True)
         t.start()
-
 def main():
     parser = argparse.ArgumentParser(description='高级WatchDog - 支持多实例和跨平台')
     parser.add_argument('script', help='要监控的脚本路径')
