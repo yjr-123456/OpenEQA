@@ -57,13 +57,35 @@ def append_results_to_file(*args, **kwargs):
     # 为了兼容旧的调用，直接调用保存函数
     return save_results_to_file(*args, **kwargs)
 
+def is_scenario_completed(status_data: dict) -> bool:
+    """
+    检查一个场景的状态文件中是否所有问题都已完成。
 
-def load_or_create_state_file(state_file_path):
+    Args:
+        status_data: 从 status_recorder JSON 文件加载的字典数据。
+
+    Returns:
+        bool: 如果所有问题的状态都是 "completed"，则返回 True，否则返回 False。
     """
-    加载或创建状态文件。如果文件不存在或为空，返回空字典。
-    """
-    state_data = load_json_file(state_file_path)
-    return state_data if state_data is not None else {}
+    if not isinstance(status_data, dict) or not status_data:
+        # 如果数据为空或格式不正确，视作未完成或无效
+        return False
+
+    # 遍历所有问题类型 (e.g., "counting", "state")
+    for question_type, questions in status_data.items():
+        if not isinstance(questions, dict):
+            print(f"警告: '{question_type}' 的值不是一个有效的字典，跳过检查。")
+            continue
+            
+        # 遍历该类型下的所有问题 (e.g., "Question 1", "Question 2")
+        for question_id, details in questions.items():
+            # 检查任何一个问题的状态是否不是 "completed"
+            if not isinstance(details, dict) or details.get("status") != "completed":
+                # 只要有一个未完成，整个场景就未完成
+                return False
+    
+    # 如果所有循环都正常结束，说明所有问题都已完成
+    return True
 
 def update_state_file(file_path, question_type, question_id, status, **kwargs):
     """
@@ -71,7 +93,7 @@ def update_state_file(file_path, question_type, question_id, status, **kwargs):
     """
     try:
         # 先加载现有数据
-        state_data = load_or_create_state_file(file_path)
+        state_data = load_json_file(file_path)
         
         # 确保问题类型键存在
         if question_type not in state_data:
