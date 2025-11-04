@@ -158,16 +158,16 @@ class WatchDog:
                         self.current_process.kill()
                     break
                 now = time.time()
-                if now - last_pid_check >= self.process_check_interval:
-                    missing_pids = self.check_managed_processes()
-                    last_pid_check = now
-                    if missing_pids:
-                        print("关键托管进程缺失，终止并准备重启主程序")
-                        self.current_process.terminate()
-                        time.sleep(5)
-                        if self.current_process.poll() is None:
-                            self.current_process.kill()
-                        break
+                # if now - last_pid_check >= self.process_check_interval:
+                #     missing_pids = self.check_managed_processes()
+                #     last_pid_check = now
+                #     if missing_pids:
+                #         print("关键托管进程缺失，终止并准备重启主程序")
+                #         self.current_process.terminate()
+                #         time.sleep(5)
+                #         if self.current_process.poll() is None:
+                #             self.current_process.kill()
+                #         break
                 self.save_state()
                 print(f"监控中... [{self.instance_id}] 静默 {silence_duration:.0f}s / {self.max_silence}s, 管理 {len(self.managed_pids)} 个进程")
                 time.sleep(self.check_interval)
