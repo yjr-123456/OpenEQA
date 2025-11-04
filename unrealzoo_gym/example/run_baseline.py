@@ -57,21 +57,23 @@ if __name__ == '__main__':
                                     if os.path.isdir(os.path.join(env_dir, d))]
 
         for scenario_folder_name in scenario_folder_names:
+            scenario_dir = os.path.join(env_dir, scenario_folder_name)
+            state_file_path = os.path.join(scenario_dir, f"status_recorder_{args.model}.json")
+            state_data_1 = load_json_file(state_file_path)
+            if is_scenario_completed(state_data_1):
+                print(f"Scenario {scenario_folder_name} already completed, skipping.")
+                continue
             # init env
             env = gym.make(env_id)
             if args.time_dilation > 0:
                 env = time_dilation.TimeDilationWrapper(env, args.time_dilation)
             if args.early_done > 0:
                 env = early_done.EarlyDoneWrapper(env, args.early_done)
-            scenario_dir = os.path.join(env_dir, scenario_folder_name)
             qa_file_path = os.path.join(scenario_dir, "qa_data.json")
             
             if not os.path.isfile(qa_file_path):
                 print(f"Warning: qa_data.json not found in {scenario_dir}, skipping.")
                 continue
-
-            state_file_path = os.path.join(scenario_dir, f"status_recorder_{args.model}.json")
-            state_data = load_or_create_state_file(state_file_path) # 假设这个函数能处理文件不存在的情况
 
             # 加载QA数据
             QA_data_loaded = load_json_file(qa_file_path)
@@ -131,8 +133,9 @@ if __name__ == '__main__':
                         total_questions = loaded_file["summary"]["total_questions"]
                         correct_answers = loaded_file["summary"]["correct_answers"]
                         print(f"Resuming from existing results: {len(results)} entries loaded.")
+                    state_data_3 = load_json_file(state_file_path)
                     for question_id, question_data in QA_dict.items():
-                        if args.resume and is_question_completed(state_data, q_type, question_id):
+                        if args.resume and is_question_completed(state_data_3, q_type, question_id):
                             print(f"Question {question_id} ({q_type}) in {scenario_folder_name} already completed, skipping.")
                             continue
                         total_questions += 1
@@ -218,7 +221,6 @@ if __name__ == '__main__':
                         env_name=env_name, question_type=q_type,
                         filename_prefix=os.path.join(base_save_dir, env_name, scenario_folder_name, q_type)
                     )
-            
             except KeyboardInterrupt:        
                 print("\n=== 程序被中断 ===")
                 print(f"已处理 {total_questions} 个问题")
@@ -258,11 +260,10 @@ if __name__ == '__main__':
                         print(f"Error closing environment after exception: {close_e}")
                 exit(-1)
             finally:
+                env.close()
                 pass
-            
-            env.close()
         print(f"\n--- Environment {env_name} processing complete. ---")
-        time.sleep(5) 
+        time.sleep(2) 
     print("\n=== All environments processed. Exiting. ===")
     exit(-1)
 
