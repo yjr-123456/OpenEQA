@@ -28,34 +28,27 @@
       "max_tokens": 10000,
       "temperature": 0.3
     },
-    "qwen3-30b": {
-      "base_url": "http://localhost:11434/v1",
-      "api_key_env": "ollama",
-      "model_name": "qwen3:30b",
+    "gpt-5-2025-08-07": {
+      "base_url": "https://xiaoai.plus/v1",
+      "api_key_env": "OPENAI_API_KEY",
+      "model_name": "gpt-5-2025-08-07",
       "max_tokens": 10000,
       "temperature": 0.3
     },
-    "gemma3-27b": {
-      "base_url": "http://localhost:11434/v1",
-      "api_key_env": "ollama",
-      "model_name": "gemma3:27b",
+    "claude-sonnet-4-5": {
+      "base_url": "https://xiaoai.plus/v1",
+      "api_key_env": "OPENAI_API_KEY",
+      "model_name": "claude-sonnet-4-5-20250929-thinking",
       "max_tokens": 10000,
       "temperature": 0.3
     },
-    "gpt-oss-120b": {
-      "base_url": "http://localhost:11434/v1",
-      "api_key_env": "ollama",
-      "model_name": "gpt-oss:120b", 
-      "max_tokens": 10000,
-      "temperature": 0.3
-    },
-    "gpt-oss-20b": {
-      "base_url": "http://localhost:11434/v1",
-      "api_key_env": "ollama",
-      "model_name": "gpt-oss:20b",
+    "deepseek-v3.1": {
+      "base_url": "https://xiaoai.plus/v1",
+      "api_key_env": "OPENAI_API_KEY",
+      "model_name": "deepseek-v3.1-think-250821",
       "max_tokens": 10000,
       "temperature": 0.3
     }
   },
-  "default_model": "doubao"
+  "default_model": "none"
 }
