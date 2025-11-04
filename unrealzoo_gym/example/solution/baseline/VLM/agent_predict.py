@@ -13,7 +13,6 @@ from openai import OpenAI
 from datetime import datetime
 from collections import deque
 import random
-from ultralytics import YOLO
 import ast
 from dotenv import load_dotenv
 import sys
@@ -911,21 +910,15 @@ class agent:
     def reset(self, question, obs_rgb, obs_depth, target_type, 
               question_type='general', answer_list=None, batch_id=None,
               question_answer=None, env_name=None, logger_base_dir=None):
-        global logger
-        
-        # 为每个环境和问题类型组合创建独立的日志文件
-        if logger is None or hasattr(self, '_current_env_type') and self._current_env_type != (env_name, question_type):
-            # 保存当前环境和问题类型组合
-            self._current_env_type = (env_name, question_type)
-                        
-            # 重新设置日志系统
-            logger = setup_logging(
-                logger_base_dir=logger_base_dir,
-                env_name=env_name,
-                question_type=question_type,
-                batch_id=batch_id,
-                model=self.model
-            )
+        global logger    
+        # 重新设置日志系统
+        logger = setup_logging(
+            logger_base_dir=logger_base_dir,
+            env_name=env_name,
+            question_type=question_type,
+            batch_id=batch_id,
+            model=self.model
+        )
         
         logger.info(f"[RESET] Resetting agent for new question: {question}")
         logger.info(f"  Environment: {env_name}")
