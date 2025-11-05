@@ -4,10 +4,8 @@ from dotenv import load_dotenv
 from openai import OpenAI
 load_dotenv(override=True)
 client = OpenAI(
-    # 此为默认路径，您可根据业务所在地域进`行配置
-    base_url="https://ark.cn-beijing.volces.com/api/v3",
-    # 从环境变量中获取您的 API Key。此为默认方式，您可根据需要进行修改
-    api_key=os.environ.get("ARK_API_KEY"),
+    base_url="https://xiaoai.plus/v1",
+    api_key=os.environ.get("OPENAI_API_KEY"),
 )
 
 def compare_answers_with_api(agent_answer, ground_truth, question_stem="", question_type=""):
@@ -43,7 +41,7 @@ def call_api_for_answer_comparison(agent_answer, ground_truth, question_stem="",
     try:
 
         response = client.chat.completions.create(
-            model='doubao-seed-1-6-thinking-250615',  
+            model='gemini-2.0-flash-lite',  
             max_tokens=50,  
             temperature=0.3,  
             messages=[
