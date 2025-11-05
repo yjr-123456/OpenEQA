@@ -42,10 +42,10 @@
       "max_tokens": 10000,
       "temperature": 0.3
     },
-    "deepseek-v3.1": {
+    "gemini-2.5-flash": {
       "base_url": "https://xiaoai.plus/v1",
       "api_key_env": "OPENAI_API_KEY",
-      "model_name": "deepseek-v3.1-think-250821",
+      "model_name": "gemini-2.5-flash-thinking",
       "max_tokens": 10000,
       "temperature": 0.3
     }
