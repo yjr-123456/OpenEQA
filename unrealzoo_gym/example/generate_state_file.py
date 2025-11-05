@@ -514,7 +514,7 @@ def list_question_types_with_status(qa_path, env_list):
 def main():
     parser = argparse.ArgumentParser(description="生成断点续传状态文件 (适配合并后数据)")
     parser.add_argument("-p", "--qa_path", 
-                       default=os.path.join(os.path.dirname(__file__), 'merged_QA_data'),
+                       default=os.path.join(os.path.dirname(__file__), 'QA_data_sub'),
                        help="合并后的QA数据路径")
     parser.add_argument("-m", "--mode", 
                        choices=["empty", "template", "reset", "scan"],

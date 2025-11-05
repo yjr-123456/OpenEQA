@@ -37,6 +37,7 @@ if __name__ == '__main__':
     parser.add_argument("--question_types", nargs='+', default=["counting"], help="List of question types to evaluate")
     parser.add_argument("--resume", action='store_true', help="Resume from previous progress")
     parser.add_argument("--model", default="doubao", help="choose evaluation models")
+    parser.add_argument("--offscreen", action="store_true", help="shut down unreal engine windows")
     parser.add_argument("--config_path", default=os.path.join(current_dir, "solution"), help="configuration file path")
     parser.add_argument("--ue_log_dir", default=os.path.join(current_dir, "unreal_log_path"), help="unreal engine logging directory")
     args = parser.parse_args()    
@@ -112,7 +113,7 @@ if __name__ == '__main__':
                 unwrapped_env.watchdog_port = args.pid_port
 
             env = augmentation.RandomPopulationWrapper(env, num_min=agent_num + 1, num_max=agent_num + 1, height_bias=100)
-            env = configUE.ConfigUEWrapper(env, resolution=(512,512), offscreen=False)
+            env = configUE.ConfigUEWrapper(env, resolution=(512,512), offscreen=args.offscreen)
 
             print(f"\n--- Processing Scenario: {scenario_folder_name} in Env: {env_name} ---")
             states, info = env.reset(seed=args.seed)
