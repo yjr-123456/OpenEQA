@@ -21,10 +21,13 @@ REM 使用的模型
 set MODEL=gemini_pro
 
 REM 是否从断点恢复 (如果要恢复，取消下一行的注释)
-REM set RESUME_FLAG=--resume
+set RESUME_FLAG=--resume
 
 REM WatchDog 的日志目录
 set LOG_DIR=watchdog_logs
+
+REM offscreen (如果要恢复，取消下一行的注释)
+REM set OFFSCREEN_FLAG=--offscreen
 
 REM WatchDog 监听 Unreal Engine 进程 PID 的端口
 set PID_PORT=50007
@@ -50,6 +53,7 @@ python watch_dog.py ^
     --log-dir %LOG_DIR% ^
     --pid-port %PID_PORT% ^
     %RESUME_FLAG%
+    %OFFSCREEN_FLAG%
 
 echo.
 echo WatchDog script has finished.
