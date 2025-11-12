@@ -113,6 +113,8 @@ def setup_logging(logger_base_dir="logs", env_name=None, question_type=None, bat
     logger.info(f"日志文件: {log_filename}")
     
     return logger
+
+
 logger = None
 load_dotenv(override=True) 
 import queue
@@ -159,180 +161,254 @@ def create_client(model_name="doubao", config_path="model_config.json"):
 client = None
 current_model_name = None
 current_model_config = None
+IS_QWEN_COMPATIBLE_API = False
+SHOULD_ENABLE_THINKING_STREAMING = False
 
-def initialize_model(model_name="doubao",model_config_path="model_config.json"):
+
+def initialize_model(model_name="doubao", model_config_path="model_config.json"):
     """初始化指定的模型"""
     global client, current_model_name, current_model_config
-    client, current_model_name, current_model_config = create_client(model_name,model_config_path)
+    # 声明要修改这个全局变量
+    global SHOULD_ENABLE_THINKING_STREAMING 
+    global IS_QWEN_COMPATIBLE_API
+    client, current_model_name, current_model_config = create_client(model_name, model_config_path)
+    
+    # 启用思考模式和流式输出的逻辑
+    if model_name in ["qwen3-vl-32b-thinking", "qwen3-vl-8b-thinking"]:
+        SHOULD_ENABLE_THINKING_STREAMING = True
+        IS_QWEN_COMPATIBLE_API = True
+    else:
+        SHOULD_ENABLE_THINKING_STREAMING = False
+        IS_QWEN_COMPATIBLE_API = False        
     print(f"已初始化模型: {model_name} ({current_model_name})")
+    print(f"SHOULD_ENABLE_THINKING_STREAMING set to: {SHOULD_ENABLE_THINKING_STREAMING}")
+    print(f"IS_QWEN_COMPATIBLE_API set to: {IS_QWEN_COMPATIBLE_API}")
 
-def call_api_vlm(sys_prompt, usr_prompt,base64_image_list):
+def _make_api_call(messages, model, max_tokens, **kwargs):
     """
-    Call the VLM API with the given prompt and image.
+    Internal helper to call client.chat.completions.create with compatibility.
+    使用 extra_body 兼容非标准参数。
     """
-    messages=[
-            {"role": "system", "content": sys_prompt},
-            {"role": "user", "content": [
-                {
-                    "type": "text",
-                    "text": usr_prompt,
-                }
-            ]
-            }
-    ]
+    # 1. 组合所有参数
+    call_params = {
+        "model": model,
+        "max_tokens": max_tokens,
+        "messages": messages,
+    }
+    call_params.update(kwargs)
+    
+    # 2. 思考模式/流式兼容性逻辑（构建 extra_body 字典）
+    extra_body = call_params.get("extra_body", {}) # 获取已有的 extra_body 或创建一个空字典
+    
+    if SHOULD_ENABLE_THINKING_STREAMING:
+        # 思考模式（Qwen）逻辑：enable_thinking=True, 强制 stream=True
+        extra_body["enable_thinking"] = True 
+        call_params["stream"] = True
+    elif IS_QWEN_COMPATIBLE_API:
+        # 非流式/非思考模式（Qwen）逻辑：enable_thinking=False, stream=False
+        # 即使 SHOULD_ENABLE_THINKING_STREAMING=False，但模型仍是 Qwen
+        extra_body["enable_thinking"] = False
+        call_params["stream"] = False
+    else:
+        # 标准 API 逻辑：不传递 enable_thinking，默认 stream=False
+        call_params["stream"] = False 
 
+    # 将 extra_body 添加到参数中（仅当它非空时）
+    if extra_body:
+        call_params["extra_body"] = extra_body
+    
+    # 3. 执行 API 调用
+    # 此时 call_params 不会包含 'enable_thinking'，因此不会报错
+    response = client.chat.completions.create(**call_params)
+    
+    # 4. 根据是否流式返回，处理响应 (返回字符串，这部分逻辑不变)
+    if call_params["stream"]:
+        full_content = ""
+        for chunk in response:
+            # 注意：这里可能需要更复杂的逻辑来过滤掉 'thinking' 内容
+            if chunk.choices and chunk.choices[0].delta.content:
+                full_content += chunk.choices[0].delta.content
+        return full_content.strip()
+    else:
+        return response.choices[0].message.content.strip()
+
+def call_api_vlm(sys_prompt, usr_prompt, base64_image_list):
+    """
+    Call the VLM API, optimized for APIs (like Qwen) that require 
+    all content (text + images) in a single user message.
+    """
+    
+    # 1. 初始化用户消息的内容列表
+    user_content = []
+
+    # 2. 添加文本提示
+    user_content.append({
+        "type": "text",
+        "text": usr_prompt,
+    })
+
+    # 3. 添加所有图像内容
     for base64_image in base64_image_list:
-            messages.append({"role": "user", "content": [
-                {
-                    "type": "image_url",
-                    "image_url": {
-                        "url": f"data:image/jpeg;base64,{base64_image}",
-                    }
-                }]
-             })
-    # Assuming OpenAI API is set up correctly
-    response = client.chat.completions.create(
-        model=current_model_name,
-        max_tokens=10000,
-        messages=messages
-    )
-    respon=  response.choices[0].message.content.strip()
-    # print(f"[VLM RESPONSE] {respon}")
-    return respon
+        user_content.append({
+            "type": "image_url",
+            "image_url": {
+                "url": f"data:image/jpeg;base64,{base64_image}",
+            }
+        })
 
-def action_planner(sys_prompt, usr_prompt, last_action, mem_info ,base64_image_list):
-    """
-    Call the VLM API with the given prompt and image.
-    """
-    messages=[
-            {"role": "system", "content": sys_prompt},
-            {"role": "user", "content": [
-                {
-                    "type": "text",
-                    "text": usr_prompt,
-                }
-            ]
-            }
+    # 4. 构建完整的 messages 列表
+    messages = [
+        {"role": "system", "content": sys_prompt},
+        {"role": "user", "content": user_content} 
     ]
+
+    # Assuming Qwen API is set up correctly
+    response = _make_api_call(
+        messages=messages,
+        model=current_model_name,
+        max_tokens=current_model_config["max_tokens"],
+    )
+    return response
+def action_planner(sys_prompt, usr_prompt, last_action, mem_info, base64_image_list):
+    user_content_list = []
+    
+    # 1.1. 添加主要用户文本提示
+    user_content_list.append({
+        "type": "text",
+        "text": usr_prompt,
+    })
+    
+    # 1.2. 添加探索记忆 (如果存在)
     if mem_info:
-        messages.append({"role": "user", "content": [
-            {
-                "type": "text",
-                "text": f"exploration memory: {mem_info}",
-            }
-        ]})
+        # 将记忆文本添加到内容列表
+        user_content_list.append({
+            "type": "text",
+            "text": f"exploration memory: {mem_info}",
+        })
+    
+    # 1.3. 添加历史动作和图像
     if len(last_action) != 0:
         assert len(last_action) == len(base64_image_list), \
             f"Length mismatch: last_action={len(last_action)}, base64_image_list={len(base64_image_list)}"
+        
         for i, (base64_image, action) in enumerate(zip(base64_image_list, last_action)):
+            # 将动作文本和图像都添加到内容列表
             prompt = f"last {len(last_action) - i} action: {action}, observation:"
-            messages.append({
-                "role": "user", 
-                "content": [
-                    {
-                        "type": "text",
-                        "text": prompt,
-                    },
-                    {
-                        "type": "image_url",
-                        "image_url": {
-                            "url": f"data:image/jpeg;base64,{base64_image}",
-                        }
-                    }
-                ]
+            user_content_list.append({
+                "type": "text",
+                "text": prompt,
+            })
+            user_content_list.append({
+                "type": "image_url",
+                "image_url": {
+                    "url": f"data:image/jpeg;base64,{base64_image}",
+                }
             })
     else:
+        # 如果没有 last_action，只添加图像 (在没有文本描述的情况下)
         for base64_image in base64_image_list:
-            messages.append({"role": "user", "content": [
-                {
-                    "type": "image_url",
-                    "image_url": {
-                        "url": f"data:image/jpeg;base64,{base64_image}",
-                    }
-                }]
-             })
-    # Assuming OpenAI API is set up correctly
-    response = client.chat.completions.create(
-        model= current_model_name,
-        max_tokens=10000,
-        messages=messages
+            user_content_list.append({
+                "type": "image_url",
+                "image_url": {
+                    "url": f"data:image/jpeg;base64,{base64_image}",
+                }
+            })
+            
+    # ------------------ 2. 构建最终的 messages 列表 ------------------
+    messages = [
+        {"role": "system", "content": sys_prompt},
+        # 单个用户消息包含所有内容
+        {"role": "user", "content": user_content_list} 
+    ]
+    
+    # Assuming API is set up correctly
+    response = _make_api_call(
+        messages=messages,
+        model=current_model_name,
+        max_tokens=current_model_config["max_tokens"],
     )
-    respon=  response.choices[0].message.content.strip()
-    # print(f"[VLM RESPONSE] {respon}")
-    return respon
+    return response
 
 def answer_question(sys_prompt, usr_prompt, clue_list, rgb_base64_image_list, depth_base64_image_list):
-    """
-    Call the VLM API with the given prompt and image.
-    """
-    messages=[
-            {"role": "system", "content": sys_prompt},
-            {"role": "user", "content": [
-                {
-                    "type": "text",
-                    "text": usr_prompt,
-                }
-            ]
-            }
-    ]
+    # ------------------ 1. 构建完整的用户内容列表 ------------------
+    user_content_list = []
+    
+    # 1.1. 添加主要用户文本提示
+    user_content_list.append({
+        "type": "text",
+        "text": usr_prompt,
+    })
+    
+    # 1.2. 循环添加关键帧的图像和文本
     for i, (rgb_base64_image, depth_base64_image, clue_info) in enumerate(zip(rgb_base64_image_list, depth_base64_image_list, clue_list)):
         prompt = f"Key Frame {i+1}(rgb observation and depth observation) - Relevance: {clue_info['relevance']:.3f}"
-        messages.append({
-            "role": "user", 
-            "content": [
-                {   
-                    "type": "image_url",
-                    "image_url": {
-                        "url": f"data:image/jpeg;base64,{rgb_base64_image}",
-                    }
-                },
-                {
-                    "type": "image_url",
-                    "image_url": {
-                        "url": f"data:image/jpeg;base64,{depth_base64_image}",
-                    }
-                },
-                {
-                    "type": "text",
-                    "text": prompt,
-                }
-            ]
+        
+        # 添加 RGB 图像
+        user_content_list.append({
+            "type": "image_url",
+            "image_url": {
+                "url": f"data:image/jpeg;base64,{rgb_base64_image}",
+            }
+        })
+        
+        # 添加 Depth 图像
+        user_content_list.append({
+            "type": "image_url",
+            "image_url": {
+                "url": f"data:image/jpeg;base64,{depth_base64_image}",
+            }
+        })
+        
+        # 添加关键帧的文本描述
+        user_content_list.append({
+            "type": "text",
+            "text": prompt,
         })
     
-    response = client.chat.completions.create(
+    # ------------------ 2. 构建最终的 messages 列表 ------------------
+    messages = [
+        {"role": "system", "content": sys_prompt},
+        # 单个用户消息包含所有内容
+        {"role": "user", "content": user_content_list}
+    ]
+    
+    response = _make_api_call(
+        messages=messages,
         model=current_model_name,
-        max_tokens=10000,
-        messages=messages
+        max_tokens=current_model_config["max_tokens"],
     )
     
-    return response.choices[0].message.content.strip()
+    return response
 
 def call_api_llm(sys_prompt,usr_prompt=None):
     """
     Call the LLM API with the given system prompt.
     """
-    # Assuming OpenAI API is set up correctly
-    response = client.chat.completions.create(
-        model= current_model_name,
-        max_tokens=2048,
-        messages=[
-            {"role": "system", "content": sys_prompt},
-            {"role": "user", "content": [
-                {
-                    "type": "text",
-                    "text": usr_prompt,
-                }
-                ]
-            },
-        ],
-
+    messages=[
+        {"role": "system", "content": sys_prompt},
+        {"role": "user", "content": [
+            {
+                "type": "text",
+                "text": usr_prompt,
+            }
+        ]}
+    ]
+    
+    # 替换 API 调用，注意这里的 max_tokens 是 2048
+    response = _make_api_call(
+        messages=messages,
+        model=current_model_name,
+        max_tokens=current_model_config["max_tokens"],
     )
-    return response.choices[0].message.content.strip()
+    
+    return response
 
 class agent:
     def __init__(self, k_frames = 3, max_action_length=3, memory_size= 5,con_th = 0.8,max_step = 50, model= "doubao",config_path="model_config.json"):
 
         self.model = model
+        # if model in ["qwen3-32b", "qwen3-8b", "qwen3-0.6b"]:
+        #     IS_QWEN_COMPATIBLE_API = True
         initialize_model(model, f"{config_path}/model_config.json")
 
         self.target_list = []
@@ -372,7 +448,6 @@ class agent:
 
     def predict(self, obs_rgb, obs_depth, info):
         # Add a 1-second delay at the beginning of predict
-        time.sleep(1)
 
         # Store the current observation and info
         self.obs_rgb = obs_rgb
