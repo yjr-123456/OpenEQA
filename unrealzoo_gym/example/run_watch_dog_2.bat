@@ -12,13 +12,13 @@ REM 要监控的脚本
 set SCRIPT_TO_RUN=run_baseline.py
 
 REM 要测试的环境 (可以写多个，用空格隔开)
-set ENVS="ModularNeighborhood" "Map_ChemicalPlant_1" "Pyramid" "Greek_Island" "SuburbNeighborhood_Day" "LV_Bazaar" "DowntownWest" "PlanetOutDoor" "RussianWinterTownDemo01" "AsianMedivalCity" "Medieval_Castle" "SnowMap" "Real_Landscape" "Demonstration_Castle" "Venice"
+set ENVS="ModularNeighborhood" "Map_ChemicalPlant_1" "Pyramid" "Greek_Island" "SuburbNeighborhood_Day" "LV_Bazaar" "DowntownWest" "PlanetOutDoor" "RussianWinterTownDemo01"
 
 REM 要测试的问题类型 (可以写多个，用空格隔开)
 set QUESTION_TYPES=counting relative_location relative_distance state
 
 REM 使用的模型
-set MODEL=qwen3-8b
+set MODEL=doubao
 
 REM 是否从断点恢复 (如果要恢复，取消下一行的注释)
 set RESUME_FLAG=--resume

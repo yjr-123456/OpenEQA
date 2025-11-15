@@ -18,7 +18,7 @@ REM 要测试的问题类型 (可以写多个，用空格隔开)
 set QUESTION_TYPES=counting relative_location relative_distance state
 
 REM 使用的模型
-set MODEL=qwen3-32b
+set MODEL=gemini-2.5-flash
 
 REM 是否从断点恢复 (如果要恢复，取消下一行的注释)
 set RESUME_FLAG=--resume

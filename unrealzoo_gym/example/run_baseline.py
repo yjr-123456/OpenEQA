@@ -113,6 +113,7 @@ if __name__ == '__main__':
                 unwrapped_env.watchdog_port = args.pid_port
 
             env = augmentation.RandomPopulationWrapper(env, num_min=agent_num + 1, num_max=agent_num + 1, height_bias=100)
+            print(f"=======offscreen:{args.offscreen}=========")
             env = configUE.ConfigUEWrapper(env, resolution=(512,512), offscreen=args.offscreen)
 
             print(f"\n--- Processing Scenario: {scenario_folder_name} in Env: {env_name} ---")
