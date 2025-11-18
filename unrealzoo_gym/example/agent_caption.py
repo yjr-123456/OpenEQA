@@ -564,7 +564,7 @@ def extract_agent_from_image(color_img, mask_img, crop_to_bbox=True):
 if __name__ == '__main__':
     #from .eqa_agent import Agent
     env_name = "Map_ChemicalPlant_1"
-    agent_type = "motorbike"
+    agent_type = "player"
     parser = argparse.ArgumentParser(description=None)
     parser.add_argument("-e", "--env_id", nargs='?', default=f'UnrealCvEQA_general-{env_name}-DiscreteColorMask-v4',
                         help='Select the environment to run')
@@ -583,15 +583,15 @@ if __name__ == '__main__':
 
     # agents category
     env.unwrapped.refer_agents_category=[agent_type]
-    car_have_done = ["BP_Hatchback_child_base_C","BP_Hatchback_child_extras_C","BP_Hatchback_child_police_C","BP_Hatchback_child_taxi_C","BP_Sedan_child_base_C","BP_Sedan_child_extras_C","BP_Sedan_child_police_C","BP_Sedan_child_taxi_C"]
-    Vehicles={ #only available in latest UE5.5 package
-       "car":[
-            "BP_SUV_child_base_C","BP_SUV_child_extras_C","BP_SUV_child_police_C","BP_SUV_child_taxi_C"],
-    "motorbike":["BP_BaseBike_C", "BP_Custom_Base_C","BP_Custom_Extras_C","BP_Custom_Police_C"
-                ,"BP_Enduro_Base_C","BP_Enduro_Extras_C","BP_Enduro_Police_C"
-                  ,"BP_Naked_Base_C","BP_Naked_Extras_C","BP_Naked_Police_C"
-                  ,"BP_BaseBike_TwoPassengers_C"]
-}
+#     car_have_done = ["BP_Hatchback_child_base_C","BP_Hatchback_child_extras_C","BP_Hatchback_child_police_C","BP_Hatchback_child_taxi_C","BP_Sedan_child_base_C","BP_Sedan_child_extras_C","BP_Sedan_child_police_C","BP_Sedan_child_taxi_C"]
+#     Vehicles={ #only available in latest UE5.5 package
+#        "car":[
+#             "BP_SUV_child_base_C","BP_SUV_child_extras_C","BP_SUV_child_police_C","BP_SUV_child_taxi_C"],
+#     "motorbike":["BP_BaseBike_C", "BP_Custom_Base_C","BP_Custom_Extras_C","BP_Custom_Police_C"
+#                 ,"BP_Enduro_Base_C","BP_Enduro_Extras_C","BP_Enduro_Police_C"
+#                   ,"BP_Naked_Base_C","BP_Naked_Extras_C","BP_Naked_Police_C"
+#                   ,"BP_BaseBike_TwoPassengers_C"]
+# }
     # get unwrapper infomation:
     unwrapped_env = env.unwrapped
     # target_configs = unwrapped_env.target_config
@@ -614,7 +614,7 @@ if __name__ == '__main__':
     # listener.start()
 
     #id condigs
-    # player_id = [21]
+    player_id = [22]
     # animal_id2 = [0, 1, 2, 3, 12, 19, 25, 26, 27]
     # animal_id = [6,10,11,14,15, 20,21,22,23,24]
     # drone_id = [0]
@@ -623,23 +623,32 @@ if __name__ == '__main__':
 
     # player cam_id
     cam_id = env.unwrapped.cam_list[0]
+    env.unwrapped.safe_start = [[-18561.742, -11846.606, -12792.063, 0, 0, 0]]
     action = [-1,-1]  # stay still
     obs, info = env.reset()
+    env.unwrapped.unrealcv.set_obj_location("BP_Character_C_1",[-18961.742, -11846.606, -12792.063])
+    env.unwrapped.unrealcv.set_obj_rotation("BP_Character_C_1", [0, -180, 0])
     valid_name = "BP_Hatchback_child_base_C_1"  # default valid name for car
-    refer_agent_category = ['car', 'motorbike']  # default refer agent category
+    refer_agent_category = ['car', 'motorbike',"player"]  # default refer agent category
     try:
-        for agent_class in Vehicles[agent_type]:
-            if agent_type == "car":
-                valid_name = "BP_Hatchback_child_base_C_1"
-            elif agent_type == "motorbike":
-                valid_name = "BP_BaseBike_C_1"
+        for app_id in player_id:
+            # if agent_type == "car":
+            #     valid_name = "BP_Hatchback_child_base_C_1"
+            # elif agent_type == "motorbike":
+            #     valid_name = "BP_BaseBike_C_1"
             # env.unwrapped.unrealcv.new_obj(agent_class, f"{agent_type}_1", [-19609.924, -11846.606,-12792.063], [0, 0, 0])
-            refer_agent = env.unwrapped.refer_agents[valid_name]
-            refer_agent["class_name"] = agent_class 
-            env.unwrapped.target_start.append([-19609.924, -11846.606,-12792.063,0, 0, 0])
-            env.unwrapped.agents[f"{agent_type}_1"] = env.unwrapped.add_agent(f"{agent_type}_1",[-19609.924, -11846.606,-12792.063,0, 0, 0], refer_agent)
-            save_directory = f"./agent_render/{agent_type}/{agent_class}"
-            os.makedirs(save_directory, exist_ok=True)
+            # refer_agent = env.unwrapped.refer_agents[valid_name]
+            # refer_agent["class_name"] = agent_class 
+            save_directory = f"./agent_caption/agent_render/robot_dog/{app_id}"
+            os.makedirs(save_directory, exist_ok=True)            
+            # add agent
+            env.unwrapped.target_start.append([-19109.924, -11846.606,-12792.063,0, 0, 0])
+            refer_agent = env.unwrapped.refer_agents["BP_Character_C_1"]
+            env.unwrapped.agents[f"{agent_type}_1"] = env.unwrapped.add_agent(f"{agent_type}_1",[-19209.924, -11846.606,-12792.063,0, 0, 0], refer_agent)
+
+            # set appearance
+            env.unwrapped.unrealcv.set_appearance(f"{agent_type}_1", app_id)
+            env.unwrapped.unrealcv.set_obj_color(f"{agent_type}_1", [255, 255, 0])
 
             env.unwrapped.unrealcv.cam = env.unwrapped.unrealcv.get_camera_config()
             env.unwrapped.update_camera_assignments()

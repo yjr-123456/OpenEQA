@@ -225,7 +225,8 @@ if __name__ == '__main__':
     # parser.add_argument("--type_ranges", type=str, help="JSON encoded type ranges")
     # parser.add_argument("--min_total", type=int, help="Minimum total number of agents")
     # parser.add_argument("--max_total", type=int, help="Maximum total number of agents")
-    parser.add_argument('--status_path', default=f"{current_dir}/GT_info",help="场景路径")
+    parser.add_argument('--status_path', default=f"{current_dir}/GT_test", help="场景路径")
+    parser.add_argument("--use_adaptive", type=bool, default=True, help="是否使用自适应采样器")
     args = parser.parse_args()
 
     env_dict = {
@@ -233,10 +234,10 @@ if __name__ == '__main__':
         #     "height": -12776.0,
         #     "agent_categories": ['player','drone','car','animal'],
         #     },
-        # "SuburbNeighborhood_Day":{
-        #     "height": 0,
-        #     "agent_categories": ['player','drone','car']
-        # },
+        "SuburbNeighborhood_Day":{
+            "height": 0,
+            "agent_categories": ['player','drone','car', "robotdog"]
+        },
         # "Pyramid": {
         #     "height": 0,
         #     "agent_categories": ['player','drone','animal']
@@ -245,10 +246,10 @@ if __name__ == '__main__':
         #     "height": 1258,
         #     "agent_categories": ['player','drone','animal']
         # },
-        # "ModularNeighborhood": {
-        #     "height": 136,
-        #     "agent_categories": ['player','drone','car','animal']
-        # },
+        "ModularNeighborhood": {
+            "height": 136,
+            "agent_categories": ['player','drone','car','animal']
+        },
         # "StonePineForest": {
         #     "height": -3065,
         #     "agent_categories": ['player','drone','car','animal']
@@ -282,22 +283,23 @@ if __name__ == '__main__':
         # "SnowMap": {
         #     "agent_categories": ['player','drone','animal']
         # },
-        # "Real_Landscape": {
-        #     "agent_categories": ['player','drone','animal']
-        # },
+        "Real_Landscape": {
+            "agent_categories": ['player','drone','animal',"robotdog"]
+        },
         # "Demonstration_Castle": {
         #     "agent_categories": ['player','drone','animal']
         # },
-        "Venice": {
-            "agent_categories": ['player','drone','animal']
-        },
+        # "Venice": {
+        #     "agent_categories": ['player','drone','animal',"robotdog"]
+        # },
     }
 
     all_type_ranges = {
         'player': (2, 6),
-        'car': (0, 2),
-        'drone': (0, 1),
-        'animal': (0, 2),
+        'car': (2, 2),
+        'drone': (1, 1),
+        'animal': (1, 6),
+        "robotdog": (2, 6),
         'motorbike': (0, 0)
     }
 
@@ -317,7 +319,7 @@ if __name__ == '__main__':
             type_ranges = {k: v for k, v in all_type_ranges.items() if k in agent_categories}
             min_total = sum(v[0] for v in type_ranges.values())
             max_total = sum(v[1] for v in type_ranges.values())
-            env_id = f'UnrealCvEQA_DATA-{env_name}-DiscreteColorMask-v0'
+            env_id = f'UnrealCvEQA_DATA-{env_name}-DiscreteRgbd-v0'
             env = gym.make(env_id)
             obj_2_hide = []
             if env_name == "SuburbNeighborhood_Day":
@@ -330,36 +332,12 @@ if __name__ == '__main__':
                     "BP_tree16_30","BP_tree17","BP_tree18_2","BP_tree19_5","BP_tree20_8","BP_tree21_11",
                     "BP_tree22_14","BP_tree23_17","BP_tree24_20","BP_tree25_23","BP_tree26_32",
                     "BP_tree27_29","BP_tree28_35","BP_tree29_38","BP_tree2_5","BP_tree30_41",
-                    "BP_tree31_47",
-                    "BP_tree32_50",
-                    "BP_tree33_53",
-                    "BP_tree34_59",
-                    "BP_tree35_62",
-                    "BP_tree36_71",
-                    "BP_tree37_74",
-                    "BP_tree38_2",
-                    "BP_tree39_5",
-                    "BP_tree3_14",
-                    "BP_tree40_8",
-                    "BP_tree41_11",
-                    "BP_tree42_14",
-                    "BP_tree43_17",
-                    "BP_tree44_20",
-                    "BP_tree45_32",
-                    "BP_tree46_35",
-                    "BP_tree47_38",
-                    "BP_tree48_41",
-                    "BP_tree49_44",
-                    "BP_tree4_25",
-                    "BP_tree50_47",
-                    "BP_tree51_50",
-                    "BP_tree54_29",
-                    "BP_tree5_28",
-                    "BP_tree6_31",
-                    "BP_tree7_37",
-                    "BP_tree8_40",
-                    "BP_tree9_46",
-                    "BP_tree_20"
+                    "BP_tree31_47","BP_tree32_50","BP_tree33_53","BP_tree34_59","BP_tree35_62",
+                    "BP_tree37_74","BP_tree38_2","BP_tree39_5","BP_tree3_14","BP_tree40_8",
+                    "BP_tree41_11","BP_tree42_14","BP_tree43_17","BP_tree44_20","BP_tree45_32",
+                    "BP_tree46_35","BP_tree47_38","BP_tree48_41","BP_tree49_44","BP_tree4_25",
+                    "BP_tree50_47","BP_tree51_50","BP_tree54_29","BP_tree5_28","BP_tree6_31",
+                    "BP_tree7_37","BP_tree8_40","BP_tree9_46","BP_tree_20","BP_tree36_71"
                 ]
             # some configs
             graph_path = f"./agent_configs_sampler/points_graph/{env_name}/environment_graph_1.gpickle"
@@ -389,7 +367,11 @@ if __name__ == '__main__':
                 graph_path=graph_path,
                 if_cnt=args.if_cnt,
                 config_path=args.config_path,
-                obj_2_hide=obj_2_hide 
+                obj_2_hide=obj_2_hide,
+                use_adaptive=args.use_adaptive,
+                normal_variance_threshold=0.1,      # 从 0.05 -> 0.1 (更宽松的光滑度)
+                slope_threshold=0.5,                # 从 0.866 -> 0.5 (60°，更宽松的坡度)
+                safety_margin_cm=30                 # 从 50 -> 30 (更紧凑的安全边距)
             )
 
             env = configUE.ConfigUEWrapper(env, offscreen=False,resolution=(1000,1000))
@@ -403,7 +385,7 @@ if __name__ == '__main__':
             
             save_cnt = 0
             try:
-                while save_cnt <= 11:
+                while save_cnt <= 21:
                     state, info = env.reset()
                     print("state shape:", state.shape)
                     obj_dict = info['object_dict']
@@ -415,9 +397,9 @@ if __name__ == '__main__':
                     agent_num = len(list(env.unwrapped.agents.keys()))
                     instance_id = info["batch_id"]
                     if args.if_cnt is False:
-                        base_gt_path = os.path.join(current_dir, f"GT_info/{env_name}")
+                        base_gt_path = os.path.join(current_dir, f"GT_test/{env_name}")
                     else:
-                        base_gt_path = os.path.join(current_dir, f"GT_info/{env_name}_counting_only")
+                        base_gt_path = os.path.join(current_dir, f"GT_test/{env_name}_counting_only")
                     current_gt_info = os.path.join(base_gt_path, str(instance_id)) # including gt_info.json and obs
                     current_instance_obs_path = os.path.join(current_gt_info , f"obs")
                     gt_info_filename = os.path.join(current_gt_info, f"gt_info.json")
@@ -555,6 +537,9 @@ if __name__ == '__main__':
             except KeyboardInterrupt:
                 print('\nExiting due to KeyboardInterrupt...')
                 env.close()
+            except Exception as e:
+                import traceback
+                traceback.print_exc()
             finally:
                 env.close()
                 exit(-1)

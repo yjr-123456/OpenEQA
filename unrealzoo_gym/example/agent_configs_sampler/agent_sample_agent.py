@@ -20,7 +20,7 @@ import ast
 import re
 from agent_configs_sampler.points_sampler import GraphBasedSampler
 load_dotenv(override=True)
-
+from .placing_prompt import *
 
 class RandomAgent(object):
     """The world's simplest agent!"""
@@ -78,96 +78,6 @@ def initialize_model(model_name="doubao",model_config_path="model_config.json"):
     client, current_model_name, current_model_config = create_client(model_name,model_config_path)
     print(f"已初始化模型: {model_name} ({current_model_name})")
 
-sys_prompt_camera = f"""
-    You are a smart advisor in placing cameras in a 3D environment.
-    Your task is to decide the locations of the cameras among candidate locations in the virtual environment.
-"""
-
-usr_prompt_camera = f"""
-    We will provide you with a top-down view image of the environment with discrete candidate locations marked in red with their ids and orientations.
-    We will place cameras at the locations you selected to capture images of objects shown in the top-down view.
-    Your task is to select the most two or three suitable locations for placing the cameras to photograph the objects.
-
-    note:
-    1. make sure that the cameras is not blocked by other objects in the environment such as bushes, trees, barriers etc.
-    2. try to cover as many objects as possible.
-    3. make sure the distribution of the cameras are evenly spread out.
-    4. **Do not select ids that are not marked in red in the top-down view image.**
-
-    attention:
-    1. the camera id is just a number, do not output it's perfix like "C"
-
-    output format:
-    Use xml format, and use a list to represent multiple selected node ids:
-    <a>[node_id1,node_id2,node_id3]</a>
-
-    example:
-    <a>[3,4,7]</a>
-"""
-
-
-sys_prompt_point_sample = f"""
-    You are a smart placing agent in a 3D virtual environment.
-    Your task is to iteratively place objects in this virtual environment using a top - down view image
-"""
-
-usr_prompt_point_sample = f"""
-    input:
-    1. the top-down view image of the environment with discrete placeable locations marked in green with their ids, and there may be objects you placed before that are marked with blue boxes.
-       On the right side of image, there is the object you need to place in the environment.We will also provide you with it's size and rotation information.
-    2. all the coordinates of placeable locations in the environment corresponding to the ids marked in the top-down image.
-
-    requirements:
-    1. Make sure that the object you place does not collide with any other objects(object you place before and other objects in the environment).
-    2. Make sure that all the objects you placed are connected with each other.Do not allow any environmental objects (barriers bushes etc) to obstruct the space between the two objects you placed.
-    3. Make sure that no object exceeds the boundary of the top-down image.
-    4. if you are placing a big object(size > 300*150), please keep a safe distance(> 200cm) from any other objects you placed before (and environmental objects).
-       (distance between big and small object > 150cm when placing a small object)
-    5. **safe distance explaination**: 
-       the safe distance is the minimum distance between the bounding boxes' edges of two objects in the top-down view.
-       Thus, the estimation of distance should consider the size and rotation of objects.Because the location you select is the center of the object.
-
-    think step by step:
-    1. Perceive the top-down view image to find out the environmental objects.And evaluate their size and rotation.
-    2. Perceive the size and rotation of the object you need to place.
-    3. Evaluate the free space and distribution of objects in the environment(both placed and environmental).
-       Pay attention to the environmental objects (barriers bushes etc) that may obstruct the placement of the object or may cause collisions with your object to be placed.
-    4. Pick one free area that is suitable for placing the object.Make sure meet all the requirements in the "requirements" section.
-    5. Correlate the coordinates of all points with their respective IDs.And select the most suitable point ID for placing the object based on its size and rotation.
-
-    
-    output format:
-    Use xml format, and use a single integer to represent the selected node id:
-    <a>node_id</a>
-    <b>node position in a python list format</b>
-    <c>your reasoning about why you selected this point</c>
-"""
-
-sys_prompt_reflection = f"""
-    You are a smart examiner in a 3D virtual environment.
-    Your task is to examine whether the current sampled points for objects made by the placing agent are valid.
-"""
-
-usr_prompt_reflection = f"""
-    input:
-    1. the top-down view image of the environment with discrete placeable locations marked in green with their ids, and there may be objects you placed before that are marked with blue boxes.
-       On the right side of image, there is the object you need to place in the environment.We will also provide you with it's size and rotation information.
-    2. all the coordinates of placeable locations in the environment corresponding to the ids marked in the top-down image.
-    3. current point id and position sampled by the placing agent for placing the object.
-
-    examine requirements:
-    1. Make sure that the object you place does not collide(placed object box/environmental object overlap) with any other objects(object you place before and other objects in the environment).
-    2. Make sure that all the objects you placed are connected with each other.Do not allow any environmental objects (barriers bushes etc) to obstruct the space between the two objects you placed.
-    
-    think step by step:
-    1. Examine whether the point sampled by the placing agent meets all the requirements in the "examine requirements" section.
-    2. If the point sampled by the placing agent meets all the requirements, then output "valid", else, output "invalid" and suggest a better point id and position for placing the object.
-
-    output format:
-    Use xml format, and use a single word to represent whether the point sampled by the placing agent is valid or not:
-    <a>valid/invalid</a>
-    <b>none/ a better node id in integer format</b>
-"""
 
 class AgentBasedSampler(GraphBasedSampler):
     def __init__(self, graph_pickle_file, model, config_path="model_config.json"):
@@ -176,7 +86,162 @@ class AgentBasedSampler(GraphBasedSampler):
         self.node_list = [self.node_positions[node_id] for node_id in self.node_id_list]  # 使用节点ID列表，而不是位置值列表
         self.model = model
         initialize_model(model, f"{config_path}/model_config.json")
+    # TO CHECK: 模块化实验
+    def run_sampling_experiment(self, env, agent_configs, experiment_config, cam_id=0, cam_count=3, vehicle_zones=None, height=800, **kwargs):
+        """
+        执行一次完整的、可配置的采样实验。
 
+        Args:
+            env: 环境实例。
+            agent_configs: Agent配置。
+            experiment_config (dict): 实验配置，例如:
+                {
+                    "use_image": True,  // 是否给VLM看图
+                    "prompt_name_object": "default_point_sample", // 对象放置的prompt
+                    "prompt_name_camera": "default_camera_sample" // 相机选择的prompt
+                }
+            cam_id (int): 用于俯视采样的相机ID。
+            cam_count (int): 要采样的外部相机数量。
+            vehicle_zones (dict): 车辆可放置区域。
+            height (int): 俯视相机的高度。
+            **kwargs: 其他传递给相机采样函数的参数。
+        """
+        # 1. 生成采样物体列表
+        object_list, all_objects_are_small, has_car = self.sort_objects(agent_configs)
+        
+        # 2. 预处理车辆区域节点
+        vehicle_zone_nodes = self.filter_car_zones(vehicle_zones)
+    
+        # 3. 采样中心点
+        agent_sampling_center_pos, center_node = self.sample_center_point(vehicle_zone_nodes, has_car, all_objects_are_small)
+    
+        # 4. 设置俯视相机并获取初始视图
+        orginal_cam_pose = env.unrealcv.get_cam_location(cam_id) + env.unrealcv.get_cam_rotation(cam_id)
+        if agent_sampling_center_pos is not None:
+            env.unrealcv.set_cam_location(cam_id, np.append(agent_sampling_center_pos[:2], height))
+            env.unrealcv.set_cam_rotation(cam_id, [-90, 0, 0])
+        
+        obs_bgr = env.unrealcv.read_image(cam_id, 'lit')
+        obs_rgb = cv2.cvtColor(obs_bgr, cv2.COLOR_BGR2RGB)
+        
+        # 更新相机内部状态
+        cam_location = env.unrealcv.get_cam_location(cam_id)
+        cam_rotation = env.unrealcv.get_cam_rotation(cam_id)
+        self.cam_pose = cam_location + cam_rotation
+        self.W, self.H = obs_rgb.shape[1], obs_rgb.shape[0]
+        self.fov_deg = float(env.unrealcv.get_cam_fov(cam_id))
+        self.K = self.get_camera_matrix_unreal(self.W, self.H, self.fov_deg)
+        
+        # 投影所有可用节点
+        img_points, valid_mask, depths = self.project_points_to_image_unreal(self.node_list, self.cam_pose, self.W, self.H, self.fov_deg)
+        
+        # 5. 准备初始的有效点字典
+        all_valid_points_dict = {}
+        for i, (node, node_id, valid) in enumerate(zip(self.node_list, self.node_id_list, valid_mask)):
+            if valid:
+                all_valid_points_dict[tuple(node)] = {'index': i, 'node': node_id}
+    
+        # 6. 采样主循环：逐个放置物体
+        sampled_objects = []
+        occupied_areas = []
+        pending_objects = []
+        
+        # 预先确定所有物体的旋转
+        for obj_info in object_list:
+            agent_type, _, _, name, _, _, _, _ = obj_info
+            yaw = self._determine_object_orientation(agent_type)
+            pending_objects.append({'name': name, 'rotation': [0, yaw, 0]})
+
+        for i, obj_info in enumerate(object_list):
+            agent_type, length, width, name, app_id, animation, feature_caption, type_val = obj_info
+            current_obj_details = {
+                'name': name, 'length': length, 'width': width, 'agent_type': agent_type,
+                'rotation': pending_objects[i]['rotation']
+            }
+            yaw = current_obj_details['rotation'][1]
+
+            # 生成当前步骤的可视化图像
+            result_img = self.visualize_projected_points_unreal_with_next_object(
+                obs_rgb, img_points, valid_mask, depths, self.W, self.H, 
+                occupied_areas, current_obj_details
+            )
+            result_img_rgb = cv2.cvtColor(result_img, cv2.COLOR_RGB2BGR)
+            cv2.imwrite(f"debug_sampling_step_{i+1}.png", result_img_rgb)
+
+            # !! 核心改动：调用VLM选择放置点，并传入实验配置 !!
+            current_node_to_try = self.sample_object_points(
+                result_img, name, length, width, all_valid_points_dict, experiment_config
+            )
+            
+            if current_node_to_try is None:
+                print(f"警告：为物体 {name} 采样位置失败，跳过此物体。")
+                continue
+
+            position = self.node_positions[current_node_to_try]
+            
+            # 记录已采样的物体信息
+            object_dict = {
+                'node': current_node_to_try, 'position': position, 'rotation': current_obj_details['rotation'],
+                'agent_type': agent_type, 'type': type_val, 'name': name, 'app_id': app_id,
+                'animation': animation, 'feature_caption': feature_caption, 'dimensions': (length, width)
+            }
+            sampled_objects.append(object_dict)
+            
+            # 更新被占据的区域和有效点
+            valid_mask = self._mark_area_occupied(current_node_to_try, occupied_areas, valid_mask, length, width, yaw)
+            
+            # 更新有效点字典
+            all_valid_points_dict = {}
+            for j, (node, node_id, valid) in enumerate(zip(self.node_list, self.node_id_list, valid_mask)):
+                if valid:
+                    all_valid_points_dict[tuple(node)] = {'index': j, 'node': node_id}
+
+        # 7. 采样相机位置
+        # 7.1. 采样相机候选位置
+        cameras = self._sample_external_cameras(
+            objects=sampled_objects, 
+            camera_count=cam_count,
+            ring_inner_radius_offset=kwargs.get('ring_inner_radius_offset', 200), 
+            ring_outer_radius_offset=kwargs.get('ring_outer_radius_offset', 800),
+            min_angle_separation_deg=kwargs.get('min_angle_separation_deg', 30),
+            min_cam_to_agent_dist=kwargs.get('min_cam_to_agent_dist', 150)
+        )
+        
+        # 7.2. 生成带有相机候选位置的可视化图像
+        result_img_with_cams = self.visualize_projected_points_unreal_with_cameras(
+            obs_rgb, img_points, valid_mask, depths, self.W, self.H, 
+            occupied_areas, cameras
+        )
+        result_img_rgb = cv2.cvtColor(result_img_with_cams, cv2.COLOR_RGB2BGR)
+        cv2.imwrite(f"debug_sampling_step_with_cameras.png", result_img_rgb)
+        
+        # 7.3. !! 核心改动：调用VLM选择最佳相机，并传入实验配置 !!
+        camera_id_list = self.sample_camera_points(result_img_with_cams, experiment_config)
+        
+        selected_cameras = []
+        if camera_id_list:
+            for cam_info in cameras:
+                if cam_info["id"] in camera_id_list:
+                    selected_cameras.append(cam_info)
+
+        # 8. 转换为最终的配置格式
+        updated_configs, camera_configs = self.format_transform(agent_configs, sampled_objects, selected_cameras)
+        center_pos_to_return = agent_sampling_center_pos.tolist() if isinstance(agent_sampling_center_pos, np.ndarray) else agent_sampling_center_pos
+        all_distances = [np.linalg.norm(np.array(obj['position']) - agent_sampling_center_pos) for obj in sampled_objects]
+        agent_sampling_radius = max(all_distances) + 200 if all_distances else 200
+    
+        # 9. 恢复原始相机位置
+        env.unrealcv.set_cam_location(cam_id, orginal_cam_pose[:3])
+        env.unrealcv.set_cam_rotation(cam_id, orginal_cam_pose[3:])
+        
+        # 10. 返回包含所有信息的字典
+        return {
+            "env": env,
+            'agent_configs': updated_configs,
+            'camera_configs': camera_configs,
+            'sampling_center': center_pos_to_return,
+            'sampling_radius': agent_sampling_radius
+        }
 
     def project_point_to_image(point_3d, rvec, tvec, camera_matrix, dist_coeffs=None):
         """
@@ -572,6 +637,96 @@ class AgentBasedSampler(GraphBasedSampler):
         except Exception as e:
             print(f"绘制物体{obj_idx}的矩形时出错: {e}")
 
+    def convert_depth_to_8bit(self,depth_array, method='linear',min_val=None,max_val=None,
+                              invert=False,gamma=1.0,log_scale=False,clip_percentile=None):
+        """
+        将深度图转换为8位格式
+        
+        参数:
+            depth_array: 原始深度图数组
+            method: 转换方法，支持 'linear'(线性), 'inverse'(倒数)
+            min_val, max_val: 指定归一化范围，默认为数组的最小值和最大值
+            invert: 是否反转深度值（近白远黑或近黑远白）
+            gamma: gamma校正值，默认1.0（不校正）
+            log_scale: 是否使用对数缩放
+            clip_percentile: 百分比截断，例如[2, 98]截断最亮和最暗的2%
+            
+        返回:
+            depth_8bit: 8位深度图 (0-255)
+            metadata: 元数据信息，用于后续恢复
+        """
+        import numpy as np
+        
+        # 复制数组防止修改原数据
+        depth = depth_array.copy()
+        
+        # 保存原始信息
+        original_min = float(depth.min())
+        original_max = float(depth.max())
+        
+        # 应用倒数处理
+        if method == 'inverse':
+            # 避免除零
+            depth = 1.0 / (depth + 1e-8)
+        
+        # 过滤无效值
+        valid_mask = ~np.isnan(depth) & ~np.isinf(depth) & (depth > 0)
+        valid_min = depth[valid_mask].min() if valid_mask.any() else 0
+        valid_max = depth[valid_mask].max() if valid_mask.any() else 1
+        
+        # 使用指定的范围或有效数据范围
+        min_val = valid_min if min_val is None else min_val
+        max_val = valid_max if max_val is None else max_val
+        
+        # 应用百分比截断
+        if clip_percentile is not None:
+            low, high = clip_percentile
+            if valid_mask.any():
+                p_low = np.percentile(depth[valid_mask], low)
+                p_high = np.percentile(depth[valid_mask], high)
+                depth = np.clip(depth, p_low, p_high)
+                min_val = p_low
+                max_val = p_high
+        
+        # 应用对数缩放
+        if log_scale and valid_mask.any():
+            depth[valid_mask] = np.log1p(depth[valid_mask] - min_val + 1e-8)
+            max_log = np.log1p(max_val - min_val + 1e-8)
+            depth = depth / max_log
+        else:
+            # 线性归一化
+            depth_range = max_val - min_val
+            if depth_range > 0:
+                depth = (depth - min_val) / depth_range
+            else:
+                depth = np.zeros_like(depth)
+        
+        # 应用gamma校正
+        if gamma != 1.0:
+            depth = np.power(depth, gamma)
+        
+        # 反转（如果需要）
+        if invert:
+            depth = 1.0 - depth
+        
+        # 转换为8位
+        depth_8bit = (depth * 255).astype(np.uint8)
+        
+        # 创建元数据
+        metadata = {
+            'original_min': original_min,
+            'original_max': original_max,
+            'process_min': float(min_val),
+            'process_max': float(max_val),
+            'method': method,
+            'gamma': gamma,
+            'log_scale': log_scale,
+            'invert': invert,
+            'clip_percentile': clip_percentile
+        }
+        
+        return depth_8bit, metadata
+
     def sample_agent_positions(self, env, agent_configs, cam_id=0,
                                     cam_count=3, vehicle_zones=None, height=800,**kwargs): # 添加 **kwargs
         """
@@ -593,6 +748,8 @@ class AgentBasedSampler(GraphBasedSampler):
             env.unrealcv.set_cam_rotation(cam_id, [-90, 0, 0])
         obs_bgr = env.unrealcv.read_image(cam_id,'lit')
         obs_rgb = cv2.cvtColor(obs_bgr, cv2.COLOR_BGR2RGB)
+        obs_depth = env.unrealcv.get_depth(cam_id)
+        depth_8bit, _ = self.convert_depth_to_8bit(obs_depth, method='inverse')
         cam_location = env.unrealcv.get_cam_location(cam_id)
         cam_rotation = env.unrealcv.get_cam_rotation(cam_id)
         self.cam_pose = cam_location + cam_rotation
@@ -774,7 +931,7 @@ class AgentBasedSampler(GraphBasedSampler):
             }
         return updated_configs, camera_configs
 
-    def sample_object_points(self, obs, obj_name, length, width, valid_points):
+    def sample_object_points(self, obs, obj_name, length, width, valid_points, exp_config=None):
         positions = []
         node_indices = []
         node_names = []
@@ -791,25 +948,33 @@ class AgentBasedSampler(GraphBasedSampler):
         #     node_indices.append(info['index'])
         #     node_names.append(info['node'])
         valid_points_str = "\n".join([f"node{i}: {pos}  " for i, pos in zip(node_indices, positions)])
-
+        use_img = True
+        # if exp_config:
+        #     prompt_name = exp_config.get("prompt_name", "default_point_sample")
+        #     prompts = PROMPT_TEMPLATES[prompt_name]
+        #     sys_prompt_point_sample = prompts["system"]
+        #     usr_prompt_point_sample = prompts["user"]
+        #     use_img = exp_config.get("use_image", True)
         usr_prompt_local = f"""
         points information: {valid_points_str},\n
         Please select the most suitable point from the valid points for placing the object based on its size.
         Remember to consider the object's dimensions to avoid collisions with other objects.
         """
+        sys_prompt_point_sample, usr_prompt_point_sample = load_prompt("sample_point_prompt_cot")
         usr_prompt = f"{usr_prompt_point_sample}\n\n\n{usr_prompt_local}"
         encode_obs = [self.encode_image_array(obs)]
         for attempt in range(max_tries):
             try:
-                response = self.call_api_vlm(sys_prompt_point_sample, usr_prompt, encode_obs)
+                response = self.call_api_vlm(sys_prompt_point_sample, usr_prompt, encode_obs, use_img=use_img)
                 node_id_match = re.search(r'<a>(.*?)</a>', response, re.DOTALL)
                 node_position_match = re.search(r'<b>(.*?)</b>', response, re.DOTALL)
                 analyze_info_match = re.search(r'<c>(.*?)</c>', response, re.DOTALL)
-                if node_id_match and node_position_match and analyze_info_match:
+                if node_id_match and node_position_match:
                     node_id = int(node_id_match.group(1).strip())
                     position = tuple(ast.literal_eval(node_position_match.group(1).strip()))
-                    analyze_info = analyze_info_match.group(1).strip()
-                    print(f"[Analysis]: {analyze_info}")
+                    if analyze_info_match:
+                        analyze_info = analyze_info_match.group(1).strip()
+                        print(f"[Analysis]: {analyze_info}")
                     assert valid_points[position]['index'] == node_id, f"返回的节点ID和位置不匹配,返回节点：{node_id},位置：{position},对应节点：{valid_points[position]['index']}"
                     return valid_points[position]['node']
                 else:
@@ -821,6 +986,7 @@ class AgentBasedSampler(GraphBasedSampler):
     def sample_camera_points(self, obs):
         max_tries = 5
         encode_obs = [self.encode_image_array(obs)]
+        sys_prompt_camera, usr_prompt_camera = load_prompt("sample_camera_point_cot")
         for attempt in range(max_tries):
             try:
                 response = self.call_api_vlm(sys_prompt_camera, usr_prompt_camera, encode_obs)
@@ -907,7 +1073,7 @@ class AgentBasedSampler(GraphBasedSampler):
         
         return text_x, text_y
 
-    def call_api_vlm(self, sys_prompt, usr_prompt, base64_image_list=[]):
+    def call_api_vlm(self, sys_prompt, usr_prompt, base64_image_list=[], use_img = True):
         """
         Call the vLM API with the given prompt.
         """
@@ -921,16 +1087,16 @@ class AgentBasedSampler(GraphBasedSampler):
                 ]
                 }
         ]
-
-        for base64_image in base64_image_list:
-                messages.append({"role": "user", "content": [
-                    {
-                        "type": "image_url",
-                        "image_url": {
-                            "url": f"data:image/jpeg;base64,{base64_image}",
-                        }
-                    }]
-                })
+        if use_img and base64_image_list:
+            for base64_image in base64_image_list:
+                    messages.append({"role": "user", "content": [
+                        {
+                            "type": "image_url",
+                            "image_url": {
+                                "url": f"data:image/jpeg;base64,{base64_image}",
+                            }
+                        }]
+                    })
         # Assuming OpenAI API is set up correctly
         response = client.chat.completions.create(
             model=current_model_name,
@@ -1220,7 +1386,23 @@ class AgentBasedSampler(GraphBasedSampler):
         import cv2
         import numpy as np
         import math
-        
+        if not next_object:
+            result_img = obs_rgb.copy()
+            # 绘制原有的投影点
+            for i, (point_img, is_valid, depth) in enumerate(zip(image_points, valid_mask, depths)):
+                u, v = point_img
+                if is_valid:
+                    cv2.circle(result_img, (int(u), int(v)), 5, (0, 255, 0), -1)
+                    text_x, text_y = self.get_smart_text_position(u, v, W, H, i)
+                    cv2.putText(result_img, f"{i}", (text_x, text_y), 
+                                cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 1)
+            # 绘制已占据区域
+            if occupied_areas:
+                for obj_idx, occupied_area in enumerate(occupied_areas):
+                    self.draw_occupied_rectangle(result_img, occupied_area, obj_idx, W, H)
+            return result_img
+
+
         # 计算真实世界缩放比例
         real_scale = self.calculate_real_world_scale()
         

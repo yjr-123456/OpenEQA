@@ -11,12 +11,12 @@ import string
 import os
 AGENT_OPTIONS = {
     "player": {
-        "app_id": [1,2,3,4,5,6,7,8,9,10,11,12,13,15,16, 17, 19],
+        "app_id": [1,2,3,4,5,6,7,8,9,10,11,12, 13, 15,16, 17, 19],
         "animation": ["stand", "crouch", "liedown", "pick_up", "in_vehicle"]
     },
     "animal": {
         "app_id": [0, 1, 2, 3, 6, 10, 11, 12, 14, 15, 16, 19, 20, 21, 22, 23, 25, 26, 27],
-        "animation": ["None"]
+        "animation": ["none"]
     },
     "drone": {
         "app_id": [0],
@@ -24,12 +24,16 @@ AGENT_OPTIONS = {
     },
     "car": {
         "app_id": [0,1,2,3],
-        "animation": ["None"],
+        "animation": ["none"],
         "type": ["BP_Hatchback_child_base_C","BP_Hatchback_child_extras_C","BP_Sedan_child_base_C", "BP_Sedan_child_extras_C"]
     },
     "motorbike": {
         "app_id": [0],
-        "animation": ["None"]
+        "animation": ["none"]
+    },
+    "robotdog": {
+        "app_id": [21,22,23,24,25,26,27,28,29,30,31,32,33],
+        "animation": ["none"]
     }
 }
 
@@ -53,6 +57,22 @@ AGENT_FEATURE_CAPTION = {
         16: "the_man_in_fedora_hat",
         17: "the_man_in_blue_plaid_pants_and_light_brown_turtleneck_sweater",
         19: "the_man_in_black_turleneck_sweater"
+
+    },
+    "robotdog": {
+        21:"Silver_Sleek_Robot_Dog",
+        22:"Purple_Futuristic_Robot_Dog",
+        23:"Blue_Futuristic_Robot_Dog",
+        24:"Turquoise_Modern_Robot_Dog",
+        25:"Green_Metallic_Robot_Dog",
+        26:"Rose_ThinLeg_Robot_Dog",
+        27:"Golden_Metallic_Robot_Dog",
+        28:"RedWhite_Streamline_Robot_Dog",
+        29:"BlackBlue_Sleek_Robot_Dog",
+        30:"Camo_LongLeg_Robot_Dog",
+        31:"WhiteStriped_Sleek_Robot_Dog",
+        32:"Blue_Rusty_Robot_Dog",
+        33:"Blue_Articulated_Robot_Dog"
     },
     "animal": {
         0: "Beagle_Dog",
@@ -99,7 +119,8 @@ DEFAULT_DISTRIBUTION = {
     "animal": 0.2,
     "car": 0.25,
     "drone": 0.15,
-    "motorbike": 0.1
+    "motorbike": 0.1,
+    "robotdog": 0.1
 }
 
 def load_json_file(file_path):
@@ -355,6 +376,27 @@ class AgentSampler:
                 
             sampled_agents[agent_type] = result
         
+        if 'robotdog' in sampled_agents:
+            robotdog_data = sampled_agents.pop('robotdog')  # 取出并删除 robotdog 数据
+            
+            if 'player' in sampled_agents:
+                # 如果 player 已存在，将 robotdog 数据追加进去
+                player_data = sampled_agents['player']
+                for key in ['name', 'app_id', 'animation', 'feature_caption']:
+                    if key in robotdog_data:
+                        player_data[key].extend(robotdog_data[key])
+            else:
+                # 如果 player 不存在，直接将 robotdog 重命名为 player
+                sampled_agents['player'] = robotdog_data
+        
+        # merged_captions = {k: v.copy() for k, v in AGENT_FEATURE_CAPTION.items()}
+        # if 'robotdog' in merged_captions:
+        #     robotdog_captions = merged_captions.pop('robotdog')
+        #     if 'player' in merged_captions:
+        #         merged_captions['player'].update(robotdog_captions)
+        #     else:
+        #         merged_captions['player'] = robotdog_captions
+
         return sampled_agents, AGENT_FEATURE_CAPTION
     
 
@@ -573,10 +615,12 @@ if __name__ == "__main__":
         "player": 5,
         "animal": 1,
         "car": 3,
-        "motorbike": 0
+        "motorbike": 0,
+        "robotdog": 2
     }
     x,y = sampler.sample_with_specific_counts_no_repeat(agent_counts)
     print(x)
+    print("============================")
     print(y)
        #print(sampler.sample_agent_typid(agent_type_category=agent_type, agent_num=agent_num))
 

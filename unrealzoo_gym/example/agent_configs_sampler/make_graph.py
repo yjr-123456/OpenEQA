@@ -170,6 +170,71 @@ class TrajectoryGraphBuilder:
         print(f"Connectivity graph saved to {output_file}")
         plt.close()
     
+    def visualize_graph_3d(self, output_file="connectivity_graph_3d.png", show_largest_component=True):
+            """
+            在三维空间中可视化连接图。
+
+            Args:
+                output_file: 输出图像文件的路径。
+                show_largest_component: 是否高亮显示最大的连通分量。
+            """
+            if self.graph is None:
+                print("请先调用 build_graph() 来构建图。")
+                return
+
+            # --- 2. 设置3D绘图环境 ---
+            fig = plt.figure(figsize=(15, 15))
+            ax = fig.add_subplot(111, projection='3d')
+
+            # --- 3. 准备节点坐标 ---
+            # 获取所有节点的真实三维坐标
+            pos_3d = nx.get_node_attributes(self.graph, 'pos')
+            if not pos_3d:
+                print("错误：图中节点没有 'pos' 属性。")
+                return
+                
+            # 将坐标解包为 x, y, z 列表
+            nodes = list(self.graph.nodes())
+            x_coords = [pos_3d[n][0] for n in nodes]
+            y_coords = [pos_3d[n][1] for n in nodes]
+            z_coords = [pos_3d[n][2] for n in nodes]
+
+            # --- 4. 绘制所有节点 ---
+            ax.scatter(x_coords, y_coords, z_coords, c='skyblue', s=10, alpha=0.5, label='Other Nodes')
+
+            # --- 5. 绘制所有边 ---
+            for edge in self.graph.edges():
+                p1 = pos_3d[edge[0]]
+                p2 = pos_3d[edge[1]]
+                # 使用 plot 绘制连接两个点的线段
+                ax.plot([p1[0], p2[0]], [p1[1], p2[1]], [p1[2], p2[2]], color='gray', alpha=0.2, linewidth=0.5)
+
+            # --- 6. 高亮显示最大的连通分量 ---
+            if show_largest_component and len(self.graph) > 0:
+                largest_cc = max(nx.connected_components(self.graph), key=len)
+                
+                # 获取最大连通分量节点的坐标
+                cc_x = [pos_3d[n][0] for n in largest_cc]
+                cc_y = [pos_3d[n][1] for n in largest_cc]
+                cc_z = [pos_3d[n][2] for n in largest_cc]
+                
+                # 用不同颜色重新绘制这些节点
+                ax.scatter(cc_x, cc_y, cc_z, c='red', s=15, alpha=0.7, label='Largest Component')
+
+            # --- 7. 设置图形属性并保存 ---
+            ax.set_title(f"3D Environment Connectivity Graph ({len(self.graph.nodes())} nodes, {len(self.graph.edges())} edges)")
+            ax.set_xlabel("X Coordinate")
+            ax.set_ylabel("Y Coordinate")
+            ax.set_zlabel("Z Coordinate")
+            ax.legend()
+            ax.axis('off')
+            # 调整视角
+            ax.view_init(elev=30, azim=45)
+
+            plt.savefig(output_file, format='svg', bbox_inches='tight')
+            print(f"3D连接图已保存到 {output_file}")
+            plt.close()
+            exit(-1)
     def find_path(self, start_pos, end_pos):
         """
         Find a path from start to end position in the graph
@@ -306,7 +371,8 @@ class TrajectoryGraphBuilder:
 if __name__ == "__main__":
     # Replace this path with your pkl file path
     env_list = [
-    "Map_ChemicalPlant_1",
+    "SuburbanNeighborhood_Day",
+    # "Map_ChemicalPlant_1",
     # "ModularNeighborhood",
     # "ModularSciFiVillage",
     # "RuralAustralia_Example_01",
@@ -314,10 +380,12 @@ if __name__ == "__main__":
     # "Cabin_Lake",
     # "Pyramid",
     # "ModularGothic_Day",
-    # "Greek_Island"
+    # "Greek_Island",
+    # "PlanetOutDoor",
+    # "AsianMedivalCity"
     ]
     for env_name in env_list:
-        pickle_file = f"E:/EQA/unrealzoo_gym/example/agent_configs_sampler/points_graph/{env_name}/{env_name}_final.pkl"
+        pickle_file = f"E:/EQA/unrealzoo_gym/example/agent_configs_sampler/points_graph/{env_name}/{env_name}_1.pkl"
 
         # Create graph builder
         builder = TrajectoryGraphBuilder(pickle_file)
@@ -326,8 +394,9 @@ if __name__ == "__main__":
         graph = builder.build_graph(distance_threshold=200.0,min_node_distance= 50.0)  # Adjust distance threshold to suit your environment scale
         
         # Visualize graph
-        builder.visualize_graph("neighborhood_graph.png")
-        
+        # builder.visualize_graph(f"{env_name}_graph.png")
+        builder.visualize_graph_3d(f"{env_name}_graph_3d.svg")
+
         # Analyze graph
         builder.analyze_graph(env_name=env_name)
 
