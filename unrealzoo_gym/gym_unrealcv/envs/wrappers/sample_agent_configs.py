@@ -5,27 +5,108 @@ from gym_unrealcv.envs.utils import misc
 import time
 from gym_unrealcv.envs.wrappers.augmentation import ConfigGenerator
 class SampleAgentConfigWrapper(Wrapper):
-    def __init__(self, env, agent_category, camera_height,model,min_types=1, max_types=5, graph_path=None, 
-                 type_count_ranges=None, min_total_agents=5, max_total_agents=10, if_cnt=False, config_path="model_config.json",obj_2_hide=None):
+    def __init__(self, env, agent_category, camera_height, model, 
+                 min_types, max_types, type_count_ranges,
+                 min_total_agents, max_total_agents, 
+                 graph_path, config_path, obj_2_hide=None,
+                 use_adaptive=False, if_cnt=False,
+                 fast_test_mode=False,
+                 save_dir=None,
+                 normal_variance_threshold=0.05,
+                 slope_threshold=0.866,
+                 safety_margin_cm=50,
+                 gaussian_kernel_size=5,
+                 gaussian_sigma=1.0):
+        """
+        初始化采样配置Wrapper
+        
+        Args:
+            ... (原有参数)
+            use_adaptive: 是否使用自适应采样器
+            fast_test_mode: 是否使用快速测试模式（随机选点）
+            save_dir: 调试图像保存目录
+            normal_variance_threshold: 法线方差阈值
+            slope_threshold: 坡度阈值
+            safety_margin_cm: 安全边距（厘米）
+            gaussian_kernel_size: 高斯核大小
+            gaussian_sigma: 高斯sigma
+        """
         super().__init__(env)
-        # set parameters
+        
+        # 原有参数
         self.agent_category = agent_category
+        self.camera_height = camera_height
+        self.model = model
         self.min_types = min_types
         self.max_types = max_types
-        self.type_count_ranges = type_count_ranges  
-        self.min_total_agents = min_total_agents    
+        self.type_count_ranges = type_count_ranges
+        self.min_total_agents = min_total_agents
         self.max_total_agents = max_total_agents
-        self.if_cnt = if_cnt    
-        # init sampler
-        self.agent_sampler = AgentSampler()
-        self.agent_point_sampler = AgentBasedSampler(graph_path, model, config_path=config_path)
-        self.obj_2_hide = obj_2_hide
-        self.camera_height = camera_height  # default camera height
+        self.graph_path = graph_path
+        self.config_path = config_path
+        self.obj_2_hide = obj_2_hide or []
+        self.use_adaptive = use_adaptive
+        self.if_cnt = if_cnt
 
+        self.fast_test_mode = fast_test_mode
+        self.save_dir = save_dir or './test_results/'
+        self.normal_variance_threshold = normal_variance_threshold
+        self.slope_threshold = slope_threshold
+        self.safety_margin_cm = safety_margin_cm
+        self.gaussian_kernel_size = gaussian_kernel_size
+        self.gaussian_sigma = gaussian_sigma
+        
+        # 创建采样器
+        self._init_sampler()
+        
+        # 初始化采样器
+        self.agent_sampler = AgentSampler()
+        if self.use_adaptive:
+            from example.agent_configs_sampler.agent_sample_agent_advanced import AgentBasedSamplerboost
+            self.agent_point_sampler = AgentBasedSamplerboost(graph_path, model, config_path=config_path)
+        else:
+            self.agent_point_sampler = AgentBasedSampler(graph_path, model, config_path=config_path)
+    
     def step(self,action):
         obs, reward, termination,truncation, info = self.env.step(action)
         return obs, reward, termination,truncation, info
+
+    def _init_sampler(self):
+        """初始化采样器"""
+        if self.use_adaptive:
+            from example.agent_configs_sampler.agent_sample_agent_advanced import AgentBasedSamplerboost
+            self.agent_point_sampler = AgentBasedSamplerboost(
+                graph_pickle_file=self.graph_path,
+                model=self.model,
+                config_path=self.config_path
+            )
+        else:
+            from example.agent_configs_sampler import AgentBasedSampler
+            self.agent_point_sampler = AgentBasedSampler(
+                graph_pickle_file=self.graph_path,
+                model=self.model,
+                config_path=self.config_path
+            )
     
+    def update_sampling_params(self, **kwargs):
+        """
+        动态更新采样参数
+        
+        支持的参数：
+            - normal_variance_threshold
+            - slope_threshold
+            - safety_margin_cm
+            - gaussian_kernel_size
+            - gaussian_sigma
+            - fast_test_mode
+            - save_dir
+        """
+        for key, value in kwargs.items():
+            if hasattr(self, key):
+                setattr(self, key, value)
+                print(f"[Wrapper] 更新参数: {key} = {value}")
+    
+
     def reset(self, **kwargs):
         env = self.env.unwrapped
         
@@ -204,37 +285,57 @@ class SampleAgentConfigWrapper(Wrapper):
         print(f"采样配置 - 详细分布: {agents_type_counts}")
         return agents_type_counts
 
-    def sample_agent_configs(self,env,agent_configs, cam_id=1, cam_count = 8,vehicle_zones=None):
+    def sample_agent_configs(self, env, agent_configs, cam_id=1, cam_count=8, vehicle_zones=None):
+        """
+        采样智能体配置
+        """
         all_max_distance = self.agent_point_sampler.compute_adaptive_all_max_distance(agent_configs)
         max_retry = 200
+        sampling_kwargs = {
+            'normal_variance_threshold': self.normal_variance_threshold,
+            'slope_threshold': self.slope_threshold,
+            'safety_margin_cm': self.safety_margin_cm,
+            'gaussian_kernel_size': self.gaussian_kernel_size,
+            'gaussian_sigma': self.gaussian_sigma,
+            'fast_test_mode': self.fast_test_mode,
+            'save_dir': self.save_dir,
+            'ring_inner_radius_offset': 300,
+            'ring_outer_radius_offset': 500,
+            'min_angle_separation_deg': 35,
+            'min_cam_to_agent_dist': 200,
+        }
+
+
+
         for attempt in range(max_retry):
-            results_dict = self.agent_point_sampler.sample_agent_positions( 
-                env=env,
+            # ===== 关键修改：使用保存的参数 =====
+            results_dict = self.agent_point_sampler.sample_agent_positions(
+                env=self.env.unwrapped,
                 agent_configs=agent_configs,
-                cam_id=cam_id,
-                cam_count=cam_count,
+                cam_id=1,
+                cam_count=3,
                 vehicle_zones=vehicle_zones,
                 all_max_distance=all_max_distance,
-                ring_inner_radius_offset=300, 
-                ring_outer_radius_offset=500,
-                min_angle_separation_deg=35,
-                min_cam_to_agent_dist=200,
-                height= self.camera_height
+                height=self.camera_height,
+                **sampling_kwargs  # ← 传递所有参数
             )
+            
             env = results_dict['env']
             updated_configs = results_dict['agent_configs']
             camera_configs = results_dict['camera_configs']
             agent_sampling_center = results_dict['sampling_center']
             agent_sampling_radius = results_dict['sampling_radius']
-            # sampling_results = results_dict
+            
             # 检查是否所有物体都采样成功
             total_needed = sum(len(cfg['name']) for cfg in agent_configs.values())
             total_found = sum(len(cfg['name']) for cfg in updated_configs.values())
+            
             if total_found == total_needed:
-                print(f"采样成功（第{attempt+1}次）")
+                print(f"✅ 采样成功（第{attempt+1}次）")
                 break
             else:
-                print(f"采样失败，重新尝试（第{attempt+1}次）")
+                print(f"⚠️  采样失败，重新尝试（第{attempt+1}次）")
         else:
-            print("多次尝试后仍未采样成功，请检查参数或环境！")
+            print("❌ 多次尝试后仍未采样成功，请检查参数或环境！")
+        
         return env, updated_configs, camera_configs, agent_sampling_center, agent_sampling_radius
