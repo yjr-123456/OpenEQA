@@ -22,54 +22,6 @@ from dotenv import load_dotenv
 from openai import OpenAI
 import transforms3d
 load_dotenv(override=True)
-def load_model_config(config_path="model_config.json"):
-    """加载模型配置文件"""
-    try:
-        with open(config_path, 'r', encoding='utf-8') as f:
-            return json.load(f)
-    except FileNotFoundError:
-        print(f"模型配置文件 {config_path} 不存在，使用默认配置")
-        return None
-    except json.JSONDecodeError:
-        print(f"模型配置文件 {config_path} 格式错误")
-        return None
-
-def create_client(model_name="doubao", config_path="model_config.json"):
-    """根据模型名称创建OpenAI客户端"""
-    config = load_model_config(config_path)
-    
-    if config is None:
-        raise ValueError(f"无法加载模型配置文件 {config_path}")
-    
-    model_config = config["models"].get(model_name)
-    if model_config is None:
-        print(f"模型 {model_name} 配置不存在，使用默认模型")
-        model_name = config["default_model"]
-        model_config = config["models"][model_name]
-    key_name = model_config["api_key_env"]
-    # 从环境变量获取API密钥
-    api_key = os.environ.get(key_name)
-    if not api_key:
-        raise ValueError(f"环境变量 {key_name} 未设置")
-
-    client = OpenAI(
-        base_url=model_config["base_url"],
-        api_key=api_key
-    )
-    
-    return client, model_config["model_name"], model_config
-
-# 全局客户端和模型配置
-client = None
-current_model_name = None
-current_model_config = None
-
-def initialize_model(model_name="doubao",model_config_path="model_config.json"):
-    """初始化指定的模型"""
-    global client, current_model_name, current_model_config
-    client, current_model_name, current_model_config = create_client(model_name,model_config_path)
-    print(f"已初始化模型: {model_name} ({current_model_name})")
-
 
 def update_json_file(file_path, new_entries):
     """
@@ -102,66 +54,6 @@ def update_json_file(file_path, new_entries):
         print(f"Error writing to file '{file_path}': {e}")
 
 from example.agent_configs_sampler import AgentSampler, GraphBasedSampler
-
-def call_api_vlm(sys_prompt, usr_prompt, base64_image_list=[]):
-    """
-    Call the vLM API with the given prompt.
-    """
-    messages=[
-            {"role": "system", "content": sys_prompt},
-            {"role": "user", "content": [
-                {
-                    "type": "text",
-                    "text": usr_prompt,
-                }
-            ]
-            }
-    ]
-
-    for base64_image in base64_image_list:
-            messages.append({"role": "user", "content": [
-                {
-                    "type": "image_url",
-                    "image_url": {
-                        "url": f"data:image/jpeg;base64,{base64_image}",
-                    }
-                }]
-            })
-    # Assuming OpenAI API is set up correctly
-    response = client.chat.completions.create(
-        model=current_model_name,
-        max_tokens=10000,
-        messages=messages
-    )
-    respon=  response.choices[0].message.content.strip()
-    print(f"[VLM RESPONSE] {respon}")
-    return respon
-
-def encode_image_array(image_array):
-    from PIL import Image
-    import io
-    import base64
-    # Convert the image array to a PIL Image object
-    image = Image.fromarray(np.uint8(image_array))
-
-    # Save the PIL Image object to a bytes buffer
-    buffered = io.BytesIO()
-    image.save(buffered, format="JPEG")
-
-    # Encode the bytes buffer to Base64
-    img_str = base64.b64encode(buffered.getvalue()).decode('utf-8')
-
-    return img_str
-    
-sys_prompt = """
-    You are a smart environment examiner.
-    Your task is to examine whether the environment is naturally and reasonably populated with agents.
-    You will be provided with a first-person view image.
-    You need to check whether the vehicle is damaged and whether the people are trapped.
-    output format:
-    use xml format to output your answer.
-    <a>yes/no</a>
-"""
 
 def check_reach(goal_loca,cur_loac):
     distance = np.linalg.norm(np.array(goal_loca[:2]) - np.array(cur_loac[:2]))
@@ -413,34 +305,38 @@ if __name__ == '__main__':
                     # listener.start()
                     print(f"\nProcessing Batch: {batch}, Instance ID: {instance_id}")
                     trace_cnt = 0
-                    safe_start_to_collect = []
-                    for cam_idx, position in enumerate(cam_position):
-                        loca = position[0:3]
-                        rota = position[3:]
-                        # place observer
-                        env.unwrapped.unrealcv.set_obj_location(obs_name, loca)
-                        env.unwrapped.unrealcv.set_obj_rotation(obs_name, rota)
-                        time.sleep(0.1)  # wait for the observer to be placed
-                        actions = action * agent_num
-                        obs, _, _, _, _ = env.step(actions)
-                        obs = obs[0]  # get the first observation
-                        bgr_image_from_env = obs[...,:3].squeeze()
-                        mask_obs = obs[...,3:].squeeze()
+                    loca = cam_position[0][0:3]
+                    rota = cam_position[0][3:]
+                    env.unwrapped.unrealcv.set_obj_location(obs_name, loca)
+                    env.unwrapped.unrealcv.set_obj_rotation(obs_name, rota)
+                    # safe_start_to_collect = []
+                    # for cam_idx, position in enumerate(cam_position):
+                    #     loca = position[0:3]
+                    #     rota = position[3:]
+                    #     # place observer
+                    #     env.unwrapped.unrealcv.set_obj_location(obs_name, loca)
+                    #     env.unwrapped.unrealcv.set_obj_rotation(obs_name, rota)
+                    #     time.sleep(0.1)  # wait for the observer to be placed
+                    #     actions = action * agent_num
+                    #     obs, _, _, _, _ = env.step(actions)
+                    #     obs = obs[0]  # get the first observation
+                    #     bgr_image_from_env = obs[...,:3].squeeze()
+                    #     mask_obs = obs[...,3:].squeeze()
 
-                        # update_camera_configs
-                        env.unwrapped.unrealcv.cam = env.unwrapped.unrealcv.get_camera_config()
-                        env.unwrapped.update_camera_assignments()
-                        cam_id = env.unwrapped.agents[obs_name]['cam_id']
+                    #     # update_camera_configs
+                    #     env.unwrapped.unrealcv.cam = env.unwrapped.unrealcv.get_camera_config()
+                    #     env.unwrapped.update_camera_assignments()
+                    #     cam_id = env.unwrapped.agents[obs_name]['cam_id']
 
-                        if bgr_image_from_env.dtype != np.uint8:
-                            if bgr_image_from_env.max() <= 1.0 and bgr_image_from_env.min() >= 0.0:
-                                bgr_image_from_env = (bgr_image_from_env * 255).astype(np.uint8)
-                            else:
-                                bgr_image_from_env = bgr_image_from_env.astype(np.uint8)
-                        # set safe start
-                        safe_start_to_collect.append(position)
-                        print(f"    Image from camera {cam_idx + 1} marked for saving.")
-                        collected_images_for_instance.append((bgr_image_from_env, cam_idx))
+                    #     if bgr_image_from_env.dtype != np.uint8:
+                    #         if bgr_image_from_env.max() <= 1.0 and bgr_image_from_env.min() >= 0.0:
+                    #             bgr_image_from_env = (bgr_image_from_env * 255).astype(np.uint8)
+                    #         else:
+                    #             bgr_image_from_env = bgr_image_from_env.astype(np.uint8)
+                    #     # set safe start
+                    #     safe_start_to_collect.append(position)
+                    #     print(f"    Image from camera {cam_idx + 1} marked for saving.")
+                    #     collected_images_for_instance.append((bgr_image_from_env, cam_idx))
                         # collect trajectory
                         # type_2_sample = list(current_target_configs.keys())
                         # if 'drone' in type_2_sample:
@@ -513,7 +409,7 @@ if __name__ == '__main__':
                     # save gt info
                     data_to_save = {
                         "instance_id": instance_id,
-                        "safe_start": safe_start_to_collect,
+                        # "safe_start": safe_start_to_collect,
                         "obs_folder_path": current_instance_obs_path,
                         "obs_filenames": [os.path.basename(p) for p in saved_image_paths_for_instance],
                         "sample_configs": info["sample_configs"],

@@ -18,9 +18,8 @@
         //         "--other-args", "--model gemini_pro --resume"
         //     ],
             "args": [
-                "--envs", "AsianMedivalCity", 
-                "--model", "gemini_pro",
-                "--resume"
+                // "--envs", "AsianMedivalCity", 
+                "--model", "gemini-2.5-flash"
             ],
             "env": {
                 "OPENAI_API_KEY": "${env:ARK_API_KEY}"

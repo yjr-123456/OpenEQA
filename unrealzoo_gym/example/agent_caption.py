@@ -620,32 +620,34 @@ if __name__ == '__main__':
     # drone_id = [0]
     # car_id = [0,1,2,3,4,5,6,7,8,9,10,11,12,13]
     # motorbike_id = [0,1,2,3,4,5,6,7,8,9,10,11,12,13]
+    # pickup_id = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
+    robot_dog_id = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20]
 
     # player cam_id
     cam_id = env.unwrapped.cam_list[0]
-    env.unwrapped.safe_start = [[-18561.742, -11846.606, -12792.063, 0, 0, 0]]
+    env.unwrapped.safe_start = [[-18561.742, -11746.606, -12792.063, 0, 0, 0]]
     action = [-1,-1]  # stay still
     obs, info = env.reset()
-    env.unwrapped.unrealcv.set_obj_location("BP_Character_C_1",[-18961.742, -11846.606, -12792.063])
+    env.unwrapped.unrealcv.set_obj_location("BP_Character_C_1",[-18961.742, -11746.606, -12792.063])
     env.unwrapped.unrealcv.set_obj_rotation("BP_Character_C_1", [0, -180, 0])
     valid_name = "BP_Hatchback_child_base_C_1"  # default valid name for car
     refer_agent_category = ['car', 'motorbike',"player"]  # default refer agent category
+    agent_type = "robot_dog"
+    env.unwrapped.target_start.append([-19059.924, -11746.606,-12642.063,0, 0, 0])
+    env.unwrapped.unrealcv.new_obj("BP_Character_C", f"{agent_type}_1", [-19059.924, -11746.606,-12642.063], [0, 0, 0])
     try:
-        for app_id in player_id:
+        for app_id in pickup_id:
             # if agent_type == "car":
             #     valid_name = "BP_Hatchback_child_base_C_1"
             # elif agent_type == "motorbike":
             #     valid_name = "BP_BaseBike_C_1"
-            # env.unwrapped.unrealcv.new_obj(agent_class, f"{agent_type}_1", [-19609.924, -11846.606,-12792.063], [0, 0, 0])
+            # env.unwrapped.unrealcv.new_obj(agent_class, f"{agent_type}_1", [-19609.924, -11746.606,-12792.063], [0, 0, 0])
             # refer_agent = env.unwrapped.refer_agents[valid_name]
             # refer_agent["class_name"] = agent_class 
             save_directory = f"./agent_caption/agent_render/robot_dog/{app_id}"
             os.makedirs(save_directory, exist_ok=True)            
             # add agent
-            env.unwrapped.target_start.append([-19109.924, -11846.606,-12792.063,0, 0, 0])
-            refer_agent = env.unwrapped.refer_agents["BP_Character_C_1"]
-            env.unwrapped.agents[f"{agent_type}_1"] = env.unwrapped.add_agent(f"{agent_type}_1",[-19209.924, -11846.606,-12792.063,0, 0, 0], refer_agent)
-
+            
             # set appearance
             env.unwrapped.unrealcv.set_appearance(f"{agent_type}_1", app_id)
             env.unwrapped.unrealcv.set_obj_color(f"{agent_type}_1", [255, 255, 0])
@@ -699,7 +701,7 @@ if __name__ == '__main__':
             # turn the agent by 90 degrees
             # env.unwrapped.unrealcv.set_obj_location("BP_Character_2", [-9158,-1200.583,98.82])
             # time.sleep(2)
-            env.unwrapped.unrealcv.set_obj_rotation(f"{agent_type}_1", [0, 180, 0])
+            env.unwrapped.unrealcv.set_obj_rotation(f"{agent_type}_1", [0, 0, -90])
             time.sleep(1)
             obs,_,_,_,_ = env.step(action)
             obs_color = obs[0][...,:3].squeeze()
@@ -721,7 +723,7 @@ if __name__ == '__main__':
                 for i in range(len(image_list_for_saving)):
                     cv2.imwrite(os.path.join(save_directory, f"{i}.png"), image_list_for_saving[i])
             # env.unwrapped.unrealcv.destroy_pickup(f"{agent_type}_1")
-            env.unwrapped.remove_agent(f"{agent_type}_1")
+            # env.unwrapped.remove_agent(f"{agent_type}_1")
             
             
             # cnt_step = 0
