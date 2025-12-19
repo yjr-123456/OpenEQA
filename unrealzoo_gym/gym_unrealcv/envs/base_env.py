@@ -117,6 +117,8 @@ class UnrealCv_base(gym.Env):
         self.agents_category = ['player'] # the agent category we use in the env
         self.refer_agents_category = ['player']  # the agent category we use as a reference to add new agents
         self.protagonist_id = 0
+        self.vacant_cam_id = []
+
 
         # init agents
         self.player_list = list(self.agents.keys())
@@ -257,7 +259,7 @@ class UnrealCv_base(gym.Env):
             
             self.unrealcv.set_obj_rotation(obj, init_poses[i][-3:])
             if self.agents[obj]['agent_type'] in ['animal','car','drone','player']:
-                time.sleep(0.5)
+                # time.sleep(0.5)
                 self.unrealcv.set_phy(obj, 1)
                 time.sleep(0.8)
                 self.unrealcv.set_phy(obj, 0)
@@ -286,77 +288,77 @@ class UnrealCv_base(gym.Env):
                     continue
                 elif animation == 'crouch' or animation == 'liedown':
                     self.unrealcv.set_animation(obj, animation)
-                elif animation == 'pick_up':
-                    batch_id = obj.split('_')[-1]  # get the batch id from the object name
-                    loca = self.unrealcv.get_obj_location(obj)
-                    rot = self.unrealcv.get_obj_rotation(obj)
-                    theta = np.deg2rad(rot[1])
-                    bias = [50*np.cos(theta-np.pi/2), 50*np.sin(theta-np.pi/2), 0]
-                    loc = [loca[i] + bias[i] for i in range(3)]
-                    pick_up_class = "BP_GrabMoveDrop_C"
-                    pick_up_name = f"{pick_up_class}_{batch_id}_{pick_cnt}"
-                    self.pickup_list.append(pick_up_name)
-                    self.unrealcv.new_obj(pick_up_class,pick_up_name,loc, rot)
-                    self.unrealcv.set_obj_color(pick_up_name, np.random.randint(0, 255, 3))
-                    time.sleep(2.0)
-                    self.unrealcv.set_animation(obj, animation)
-                    time.sleep(2.0)
-                    cur_loc = self.unrealcv.get_obj_location(obj)
-                    cur_rot = self.unrealcv.get_obj_rotation(obj)
-                    agent_type = list(obj.split('_'))[0]  # get the agent type from the object name
-                    index = self.target_configs[agent_type]['name'].index(obj)
-                    self.target_configs[agent_type]['start_pos'][index] = cur_loc + cur_rot
-                    pick_cnt += 1
-                elif animation == 'in_vehicle':
-                    # search for the vehicle
-                    has_vehicle = any(self.agents[obj]['agent_type'] in ['car', 'motorbike'] for obj in self.target_list)
-                    if has_vehicle:
-                        # 如果有车辆类型，获取所有车辆对象
-                        vehicle_list = [obj for obj in self.player_list 
-                                    if self.agents[obj]['agent_type'] in ['car', 'motorbike']]
-                    else:
-                        vehicle_list = []
+                # elif animation == 'pick_up':
+                #     batch_id = obj.split('_')[-1]  # get the batch id from the object name
+                #     loca = self.unrealcv.get_obj_location(obj)
+                #     rot = self.unrealcv.get_obj_rotation(obj)
+                #     theta = np.deg2rad(rot[1])
+                #     bias = [50*np.cos(theta-np.pi/2), 50*np.sin(theta-np.pi/2), 0]
+                #     loc = [loca[i] + bias[i] for i in range(3)]
+                #     pick_up_class = "BP_GrabMoveDrop_C"
+                #     pick_up_name = f"{pick_up_class}_{batch_id}_{pick_cnt}"
+                #     self.pickup_list.append(pick_up_name)
+                #     self.unrealcv.new_obj(pick_up_class,pick_up_name,loc, rot)
+                #     self.unrealcv.set_obj_color(pick_up_name, np.random.randint(0, 255, 3))
+                #     time.sleep(2.0)
+                #     self.unrealcv.set_animation(obj, animation)
+                #     time.sleep(2.0)
+                #     cur_loc = self.unrealcv.get_obj_location(obj)
+                #     cur_rot = self.unrealcv.get_obj_rotation(obj)
+                #     agent_type = list(obj.split('_'))[0]  # get the agent type from the object name
+                #     index = self.target_configs[agent_type]['name'].index(obj)
+                #     self.target_configs[agent_type]['start_pos'][index] = cur_loc + cur_rot
+                #     pick_cnt += 1
+                # elif animation == 'in_vehicle':
+                #     # search for the vehicle
+                #     has_vehicle = any(self.agents[obj]['agent_type'] in ['car', 'motorbike'] for obj in self.target_list)
+                #     if has_vehicle:
+                #         # 如果有车辆类型，获取所有车辆对象
+                #         vehicle_list = [obj for obj in self.player_list 
+                #                     if self.agents[obj]['agent_type'] in ['car', 'motorbike']]
+                #     else:
+                #         vehicle_list = []
                     
-                    if len(vehicle_list) > 0:
-                        obj_loc = self.unrealcv.get_obj_location(obj)
-                        min_distance = float('inf')
-                        nearest_vehicle = None
+                #     if len(vehicle_list) > 0:
+                #         obj_loc = self.unrealcv.get_obj_location(obj)
+                #         min_distance = float('inf')
+                #         nearest_vehicle = None
                         
-                        for vehicle_name in vehicle_list:
-                            vehicle_loc = self.unrealcv.get_obj_location(vehicle_name)
+                #         for vehicle_name in vehicle_list:
+                #             vehicle_loc = self.unrealcv.get_obj_location(vehicle_name)
                             
-                            distance = calculate_distance(obj_loc, vehicle_loc)
+                #             distance = calculate_distance(obj_loc, vehicle_loc)
                             
-                            if distance < min_distance:
-                                min_distance = distance
-                                nearest_vehicle = vehicle_name
-                        vehicle = nearest_vehicle
-                        loca = self.unrealcv.get_obj_location(vehicle)
-                        rot = self.unrealcv.get_obj_rotation(vehicle)
-                        theta = np.deg2rad(rot[1])
-                        bias = [200*np.cos(theta+np.pi/2), 200*np.sin(theta+np.pi/2), 0]
-                        # bias = [200*np.cos(theta), 200*np.sin(theta+np.pi/2), 0]
-                        loc = [loca[i] + bias[i] for i in range(3)]
-                        self.unrealcv.set_obj_location(obj, loc)
-                        time.sleep(0.5)
-                        cur_loc = self.unrealcv.get_obj_location(obj)
-                        cur_rot = self.unrealcv.get_obj_rotation(obj)
-                        time.sleep(0.5)
-                        self.unrealcv.set_obj_rotation(obj, rot)
-                        self.unrealcv.set_animation(obj, 'enter_vehicle')
-                        time.sleep(3.0)
-                        agent_type = list(obj.split('_'))[0]  # get the agent type from the object name
-                        index = self.target_configs[agent_type]['name'].index(obj)
-                        self.target_configs[agent_type]['start_pos'][index] = cur_loc + cur_rot
-                    else:
-                        warnings.warn(f"No vehicle found for {obj} to enter.reset status.")
-                        status = random.choice(['stand', 'crouch', 'liedown'])
-                        self.unrealcv.set_animation(obj, status)
-                        agent_type = list(obj.split('_'))[0]  # get the agent type from the object name
-                        index = self.target_configs[agent_type]['name'].index(obj)
-                        self.target_configs[agent_type]['state'][index] = status 
-                    continue
-                time.sleep(3)
+                #             if distance < min_distance:
+                #                 min_distance = distance
+                #                 nearest_vehicle = vehicle_name
+                #         vehicle = nearest_vehicle
+                #         loca = self.unrealcv.get_obj_location(vehicle)
+                #         rot = self.unrealcv.get_obj_rotation(vehicle)
+                #         theta = np.deg2rad(rot[1])
+                #         bias = [200*np.cos(theta+np.pi/2), 200*np.sin(theta+np.pi/2), 0]
+                #         # bias = [200*np.cos(theta), 200*np.sin(theta+np.pi/2), 0]
+                #         loc = [loca[i] + bias[i] for i in range(3)]
+                #         self.unrealcv.set_obj_location(obj, loc)
+                #         time.sleep(0.5)
+                #         cur_loc = self.unrealcv.get_obj_location(obj)
+                #         cur_rot = self.unrealcv.get_obj_rotation(obj)
+                #         time.sleep(0.5)
+                #         self.unrealcv.set_obj_rotation(obj, rot)
+                #         self.unrealcv.set_animation(obj, 'enter_vehicle')
+                #         time.sleep(3.0)
+                #         agent_type = list(obj.split('_'))[0]  # get the agent type from the object name
+                #         index = self.target_configs[agent_type]['name'].index(obj)
+                #         self.target_configs[agent_type]['start_pos'][index] = cur_loc + cur_rot
+                #     else:
+                #         warnings.warn(f"No vehicle found for {obj} to enter.reset status.")
+                #         status = random.choice(['stand', 'crouch', 'liedown'])
+                #         self.unrealcv.set_animation(obj, status)
+                #         agent_type = list(obj.split('_'))[0]  # get the agent type from the object name
+                #         index = self.target_configs[agent_type]['name'].index(obj)
+                #         self.target_configs[agent_type]['state'][index] = status 
+                #     continue
+                # time.sleep(3)
             time.sleep(3.0)
         print("\n agent num:", len(self.target_list))
         # distribute camera
@@ -382,7 +384,7 @@ class UnrealCv_base(gym.Env):
             print(cam_id)
             cam_loc = self.unrealcv.get_cam_location(cam_id)
             cam_locs.append(cam_loc)
-
+        cam_id_count = [0]* len(cam_locs)
         # 为每个智能体匹配最近相机并更新
         for obj in self.player_list:
             # 获取智能体位置 (包含位置和旋转信息)
@@ -396,12 +398,14 @@ class UnrealCv_base(gym.Env):
 
             # 找到最小距离的索引 (即相机ID)
             nearest_cam_id = dis_list.index(min(dis_list))
+            cam_id_count[nearest_cam_id] += 1
 
             # 更新智能体的相机ID
             self.agents[obj]['cam_id'] = nearest_cam_id
             # 更新cam_list中对应的相机ID
             agent_idx = self.player_list.index(obj)
-            self.cam_list[agent_idx] = nearest_cam_id
+            self.cam_list[agent_idx] = nearest_cam_id        
+        self.vacant_cam_id = [i for i, count in enumerate(cam_id_count) if count == 0]
 
     def get_ue_pid(self):
         """
@@ -762,26 +766,16 @@ class UnrealCv_base(gym.Env):
 
         # self.target_camera_list.append(new_dict['cam_id'])
         self.cam_list.append(new_dict['cam_id'])
-        time.sleep(0.5)
         self.unrealcv.set_obj_scale(name, refer_agent['scale'])
-        time.sleep(0.5)
         self.unrealcv.set_obj_color(name, np.random.randint(0, 255, 3))
-        time.sleep(0.5)
         self.unrealcv.set_random(name, 0)
-        time.sleep(0.5)
         self.unrealcv.set_interval(self.interval, name)
-        time.sleep(0.5)
         self.unrealcv.set_obj_location(name, loca)
-        # for obj in self.player_list:
-        #     print("num of agent:",len(self.player_list)-1)
-        #     print("location of obj:", obj, "is", self.unrealcv.get_obj_location(obj))
-        # if cur_agent_type in ['animal','car']:
-        #     self.unrealcv.set_phy(name, 1)
-        time.sleep(1)
+        time.sleep(0.5)
         self.unrealcv.set_phy(name, 0)
-        time.sleep(1)
+        time.sleep(0.5)
         self.unrealcv.set_obj_rotation(name, rot)
-        time.sleep(2)
+        time.sleep(1)
         if cur_agent_type not in ['car','motorbike']:
             self.unrealcv.set_appearance(name, self.target_agents[name]['app_id'])
         # transform action space
@@ -1076,7 +1070,7 @@ class UnrealCv_base(gym.Env):
 
         for obj in self.player_list:
             self.unrealcv.set_obj_scale(obj, self.agents[obj]['scale'])
-            self.unrealcv.set_random(obj, 0)
+            self.unrealcv.set_random(obj, 1)
             self.unrealcv.set_interval(self.interval, obj)
             #self.unrealcv.set_animation(obj, 'crouch')
         self.agent_color_dict = self.unrealcv.build_color_dict(self.player_list)

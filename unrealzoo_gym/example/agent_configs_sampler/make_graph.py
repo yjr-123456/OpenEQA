@@ -353,7 +353,7 @@ class TrajectoryGraphBuilder:
             print(f"  {i+1}. Node {node}: centrality = {centrality:.4f}, real coordinates = {self.reachable_grid[node]}")
             
         # Save graph data
-        with open(f"E:/EQA/unrealzoo_gym/example/agent_configs_sampler/points_graph/{env_name}/environment_graph_1.gpickle", 'wb') as f:
+        with open(f"./points_graph/{env_name}/environment_graph_1.gpickle", 'wb') as f:
             pickle.dump(self.graph, f)
         # nx.gpickle.write_gpickle(self.graph, "environment_graph.gpickle")
         print("\nGraph saved to environment_graph_1.gpickle")
@@ -371,7 +371,7 @@ class TrajectoryGraphBuilder:
 if __name__ == "__main__":
     # Replace this path with your pkl file path
     env_list = [
-    "SuburbanNeighborhood_Day",
+        "FlexibleRoom",
     # "Map_ChemicalPlant_1",
     # "ModularNeighborhood",
     # "ModularSciFiVillage",
@@ -385,7 +385,7 @@ if __name__ == "__main__":
     # "AsianMedivalCity"
     ]
     for env_name in env_list:
-        pickle_file = f"E:/EQA/unrealzoo_gym/example/agent_configs_sampler/points_graph/{env_name}/{env_name}_1.pkl"
+        pickle_file = f"E:/EQA/unrealzoo_gym/example/agent_configs_sampler/points_graph/{env_name}/{env_name}_reachable_points.pkl"
 
         # Create graph builder
         builder = TrajectoryGraphBuilder(pickle_file)
@@ -395,8 +395,8 @@ if __name__ == "__main__":
         
         # Visualize graph
         # builder.visualize_graph(f"{env_name}_graph.png")
-        builder.visualize_graph_3d(f"{env_name}_graph_3d.svg")
-
+        # builder.visualize_graph_3d(f"{env_name}_graph_3d.svg")
+        # builder.visualize_graph(f"{env_name}_graph.png")
         # Analyze graph
         builder.analyze_graph(env_name=env_name)
 

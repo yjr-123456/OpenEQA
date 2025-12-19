@@ -37,7 +37,7 @@ class AgentBasedSamplerboost(AgentBasedSampler):
             dwg.save()
             print(f"[Debug] 已保存 SVG 包装: {save_path}")
         except Exception as e:
-            print(f"❌ 保存 SVG 失败: {e}")
+            print(f"保存 SVG 失败: {e}")
 
 
 
@@ -164,7 +164,7 @@ class AgentBasedSamplerboost(AgentBasedSampler):
         
         return updated_mask
 
-    def generate_base_placeable_mask(self, env, cam_id, 
+    def generate_base_placeable_mask(self, normal_rgb, cam_id, 
                                 normal_variance_threshold=0.05,
                                 slope_threshold=0.866,
                                 gaussian_kernel_size=5,
@@ -204,8 +204,6 @@ class AgentBasedSamplerboost(AgentBasedSampler):
 
 
         # 1. 获取法线图
-        normal_bgr = env.unrealcv.read_image(cam_id, 'normal')
-        normal_rgb = cv2.cvtColor(normal_bgr, cv2.COLOR_BGR2RGB)
         _save_normal_map(normal_rgb, "debug_normal_01_raw.png")
 
         if W is None or H is None:
@@ -417,12 +415,283 @@ class AgentBasedSamplerboost(AgentBasedSampler):
         
         return overlayed
 
+    def prepare_sampling_session(self, env, agent_configs, vehicle_zones=None, cam_id=0, height=800, **kwargs):
+
+        save_dir = kwargs.get('save_dir', './test_results/')
+        os.makedirs(save_dir, exist_ok=True)
+        unreal_lock = kwargs.get('unreal_lock', None)
+
+
+        # 1. 预处理对象列表和中心点
+        object_list, all_objects_are_small, has_car = self.sort_objects(agent_configs)
+        vehicle_zone_nodes = self.filter_car_zones(vehicle_zones)
+        agent_sampling_center_pos, center_node = self.sample_center_point(vehicle_zone_nodes, has_car, all_objects_are_small)
+        
+        self.ground_z = agent_sampling_center_pos[2]
+        
+        # 2. 设置相机姿态
+        with unreal_lock:
+            orginal_cam_pose = env.unrealcv.get_cam_location(cam_id) + env.unrealcv.get_cam_rotation(cam_id)
+        
+        if agent_sampling_center_pos is not None:
+            with unreal_lock:
+                env.unrealcv.set_cam_location(cam_id, np.append(agent_sampling_center_pos[:2], agent_sampling_center_pos[2] + height))
+                env.unrealcv.set_cam_rotation(cam_id, [-90, 0, 0])
+        
+        self.cam_relative_height = height
+        
+        # 3. 获取图像和投影信息
+        with unreal_lock:
+            obs_bgr = env.unrealcv.read_image(cam_id, 'lit')
+        obs_rgb = cv2.cvtColor(obs_bgr, cv2.COLOR_BGR2RGB)
+        cv2.imwrite(f"{save_dir}/debug_topdown_view.png", obs_bgr)
+        
+        with unreal_lock:
+            cam_location = env.unrealcv.get_cam_location(cam_id)
+            cam_rotation = env.unrealcv.get_cam_rotation(cam_id)
+        self.cam_pose = cam_location + cam_rotation
+        self.W, self.H = obs_rgb.shape[1], obs_rgb.shape[0]
+        with unreal_lock:
+            self.fov_deg = float(env.unrealcv.get_cam_fov(cam_id))
+        self.K = self.get_camera_matrix_unreal(self.W, self.H, self.fov_deg)
+        
+        img_points, valid_mask, depths = self.project_points_to_image_unreal(
+            self.node_list, self.cam_pose, self.W, self.H, self.fov_deg
+        )
+        
+        # 4. 生成基础掩码
+        print("\n" + "="*60)
+        print("开始预处理基础可放置掩码...")
+        print("="*60)
+        with unreal_lock:
+            normal_bgr = env.unrealcv.read_image(cam_id, 'normal')
+            normal_rgb = cv2.cvtColor(normal_bgr, cv2.COLOR_BGR2RGB)
+        base_placeable_mask, final_normal_map, _ = self.generate_base_placeable_mask(
+            normal_rgb=normal_rgb,
+            cam_id=cam_id,
+            normal_variance_threshold=kwargs.get('normal_variance_threshold', 0.05),
+            slope_threshold=kwargs.get('slope_threshold', 0.866),
+            W=self.W, H=self.H,
+            save_dir=save_dir,
+            gaussian_kernel_size=kwargs.get('gaussian_kernel_size', 5),
+            gaussian_sigma=kwargs.get('gaussian_sigma', 1.0)
+        )
+        
+        # 5. 构建会话状态 (Context)
+        session_state = {
+            'env': env,
+            'cam_id': cam_id,
+            'save_dir': save_dir,
+            'obs_rgb': obs_rgb,
+            'normal_rgb': normal_rgb,
+            'img_points': img_points,
+            'valid_mask': valid_mask, # 这个掩码会随着物体放置不断更新
+            'depths': depths,
+            'base_placeable_mask': base_placeable_mask,
+            'occupied_areas': [],
+            'sampled_objects': [],
+            'orginal_cam_pose': orginal_cam_pose,
+            'agent_sampling_center_pos': agent_sampling_center_pos,
+            'W': self.W, 'H': self.H,
+            'kwargs': kwargs
+        }
+        
+        return session_state, object_list
+
+    def sample_single_object(self, session_state, obj_info, experiment_config, step_index=0):
+        # env = session_state['env']
+        # save_dir = session_state['save_dir']
+        obs_rgb = session_state['obs_rgb']
+        img_points = session_state['img_points']
+        valid_mask = session_state['valid_mask']
+        base_placeable_mask = session_state['base_placeable_mask']
+        occupied_areas = session_state['occupied_areas']
+        kwargs = session_state['kwargs']
+        depths = session_state['depths']
+        
+        # 解包物体信息
+        agent_type, length, width, name, app_id, animation, feature_caption, type_val = obj_info
+        
+        # 确定旋转
+        yaw = self._determine_object_orientation(agent_type)
+        rotation = [0, yaw, 0]
+        
+        current_obj_details = {
+            'name': name, 'length': length, 'width': width, 'agent_type': agent_type,
+            'rotation': rotation
+        }
+        
+        print(f"\n[Sampling] 物体 ({name}): 应用自适应腐蚀...")
+
+        # 1. 计算自适应掩码
+        adaptive_mask = base_placeable_mask.copy()
+        adaptive_mask, erosion_radius = self.apply_adaptive_erosion_to_mask(
+            adaptive_mask,
+            current_obj_details,
+            safety_margin_cm=kwargs.get('safety_margin_cm', 50)
+        )
+        
+        # 2. 减去已占据区域
+        for occ_area in occupied_areas:
+            adaptive_mask = self.apply_occupied_area_erosion(
+                adaptive_mask, occ_area, self.K, self.cam_relative_height,
+                safety_margin_cm=kwargs.get('safety_margin_cm', 50)
+            )
+            
+        # 调试可视化
+        # self.visualize_mask(adaptive_mask, f"debug_step_{step_index}_mask.png", save_dir)
+        
+        # 3. 几何筛选
+        geometry_filtered_mask = self.filter_valid_points_by_placeable_mask(
+            img_points, valid_mask, adaptive_mask, margin_pixels=10
+        )
+        
+        updated_valid_points_dict = {}
+        node_to_world_map = {}
+        
+        for j, (node, node_id, geom_valid) in enumerate(zip(self.node_list, self.node_id_list, geometry_filtered_mask)):
+            if geom_valid:
+                world_pos = tuple(node)
+                updated_valid_points_dict[world_pos] = {'index': j, 'node': node_id}
+                node_to_world_map[node_id] = world_pos
+
+        # 4. 可视化投影点 (供 VLM 或 Debug 使用)
+        result_img = self.visualize_projected_points_unreal_with_next_object(
+            obs_rgb, img_points, geometry_filtered_mask, depths, self.W, self.H,
+            occupied_areas, current_obj_details
+        )
+        
+        # 5. 选择位置 (Fast Mode 或 VLM)
+        use_fast_mode = kwargs.get('fast_test_mode', False)
+        current_node_to_try = None
+        
+        if use_fast_mode:
+            if len(updated_valid_points_dict) > 0:
+                import random
+                world_pos = random.choice(list(updated_valid_points_dict.keys()))
+                current_node_to_try = updated_valid_points_dict[world_pos]['node']
+                print(f"[FastMode] 随机选择点: Node {current_node_to_try}")
+        else:
+            selected_node_id = self.sample_object_points(
+                result_img, name, length, width, updated_valid_points_dict, 
+                experiment_config
+            )
+            if selected_node_id in node_to_world_map:
+                current_node_to_try = selected_node_id
+                print(f"[VLM] 选择点: Node {selected_node_id}")
+
+        if current_node_to_try is None:
+            print(f"警告：为物体 {name} 采样位置失败。")
+            return None
+
+        # 6. 成功采样，更新状态
+        position = self.node_positions[current_node_to_try]
+        
+        object_dict = {
+            'node': current_node_to_try, 'position': position, 
+            'rotation': rotation,
+            'agent_type': agent_type, 'type': type_val, 'name': name, 
+            'app_id': app_id, 'animation': animation, 
+            'feature_caption': feature_caption, 'dimensions': (length, width)
+        }
+        
+        # 更新 Session State 中的列表
+        session_state['sampled_objects'].append(object_dict)
+        
+        # 更新有效点掩码 (关键：标记该区域已被占用)
+        new_valid_mask = self._mark_area_occupied(
+            current_node_to_try, occupied_areas, valid_mask, length, width, yaw
+        )
+        session_state['valid_mask'] = new_valid_mask
+        
+        return object_dict
+
+    def finalize_sampling_session(self, session_state, agent_configs, cam_count=3):
+        env = session_state['env']
+        sampled_objects = session_state['sampled_objects']
+        kwargs = session_state['kwargs']
+        save_dir = session_state['save_dir']
+        obs_rgb = session_state['obs_rgb']
+        img_points = session_state['img_points']
+        valid_mask = session_state['valid_mask']
+        depths = session_state['depths']
+        occupied_areas = session_state['occupied_areas']
+        unreal_lock = kwargs.get('unreal_lock', None)
+        
+        # 1. 采样外部相机
+        cameras = self._sample_external_cameras(
+            objects=sampled_objects,
+            camera_count=cam_count,
+            ring_inner_radius_offset=kwargs.get('ring_inner_radius_offset', 200),
+            ring_outer_radius_offset=kwargs.get('ring_outer_radius_offset', 800),
+            min_angle_separation_deg=kwargs.get('min_angle_separation_deg', 30),
+            min_cam_to_agent_dist=kwargs.get('min_cam_to_agent_dist', 150)
+        )
+        
+        # 可视化相机位置
+        result_img_with_cams = self.visualize_projected_points_unreal_with_cameras(
+            obs_rgb, img_points, valid_mask, depths, self.W, self.H,
+            occupied_areas, cameras
+        )
+        cv2.imwrite(f"{save_dir}/debug_final_cameras.png", cv2.cvtColor(result_img_with_cams, cv2.COLOR_RGB2BGR))
+        
+        camera_id_list = self.sample_camera_points(cv2.cvtColor(result_img_with_cams, cv2.COLOR_RGB2BGR))
+        
+        selected_cameras = []
+        if camera_id_list:
+            for cam_info in cameras:
+                if cam_info["id"] in camera_id_list:
+                    selected_cameras.append(cam_info)
+        
+        # 2. 格式化最终配置
+        updated_configs, camera_configs = self.format_transform(agent_configs, sampled_objects, selected_cameras)
+        
+        # 3. 计算采样中心和半径
+        center_pos = session_state['agent_sampling_center_pos']
+        center_pos_to_return = center_pos.tolist() if isinstance(center_pos, np.ndarray) else center_pos
+        
+        all_distances = [np.linalg.norm(np.array(obj['position']) - center_pos) for obj in sampled_objects]
+        agent_sampling_radius = max(all_distances) + 200 if all_distances else 200
+        
+        # 4. 还原相机
+        cam_id = session_state['cam_id']
+        orginal_cam_pose = session_state['orginal_cam_pose']
+        with unreal_lock:
+            env.unrealcv.set_cam_location(cam_id, orginal_cam_pose[:3])
+            env.unrealcv.set_cam_rotation(cam_id, orginal_cam_pose[3:])
+        
+        return {
+            "env": env,
+            'agent_configs': updated_configs,
+            'camera_configs': camera_configs,
+            'sampling_center': center_pos_to_return,
+            'sampling_radius': agent_sampling_radius
+        }
+
     def run_sampling_experiment(self, env, agent_configs, experiment_config, cam_id=0, 
                                cam_count=3, vehicle_zones=None, height=800, **kwargs):
         """
-        优化版本：预处理基础掩码 + 循环内自适应腐蚀
+        重构后的主入口函数。
+        现在它只是一个协调者，依次调用上述三个阶段的方法。
+        保持了原有的接口兼容性。
         """
-        # 1-4. 保持原有逻辑...
+        # 阶段 1: 准备
+        session_state, object_list = self.prepare_sampling_session(
+            env, agent_configs, vehicle_zones, cam_id, height, **kwargs
+        )
+        
+        # 阶段 2: 循环采样
+        for i, obj_info in enumerate(object_list):
+            self.sample_single_object(session_state, obj_info, experiment_config, step_index=i+1)
+            
+        # 阶段 3: 收尾
+        result = self.finalize_sampling_session(session_state, agent_configs, cam_count)
+        
+        return result
+
+    def run_sampling_experiment(self, env, agent_configs, experiment_config, cam_id=0, 
+                               cam_count=3, vehicle_zones=None, height=800, **kwargs):
+    
         save_dir = kwargs.get('save_dir', './test_results/')
         os.makedirs(save_dir, exist_ok=True)
         object_list, all_objects_are_small, has_car = self.sort_objects(agent_configs)
@@ -465,15 +734,13 @@ class AgentBasedSamplerboost(AgentBasedSampler):
         result_img_bgr = cv2.cvtColor(result_img, cv2.COLOR_RGB2BGR)
         cv2.imwrite(f"{save_dir}/debug_initial_projection.png", result_img_bgr)
         
-        # ========================================
-        # === 🚀 关键优化：预处理基础掩码（只执行一次） ===
-        # ========================================
         print("\n" + "="*60)
-        print("🚀 开始预处理基础可放置掩码（执行1次）...")
+        print("开始预处理基础可放置掩码（执行1次）...")
         print("="*60)
-        
+        normal_bgr = env.unrealcv.read_image(cam_id, 'normal')
+        normal_rgb = cv2.cvtColor(normal_bgr, cv2.COLOR_BGR2RGB)
         base_placeable_mask, final_normal_map, (W, H) = self.generate_base_placeable_mask(
-            env=env,
+            normal_rgb=normal_rgb,
             cam_id=cam_id,
             normal_variance_threshold=kwargs.get('normal_variance_threshold', 0.05),
             slope_threshold=kwargs.get('slope_threshold', 0.866),
@@ -484,7 +751,7 @@ class AgentBasedSamplerboost(AgentBasedSampler):
             gaussian_sigma=kwargs.get('gaussian_sigma', 1.0)
         )
         
-        print("✅ 基础掩码预处理完成！\n")
+        print("基础掩码预处理完成！\n")
         
         # === 主采样循环 ===
         sampled_objects = []
@@ -504,9 +771,6 @@ class AgentBasedSamplerboost(AgentBasedSampler):
             }
             yaw = current_obj_details['rotation'][1]
             
-            # ========================================
-            # === 🚀 优化：快速应用自适应腐蚀 ===
-            # ========================================
             print(f"\n[Sampling] 物体 {i+1}/{len(object_list)} ({name}): 应用自适应腐蚀...")
 
             # 从基础掩码开始
@@ -577,31 +841,30 @@ class AgentBasedSamplerboost(AgentBasedSampler):
             if use_fast_mode:
                 # 快速模式：随机选点（从世界坐标中选）
                 if len(updated_valid_points_dict) == 0:
-                    print(f"⚠️  警告：物体 {name} 没有可用点，跳过。")
+                    print(f"警告：物体 {name} 没有可用点，跳过。")
                     current_node_to_try = None
                 else:
                     import random
                     world_pos = random.choice(list(updated_valid_points_dict.keys()))
                     node_id = updated_valid_points_dict[world_pos]['node']
-                    print(f"✅ [FastMode] 随机选择点: Node {node_id} at {world_pos}")
+                    print(f"[FastMode] 随机选择点: Node {node_id} at {world_pos}")
                     current_node_to_try = node_id  # ← 使用世界坐标
             else:
-                # ===== 🚀 标准模式：VLM选点（需要转换） =====
                 selected_node_id = self.sample_object_points(
                     result_img, name, length, width, updated_valid_points_dict, 
                     experiment_config
                 )
                 
                 if selected_node_id is None:
-                    print(f"⚠️  警告：VLM未返回有效节点，跳过物体 {name}")
+                    print(f"警告：VLM未返回有效节点，跳过物体 {name}")
                     current_node_to_try = None
                 elif selected_node_id in node_to_world_map:
                     # 关键：将图节点转换为世界坐标
                     current_node_to_try = selected_node_id
                     current_node_coord = node_to_world_map[selected_node_id]
-                    print(f"✅ [VLM] 选择点: Node {selected_node_id} -> World {current_node_coord}")
+                    print(f"[VLM] 选择点: Node {selected_node_id} -> World {current_node_coord}")
                 else:
-                    print(f"⚠️  错误：VLM返回的节点 {selected_node_id} 不在有效点集合中")
+                    print(f"错误：VLM返回的节点 {selected_node_id} 不在有效点集合中")
                     current_node_to_try = None
 
             if current_node_to_try is None:

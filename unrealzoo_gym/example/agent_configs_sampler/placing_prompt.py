@@ -20,9 +20,6 @@ usr_prompt_camera = """
     output format:
     Use xml format, and use a list to represent multiple selected node ids:
     <a>[node_id1,node_id2,node_id3]</a>
-
-    example:
-    <a>[3,4,7]</a>
 """
 
 sys_prompt_point_sample = """
@@ -63,6 +60,42 @@ usr_prompt_point_sample = """
     <b>node position in a python list format</b>
 """
 
+sys_prompt_event_plot = """
+    You are a cogitative event planner.
+    Your task is to design reasonable action sequences for several agents in a 3D virtual environment.
+"""
+
+usr_prompt_event_plot = """
+    input:
+    1. a top-down view of the environment.
+    2. a group of agents with their full-body shots.
+    3. excutable actions **only for human figures**.
+
+    goal:
+    Your task is to organize a coherent event by organizing a series of executable actions for each human figures.
+
+    requirements:
+    1. Ensure that the entire event is coherent and logical, and achievable with the provided actions and agents.
+    2. Each human figure should have at least one action to perform during the event.
+
+
+    output format:
+    Use xml format:
+    <a>event description in natural language</a>
+    <b>action list of agents in json format</b>
+
+    Just an example!:
+    <a> A person enters the house</a>
+    <b>{
+        "agent_1": ["action 1", "action 2", "action 3"],
+        ....
+        "agent_2": ["action 1", "action 2"]
+    }
+    </b>
+"""
+
+
+
 PROMPT_TEMPLATES = {
     "sample_point_prompt_cot": {
         "system": sys_prompt_point_sample,
@@ -71,6 +104,10 @@ PROMPT_TEMPLATES = {
     "sample_camera_point_cot": {
         "system": sys_prompt_camera,
         "user": usr_prompt_camera
+    },
+    "event_plot_prompt":{
+        "system": sys_prompt_event_plot,
+        "user": usr_prompt_event_plot
     }
 }
 

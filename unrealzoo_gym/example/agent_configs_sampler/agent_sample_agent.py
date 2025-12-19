@@ -999,7 +999,6 @@ class AgentBasedSampler(GraphBasedSampler):
                     print(f"尝试 {attempt+1}/{max_tries}：未能从响应中提取节点信息，重新尝试...")
             except Exception as e:
                 print(f"尝试 {attempt+1}/{max_tries}：发生错误 {e}，重新尝试...")
-        return None
 
     def visualize_projected_points_unreal(self, obs_rgb, image_points, valid_mask, depths, W, H, occupied_areas= None):
         """
@@ -1098,13 +1097,23 @@ class AgentBasedSampler(GraphBasedSampler):
                         }]
                     })
         # Assuming OpenAI API is set up correctly
+        # response = client.chat.completions.create(
+        #     model=current_model_name,
+        #     max_tokens=9000,
+        #     messages=messages
+        # )
+        response = self.make_api_call(messages)
+        # respon=  response.choices[0].message.content.strip()
+        print(f"[VLM RESPONSE] {response}")
+        return response
+
+    def make_api_call(self, messages):
         response = client.chat.completions.create(
             model=current_model_name,
             max_tokens=9000,
             messages=messages
         )
         respon=  response.choices[0].message.content.strip()
-        print(f"[VLM RESPONSE] {respon}")
         return respon
 
     def encode_image_array(self, image_array):

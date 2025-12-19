@@ -4,6 +4,10 @@ import random
 from gym_unrealcv.envs.utils import misc
 import time
 from gym_unrealcv.envs.wrappers.augmentation import ConfigGenerator
+import threading
+import cv2
+import os
+
 class SampleAgentConfigWrapper(Wrapper):
     def __init__(self, env, agent_category, camera_height, model, 
                  min_types, max_types, type_count_ranges,
@@ -11,7 +15,7 @@ class SampleAgentConfigWrapper(Wrapper):
                  graph_path, config_path, obj_2_hide=None,
                  use_adaptive=False, if_cnt=False,
                  fast_test_mode=False,
-                 save_dir=None,
+                 save_dir=None, bodyshot_path=None, name_dict_path=None,
                  normal_variance_threshold=0.05,
                  slope_threshold=0.866,
                  safety_margin_cm=50,
@@ -56,16 +60,19 @@ class SampleAgentConfigWrapper(Wrapper):
         self.gaussian_kernel_size = gaussian_kernel_size
         self.gaussian_sigma = gaussian_sigma
         
+        self.bodyshot_path = bodyshot_path
+        self.name_dict_path = name_dict_path
+        self.unreal_lock = threading.Lock()
         # 创建采样器
         self._init_sampler()
         
         # 初始化采样器
         self.agent_sampler = AgentSampler()
-        if self.use_adaptive:
-            from example.agent_configs_sampler.agent_sample_agent_advanced import AgentBasedSamplerboost
-            self.agent_point_sampler = AgentBasedSamplerboost(graph_path, model, config_path=config_path)
-        else:
-            self.agent_point_sampler = AgentBasedSampler(graph_path, model, config_path=config_path)
+        # if self.use_adaptive:
+        #     from example.agent_configs_sampler.agent_sample_agent_advanced import AgentBasedSamplerboost
+        #     self.agent_point_sampler = AgentBasedSamplerboost(graph_path, model, config_path=config_path)
+        # else:
+        #     self.agent_point_sampler = AgentBasedSampler(graph_path, model, config_path=config_path)
     
     def step(self,action):
         obs, reward, termination,truncation, info = self.env.step(action)
@@ -74,11 +81,19 @@ class SampleAgentConfigWrapper(Wrapper):
     def _init_sampler(self):
         """初始化采样器"""
         if self.use_adaptive:
-            from example.agent_configs_sampler.agent_sample_agent_advanced import AgentBasedSamplerboost
-            self.agent_point_sampler = AgentBasedSamplerboost(
+            # from example.agent_configs_sampler.agent_sample_agent_advanced import AgentBasedSamplerboost
+            # self.agent_point_sampler = AgentBasedSamplerboost(
+            #     graph_pickle_file=self.graph_path,
+            #     model=self.model,
+            #     config_path=self.config_path
+            # )
+            from example.agent_configs_sampler.asa_event_based import EventBasedAgentSampler
+            self.agent_point_sampler = EventBasedAgentSampler(
                 graph_pickle_file=self.graph_path,
                 model=self.model,
-                config_path=self.config_path
+                config_path=self.config_path,
+                bodyshot_path=self.bodyshot_path,
+                name_dict_path=self.name_dict_path
             )
         else:
             from example.agent_configs_sampler import AgentBasedSampler
@@ -106,7 +121,6 @@ class SampleAgentConfigWrapper(Wrapper):
                 setattr(self, key, value)
                 print(f"[Wrapper] 更新参数: {key} = {value}")
     
-
     def reset(self, **kwargs):
         env = self.env.unwrapped
         
@@ -130,19 +144,16 @@ class SampleAgentConfigWrapper(Wrapper):
             env.refer_agents_category = list(agent_type_counts.keys())        
             env.num_agents = sum(agent_type_counts.values()) + len(env.player_list)
             sampled_agent, name_mapping_dict = self.agent_sampler.sample_with_specific_counts_no_repeat(agent_type_counts)
-            env, agent_configs, camera_configs, sample_center,sample_radius = self.sample_agent_configs(env,sampled_agent, cam_id=1,vehicle_zones=vehicle_zones)
+            # test sampling
+            env, agent_configs, camera_configs, sample_center,sample_radius = self.sample_agent_configs_test(env,sampled_agent, cam_id=1,vehicle_zones=vehicle_zones)
         else:
             num_agents = random.randint(self.min_total_agents, self.max_total_agents)
             sampled_agent, name_mapping_dict = self.agent_sampler.sample_agent_typid(agent_type_category=self.agent_category, agent_num=num_agents)
             env.refer_agents_category = list(sampled_agent.keys())
             env.num_agents = num_agents + len(env.player_list)
             env, agent_configs, camera_configs, sample_center,sample_radius = self.sample_agent_configs(env, sampled_agent, cam_id=1, vehicle_zones=vehicle_zones)
-
-        # show object
-        if self.obj_2_hide is not None:
-            env.unrealcv.set_show_objects(self.obj_2_hide)
+        
         for agent_type,info_val in agent_configs.items(): # Renamed 'info' to 'info_val' to avoid conflict
-            
             if agent_type == 'car' or agent_type == 'drone':
                 for i in range(len(info_val['start_pos'])):
                     agent_configs[agent_type]['start_pos'][i][2] += height_bias[agent_type]
@@ -179,10 +190,38 @@ class SampleAgentConfigWrapper(Wrapper):
                 agent_config_2add = ConfigGenerator.add_agent_type(agent_type)
                 env.agent_configs = env.agent_configs | agent_config_2add
                 env.refer_agents = env.refer_agents | misc.convert_dict(agent_config_2add)
-        env.set_population(env.num_agents)
+        # env.set_population(env.num_agents)
+        # set_obj_location
+        if len(list(env.target_agents.keys())) > len(list(env.agents.keys())) - 1:
+            self.set_population(env, env.num_agents)
+
+        # show object
+        if self.obj_2_hide is not None:
+            env.unrealcv.set_show_objects(self.obj_2_hide)
         states,info_reset = self.env.reset(**kwargs) # Renamed 'info' to 'info_reset'
         return states,info_reset
     
+    def set_population(self, env,num_agents):
+        agent_cnt = 0
+
+        if len(env.player_list) < num_agents:
+            env.valid_targets = [agent_name for agent_name in env.target_agents.keys() 
+                       if env.target_agents[agent_name]['agent_type'] in env.refer_agents_category]
+            valid_agents = env.valid_targets.copy()
+            if not valid_agents:
+                raise ValueError(f"No valid agent to refer, please check the {env.refer_agents_category}")
+            for valid_name in valid_agents:
+                # self.cur_agent_type = self.target_agents[valid_name]['agent_type']
+                refer_agent = env.refer_agents[env.agent_configs[env.target_agents[valid_name]["agent_type"]]["name"][0]]
+                if refer_agent['agent_type'] == 'car':
+                    refer_agent['class_name'] = env.target_agents[valid_name]['type']
+                env.target_start.append(env.target_agents[valid_name]["start_pos"])
+                env.agents[f'{valid_name}'] = env.add_agent(valid_name, env.target_agents[valid_name]["start_pos"], refer_agent)
+                agent_cnt += 1
+                
+                time.sleep(1)
+        while len(env.player_list) > num_agents:
+            env.remove_agent(env.player_list[-1])
 
     def sample_agent_types(self):
         """
@@ -331,11 +370,220 @@ class SampleAgentConfigWrapper(Wrapper):
             total_found = sum(len(cfg['name']) for cfg in updated_configs.values())
             
             if total_found == total_needed:
-                print(f"✅ 采样成功（第{attempt+1}次）")
+                print(f"采样成功（第{attempt+1}次）")
                 break
             else:
-                print(f"⚠️  采样失败，重新尝试（第{attempt+1}次）")
+                print(f"采样失败，重新尝试（第{attempt+1}次）")
         else:
-            print("❌ 多次尝试后仍未采样成功，请检查参数或环境！")
+            print("多次尝试后仍未采样成功，请检查参数或环境！")
         
+        return env, updated_configs, camera_configs, agent_sampling_center, agent_sampling_radius
+    
+
+    def _background_recorder(self, env, cam_id, stop_event, shared_status):        
+        timestamp = int(time.time())
+        frames_dir = os.path.join(self.save_dir, f"frames_{timestamp}")
+        os.makedirs(frames_dir, exist_ok=True)
+        
+        print(f"[Recorder] 启动后台录制，帧保存至: {frames_dir}")
+        
+        frame_idx = 0
+        # fps = 40.0 
+        # frame_interval = 1.0 / fps
+        
+        while not stop_event.is_set():
+            try:
+                # 1. 获取原始图像
+                with self.unreal_lock:
+                    raw_img = env.unrealcv.read_image(cam_id, 'lit')
+                
+                if raw_img is not None:
+                    # 2. 获取可视化所需的数据
+                    img_points = shared_status.get('img_points')
+                    valid_mask = shared_status.get('valid_mask')
+                    depths = shared_status.get('depths')
+                    occupied_areas = shared_status.get('occupied_areas')
+                    next_object = shared_status.get('next_object')
+                    
+                    final_frame = raw_img
+                    
+                    # 3. 调用采样器的可视化函数
+                    if img_points is not None and valid_mask is not None:
+                        h, w = raw_img.shape[:2]
+                        final_frame = self.agent_point_sampler.visualize_projected_points_unreal_with_next_object(
+                            obs_rgb=raw_img,
+                            image_points=img_points,
+                            valid_mask=valid_mask,
+                            depths=depths,
+                            W=w, H=h,
+                            occupied_areas=occupied_areas,
+                            next_object=next_object
+                        )
+                    
+                    # 4. 叠加状态文字
+                    status_text = shared_status.get('text', '')
+                    if status_text:
+                        cv2.putText(final_frame, status_text, (30, 50), cv2.FONT_HERSHEY_SIMPLEX, 
+                                    1.0, (0, 0, 255), 2)
+
+                    frame_filename = os.path.join(frames_dir, f"frame_{frame_idx:05d}.png")
+                    cv2.imwrite(frame_filename, final_frame)
+                    frame_idx += 1
+
+            except Exception as e:
+                print(f"[Recorder] Error: {e}")
+                import traceback
+                traceback.print_exc()
+            
+            # 控制帧率 (可选，如果不sleep就是全力录制)
+            # elapsed = time.time() - start_time
+            # sleep_time = max(0, frame_interval - elapsed)
+            # time.sleep(sleep_time)
+            
+        print(f"[Recorder] 录制结束。共保存 {frame_idx} 帧到 {frames_dir}")
+
+    def sample_agent_configs_test(self, env, agent_configs, cam_id=1, cam_count=8, vehicle_zones=None):
+        """
+        采样智能体配置 (解耦版)
+        """
+        max_retry = 200
+
+
+        updated_configs = {}
+        camera_configs = {}
+        agent_sampling_center = None
+        agent_sampling_radius = 0
+
+        record_demo = True  # 开关
+        stop_event = threading.Event()
+        shared_status = {
+            'text': '',
+            'img_points': None,
+            'valid_mask': None,
+            'depths': None,
+            'occupied_areas': [],
+            'next_object': None
+        }
+        recorder_thread = None
+
+        if record_demo:
+            os.makedirs(self.save_dir, exist_ok=True)
+            video_path = os.path.join(self.save_dir, f"demo_generation_{int(time.time())}.mp4")
+            
+            # 启动录制线程
+            recorder_thread = threading.Thread(
+                target=self._background_recorder,
+                args=(env, cam_id, stop_event, shared_status)
+            )
+            recorder_thread.start()
+        
+        sampling_kwargs = {
+            'normal_variance_threshold': self.normal_variance_threshold,
+            'slope_threshold': self.slope_threshold,
+            'safety_margin_cm': self.safety_margin_cm,
+            'gaussian_kernel_size': self.gaussian_kernel_size,
+            'gaussian_sigma': self.gaussian_sigma,
+            'fast_test_mode': self.fast_test_mode,
+            'save_dir': self.save_dir,
+            'ring_inner_radius_offset': 300,
+            'ring_outer_radius_offset': 500,
+            'min_angle_separation_deg': 35,
+            'min_cam_to_agent_dist': 200,
+            'unreal_lock': self.unreal_lock
+        }
+
+        for attempt in range(max_retry):
+            try:
+                print(f"\n[Wrapper] 尝试第 {attempt+1} 次采样...")
+                # pre processing
+                session_state, object_list = self.agent_point_sampler.prepare_sampling_session(
+                    env=self.env.unwrapped,
+                    agent_configs=agent_configs,
+                    vehicle_zones=vehicle_zones,
+                    cam_id=cam_id,
+                    height=self.camera_height,
+                    **sampling_kwargs
+                )
+                if 'img_points' in session_state:
+                    shared_status['img_points'] = session_state['img_points']
+                if 'depths' in session_state:
+                    shared_status['depths'] = session_state['depths']
+                # 初始化动态数据
+                shared_status['valid_mask'] = session_state.get('valid_mask')
+                shared_status['occupied_areas'] = []            
+
+                # iterative sampling
+                success_count = 0
+                total_needed = len(object_list)
+                
+                for i, obj_info in enumerate(object_list):
+                    # update obj info for recorder
+                    agent_name_preview = obj_info[3]
+                    next_obj_info = {
+                        'name': obj_info[3],
+                        'length': obj_info[1],
+                        'width': obj_info[2],
+                        'agent_type': obj_info[0],
+                        'rotation': [0, 0, 0] # 初始旋转，或者从 sampler 获取预设旋转
+                    }
+                    shared_status['next_object'] = next_obj_info
+                    shared_status['text'] = f"Thinking: {agent_name_preview}..."
+                    
+                    sampled_data = self.agent_point_sampler.sample_single_object(
+                        session_state, 
+                        obj_info, 
+                        experiment_config=sampling_kwargs,
+                        step_index=i
+                    )
+                    if sampled_data:
+                        success_count += 1
+                        # 在环境中摆放物体
+                        agent_type = sampled_data["agent_type"]
+                        agent_name = sampled_data["name"]
+                        refer_agent = env.refer_agents[env.agent_configs[agent_type]['name'][0]]
+                        if refer_agent['agent_type'] == 'car':
+                            refer_agent['class_name'] = sampled_data['type']
+                        agent_pose = sampled_data["position"] + sampled_data["rotation"]
+                        env.target_start.append(agent_pose)
+                        with self.unreal_lock:
+                            env.agents[f'{agent_name}'] = env.add_agent(agent_name, agent_pose, refer_agent)
+                        
+                        if 'valid_mask' in session_state:
+                            shared_status['valid_mask'] = session_state['valid_mask'].copy()
+                        if 'occupied_areas' in session_state:
+                            shared_status['occupied_areas'] = session_state['occupied_areas']
+                        
+                        shared_status['text'] = f"Placed: {sampled_data['name']}"
+                        time.sleep(0.5)                        
+                    
+                    
+                    else:
+                        print(f"物体 {obj_info[3]} 采样失败，跳过本次尝试。")
+                        break 
+
+                if success_count == total_needed:
+                    print(f"所有物体采样成功 ({success_count}/{total_needed})")
+                    
+                    results_dict = self.agent_point_sampler.finalize_sampling_session(
+                        session_state, 
+                        agent_configs, 
+                        cam_count=cam_count
+                    )
+                    
+                    env = results_dict['env']
+                    updated_configs = results_dict['agent_configs']
+                    camera_configs = results_dict['camera_configs']
+                    agent_sampling_center = results_dict['sampling_center']
+                    agent_sampling_radius = results_dict['sampling_radius']
+                    break
+            except Exception as e:
+                print(e)
+                raise ValueError("采样过程中出现异常，跳过本次尝试。")
+ 
+        if recorder_thread:
+            shared_status['text'] = "Done."
+            time.sleep(1.0)
+            stop_event.set()
+            recorder_thread.join()
+
         return env, updated_configs, camera_configs, agent_sampling_center, agent_sampling_radius

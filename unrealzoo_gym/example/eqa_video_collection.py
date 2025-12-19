@@ -136,7 +136,7 @@ def run_animation_sequence_in_background(unwrapped_env, agent_name, target_map, 
         animation_sequence = [animation_sequence]
         
     total_steps = len(animation_sequence)
-    
+    pick_up_flag = False
     for step_idx, animation_type in enumerate(animation_sequence):
         if stop_event.is_set(): break
 
@@ -150,14 +150,16 @@ def run_animation_sequence_in_background(unwrapped_env, agent_name, target_map, 
 
         if animation_type == 'pick_up':
             with lock:
-                loca = unwrapped_env.unrealcv.get_obj_location(agent_name)
-                rot = unwrapped_env.unrealcv.get_obj_rotation(agent_name)
-                theta = np.deg2rad(rot[1])
-                bias = [50*np.cos(theta-np.pi/2), 50*np.sin(theta-np.pi/2), 0]
-                loc = [loca[i] + bias[i] for i in range(3)]
-                unwrapped_env.unrealcv.new_obj(pick_up_class, target_name, loc, rot)
-                unwrapped_env.unrealcv.set_obj_color(target_name, np.random.randint(0, 255, 3))
-            
+                if not pick_up_flag:
+                    loca = unwrapped_env.unrealcv.get_obj_location(agent_name)
+                    rot = unwrapped_env.unrealcv.get_obj_rotation(agent_name)
+                    theta = np.deg2rad(rot[1])
+                    bias = [50*np.cos(theta-np.pi/2), 50*np.sin(theta-np.pi/2), 0]
+                    loc = [loca[i] + bias[i] for i in range(3)]
+                    unwrapped_env.unrealcv.new_obj(pick_up_class, target_name, loc, rot)
+                    unwrapped_env.unrealcv.set_obj_color(target_name, np.random.randint(0, 255, 3))
+                    pick_up_flag = True
+
             time.sleep(1)
             with lock:
                 unwrapped_env.unrealcv.set_animation(agent_name, animation_type)
@@ -167,13 +169,15 @@ def run_animation_sequence_in_background(unwrapped_env, agent_name, target_map, 
             if target_name:
                 vehicle = target_name
                 with lock:
+                    unwrapped_env.unrealcv.set_max_speed(agent_name, 100)
                     loca = unwrapped_env.unrealcv.get_obj_location(vehicle)
                     rot = unwrapped_env.unrealcv.get_obj_rotation(vehicle)
                     theta = np.deg2rad(rot[1])
                     bias = [200*np.cos(theta+np.pi/2), 200*np.sin(theta+np.pi/2), 0]
                     loc = [loca[i] + bias[i] for i in range(3)]
-                    unwrapped_env.unrealcv.set_obj_location(agent_name, loc)
-                
+                    # unwrapped_env.unrealcv.set_obj_location(agent_name, loc)
+
+                    unwrapped_env.unrealcv.nav_to_goal_bypath(agent_name, loc)
                 time.sleep(0.5)
                 with lock:
                     unwrapped_env.unrealcv.set_obj_rotation(agent_name, rot)
@@ -201,6 +205,107 @@ def run_animation_sequence_in_background(unwrapped_env, agent_name, target_map, 
         time.sleep(0.5)
 
     print(f"[Thread-Animation] {agent_name} 动作序列结束。")
+
+def calculate_look_at_rotation(source_loc, target_loc):
+    """
+    计算从 source_loc 看向 target_loc 所需的 UnrealCV 旋转 (Pitch, Yaw, Roll)
+    """
+    dx = target_loc[0] - source_loc[0]
+    dy = target_loc[1] - source_loc[1]
+    dz = target_loc[2] - source_loc[2]
+    
+    distance_xy = math.sqrt(dx*dx + dy*dy)
+    
+    # 计算 Yaw (水平旋转)
+    yaw = math.degrees(math.atan2(dy, dx))
+    
+    # 计算 Pitch (垂直旋转)
+    # 注意：在 Unreal 中，看向下方通常是负 Pitch，但在某些坐标系可能是正。
+    # atan2(dz, dist) 算出的是仰角，看向下方物体 dz 为负，结果为负。
+    pitch = math.degrees(math.atan2(dz, distance_xy))
+    
+    return [pitch, yaw, 0.0]
+
+def get_optimal_camera_pose(unwrapped_env, agent_name, target_map, lock):
+    """
+    根据 Agent 和目标物体的位置，计算最佳第三视角相机位置和旋转。
+    """
+    points = []
+    
+    # 1. 获取 Agent 起始位置
+    with lock:
+        agent_loc = unwrapped_env.unrealcv.get_obj_location(agent_name)
+    points.append(np.array(agent_loc))
+    
+    # 2. 获取所有交互目标的位置
+    for step_idx, target_name in target_map.items():
+        if target_name:
+            with lock:
+                try:
+                    t_loc = unwrapped_env.unrealcv.get_obj_location(target_name)
+                    points.append(np.array(t_loc))
+                except:
+                    print(f"Warning: Could not get location for target {target_name}")
+
+    if not points:
+        return None, None
+
+    # 3. 计算几何中心 (Camera LookAt Point)
+    points_np = np.array(points)
+    center = np.mean(points_np, axis=0)
+    
+    # 4. 计算场景跨度 (用于决定相机距离)
+    # 计算所有点到中心的距离，取最大值
+    distances = np.linalg.norm(points_np - center, axis=1)
+    max_dist = np.max(distances)
+    
+    # 基础距离参数
+    min_camera_dist = 250.0 # 最小距离 (cm)
+    scale_factor = 2.0      # 距离缩放因子
+    camera_dist = max(min_camera_dist, max_dist * scale_factor)
+    
+    # 5. 确定相机方位
+    # 策略：如果有点的移动，取垂直于移动向量的方向；如果是原地动作，取默认前方偏移。
+    if len(points) > 1:
+        # 动作向量：起点 -> 终点
+        start_pt = points[0]
+        end_pt = points[-1]
+        move_vec = end_pt - start_pt
+        
+        # 如果移动距离太小，视为原地
+        if np.linalg.norm(move_vec) < 50:
+            offset_dir = np.array([1, 1, 0]) # 默认 45度
+        else:
+            # 计算垂直向量 (-y, x) 得到侧面视角
+            offset_dir = np.array([-move_vec[1], move_vec[0], 0])
+    else:
+        # 只有一个点（原地动作），默认放在侧前方
+        offset_dir = np.array([1, 1, 0])
+
+    # 归一化方向向量
+    norm = np.linalg.norm(offset_dir)
+    if norm > 0:
+        offset_dir = offset_dir / norm
+    else:
+        offset_dir = np.array([1, 0, 0])
+
+    # 6. 计算最终相机位置
+    # 位置 = 中心 + 方向偏移 * 距离 + 高度偏移
+    camera_height = max(800, camera_dist * 0.5) # 距离越远，相机越高
+    
+    cam_x = center[0] + offset_dir[0] * camera_dist
+    cam_y = center[1] + offset_dir[1] * camera_dist
+    cam_z = center[2] + camera_height
+    
+    final_cam_loc = [cam_x, cam_y, cam_z]
+    
+    # 7. 计算旋转 (Look At Center)
+    final_cam_rot = calculate_look_at_rotation(final_cam_loc, center)
+    
+    print(f"[Camera-Algo] Center: {center}, Radius: {max_dist}, CamDist: {camera_dist}")
+    return final_cam_loc, final_cam_rot
+
+
 
 
 if __name__ == '__main__':
@@ -280,8 +385,11 @@ if __name__ == '__main__':
                 ]
             # some configs
             graph_path = f"./agent_configs_sampler/points_graph/{env_name}/environment_graph_1.gpickle"
-    
             graph_path = os.path.join(current_dir, graph_path)
+            # use for event plot
+            bodyshot_path = os.path.join(current_dir, "./agent_caption/agent_render")
+            name_dict_path = os.path.join(current_dir, "./agent_configs_sampler/agent_caption/agent_name.json")
+            
             batch = datetime.now().strftime("%m%d-%H%M%S")
             obs_name = "BP_Character_C_1"
             action = [-1]
@@ -307,6 +415,8 @@ if __name__ == '__main__':
                 if_cnt=args.if_cnt,
                 config_path=args.config_path,
                 obj_2_hide=obj_2_hide,
+                bodyshot_path=bodyshot_path,
+                name_dict_path=name_dict_path,
                 use_adaptive=args.use_adaptive,
                 normal_variance_threshold=0.1,      # 从 0.05 -> 0.1 (更宽松的光滑度)
                 slope_threshold=0.5,                # 从 0.866 -> 0.5 (60°，更宽松的坡度)
@@ -326,6 +436,9 @@ if __name__ == '__main__':
             try:
                 while save_cnt <= 21:
                     state, info = env.reset()
+                    agent_num = len(list(env.unwrapped.agents.keys()))
+                    actions = action*(agent_num + 1)
+                    # _,_,_,_,_ = env.step(actions)
                     print("state shape:", state.shape)
                     obj_dict = info['object_dict']
                     if obj_dict == {}:
@@ -333,7 +446,7 @@ if __name__ == '__main__':
                         continue
                     current_target_configs = env.unwrapped.target_configs
                     safe_start = env.unwrapped.safe_start[0]
-                    agent_num = len(list(env.unwrapped.agents.keys()))
+                    
                     instance_id = info["batch_id"]
                     if args.if_cnt is False:
                         base_gt_path = os.path.join(current_dir, f"GT_test/{env_name}")
@@ -349,7 +462,7 @@ if __name__ == '__main__':
                     # update_camera_configs
                     env.unwrapped.unrealcv.cam = env.unwrapped.unrealcv.get_camera_config()
                     env.unwrapped.update_camera_assignments()
-                    cam_id = env.unwrapped.agents[obs_name]['cam_id']
+                    # cam_id = env.unwrapped.agents[obs_name]['cam_id']
                     # sample obs
                     collected_images_for_instance = []  # record obs
                     cam_position = env.unwrapped.camera_position
@@ -359,14 +472,29 @@ if __name__ == '__main__':
                     cur_pose = cam_position[0]
                     cur_location = cur_pose[0:3]
                     cur_rotation = cur_pose[3: ]
+                    # set camera id
+                    fp_cam_id = env.unwrapped.agents[obs_name]['cam_id']
+                    # spawn new tp cam
+                    env.unwrapped.unrealcv.set_new_camera()
+                    env.unwrapped.unrealcv.cam = env.unwrapped.unrealcv.get_camera_config()
+                    env.unwrapped.update_camera_assignments()
+                    tp_cam_id = env.unwrapped.vacant_cam_id[1] 
+                    print(f"[Main-Loop] 第一视角相机 ID: {fp_cam_id}, 第三视角相机 ID: {tp_cam_id}")
 
-                    
                     # obj animation and recording
-                    for agent_name, animation_data in zip(player_info['name'], player_info['animation']):
+                    # for agent_name, animation_data in zip(player_info['name'], player_info['animation']):
+                    for agent_name, animation in zip(player_info['name'], player_info['animation']):
+                        if animation != "stand":
+                            continue
+                        # 这里为了测试，使用固定的动作序列
+                        animation_data = ["pick_up", "in_vehicle", "in_vehicle"]  # For testing purpose, fixed sequence
                         env.unwrapped.unrealcv.set_obj_location(obs_name, cur_location)
                         env.unwrapped.unrealcv.set_obj_rotation(obs_name, cur_rotation)
                         # 确保是列表
-                        animation_sequence = animation_data if isinstance(animation_data, list) else [animation_data]
+                        if isinstance(animation_data, list):
+                            animation_sequence = animation_data
+                        else:
+                            continue
                         
                         print(f"\n[Main-Loop] 开始处理角色 '{agent_name}' 的意图序列: {animation_sequence}")
 
@@ -377,14 +505,18 @@ if __name__ == '__main__':
 
                         # --- 预处理 target_map ---
                         target_map = {}
-                        
+                        pick_up_flag = False
+                        pick_up_name = ""
                         for idx, action_type in enumerate(animation_sequence):
                             if action_type == 'pick_up':
-                                pick_up_class = "BP_GrabMoveDrop_C"
-                                # 加上 idx 防止同一个序列多次捡东西名字冲突
-                                pick_up_name = f"{pick_up_class}_{agent_name}_{idx}" 
-                                unwrapped_env.pickup_list.append(pick_up_name)
+                                if not pick_up_flag:
+                                    pick_up_class = "BP_GrabMoveDrop_C"
+                                    # 加上 idx 防止同一个序列多次捡东西名字冲突
+                                    pick_up_name = f"{pick_up_class}_{agent_name}_{idx}" 
+                                    unwrapped_env.pickup_list.append(pick_up_name)
+                                    pick_up_flag = True
                                 target_map[idx] = pick_up_name
+                        
                                 
                             elif action_type == 'in_vehicle':
                                 agent_type = 'car'
@@ -410,7 +542,13 @@ if __name__ == '__main__':
                                         print(f"Warning: Found vehicle list but calculation failed for {agent_name} step {idx}.")
                                 else:
                                     print(f"Warning: No vehicle found for {agent_name} at step {idx}. Action may fail.")
-
+                        # set optimal camera pose
+                        optimal_cam_loc, optimal_cam_rot = get_optimal_camera_pose(unwrapped_env, agent_name, target_map, unreal_lock)
+                        if optimal_cam_loc and optimal_cam_rot:
+                            with unreal_lock:
+                                env.unwrapped.unrealcv.set_cam_location(tp_cam_id, optimal_cam_loc)
+                                env.unwrapped.unrealcv.set_cam_rotation(tp_cam_id, optimal_cam_rot)
+                            print(f"[Main-Loop] 已设置第三视角相机到位置: {optimal_cam_loc}, 旋转: {optimal_cam_rot}")
                         # --- 启动后台线程 ---
                         animation_thread = threading.Thread(
                             target=run_animation_sequence_in_background,
@@ -422,26 +560,28 @@ if __name__ == '__main__':
                         # --- 移动观察者到合适位置 (可选，这里使用默认位置) ---
                         loc = env.unwrapped.unrealcv.get_obj_location(agent_name)
                         with unreal_lock:
+                            env.unwrapped.unrealcv.set_max_speed(obs_name, 100)
+                            time.sleep(0.1)
                             env.unwrapped.unrealcv.nav_to_goal_bypath(obs_name, loc[:3])
 
                         # 阶段 1: 录制第一个动作 (QA Agent 初始化视频)
                         print(f"[Main-Thread] 正在录制第一阶段 (初始化视频)...")
-                        video_frames_phase_1 = []
-                        
+                
+                        agent_video_frame_p1 = []
+                        third_video_frame_p1 = []
                         # 循环直到收到 snapshot 
                         while not snapshot_event.is_set():
                             with unreal_lock:
-                                obs = env.unwrapped.unrealcv.read_image(cam_id, 'lit', mode='direct')
-                            if obs is not None:
-                                # 修复颜色通道 (RGB -> BGR)
-                                obs = cv2.cvtColor(obs, cv2.COLOR_RGB2BGR)
-                                video_frames_phase_1.append(obs)
-                            time.sleep(0.05) 
-                        
-                        print(f"[Main-Thread] 第一阶段录制结束，捕获帧数: {len(video_frames_phase_1)}")
+                                agent_obs = env.unwrapped.unrealcv.read_image(fp_cam_id, 'lit', mode='direct')
+                                third_obs = env.unwrapped.unrealcv.read_image(tp_cam_id, 'lit', mode='direct')
+                            agent_video_frame_p1.append(agent_obs)
+                            third_video_frame_p1.append(third_obs)
+                            time.sleep(0.01) 
+                        # set pause
                         with unreal_lock:
                             env.unwrapped.unrealcv.set_pause()
                         
+                        print(f"[Main-Thread] 第一阶段录制结束，捕获帧数: {len(agent_video_frame_p1)}")
                         # 阶段 2: 保存环境快照 (Environment Reproduction)
                         print(f"[Main-Thread] 正在保存环境状态快照...")
                         env_snapshot = save_environment_snapshot(unwrapped_env, unreal_lock)
@@ -454,32 +594,27 @@ if __name__ == '__main__':
                         with open(snapshot_path, 'w') as f:
                             json.dump(env_snapshot, f, indent=4)
                         print(f"[Main-Thread] 快照已保存: {snapshot_path}")
-
+                        
                         with unreal_lock:   
                             env.unwrapped.unrealcv.set_resume()
-                        # 阶段 3: 录制剩余动作 (意图理解视频)
-                        print(f"[Main-Thread] 通知线程继续，开始录制第二阶段 (意图视频)...")
                         resume_event.set() # 通知线程继续
                         
-                        video_frames_phase_2 = []
+                        third_video_frame_p2 = []
                         # 循环直到线程结束
                         while animation_thread.is_alive():
                             with unreal_lock:
-                                obs = env.unwrapped.unrealcv.read_image(cam_id, 'lit', mode='direct')
-                            if obs is not None:
-                                # 修复颜色通道 (RGB -> BGR)
-                                obs = cv2.cvtColor(obs, cv2.COLOR_RGB2BGR)
-                                video_frames_phase_2.append(obs)
-                            time.sleep(0.05)
+                                third_obs = env.unwrapped.unrealcv.read_image(tp_cam_id, 'lit', mode='direct')
+                                third_video_frame_p2.append(third_obs)
+                            time.sleep(0.01)
                         
-                        print(f"[Main-Thread] 第二阶段录制结束，捕获帧数: {len(video_frames_phase_2)}")
+                        print(f"[Main-Thread] 第二阶段录制结束，捕获帧数: {len(third_video_frame_p2)}")
                         
                         # --- 阶段 4: 保存视频 ---
                         # 视频 1: 给 QA Agent 用的 (仅包含第一个动作)
-                        save_data({}, video_frames_phase_1, os.path.join(agent_trace_dir, "video_init"))
+                        save_data({}, agent_video_frame_p1, os.path.join(agent_trace_dir, "video_agent_init"))
                         
                         # 视频 2: 完整的意图视频 (拼接)
-                        full_video = video_frames_phase_1 + video_frames_phase_2
+                        full_video = third_video_frame_p1 + third_video_frame_p2
                         save_data({}, full_video, os.path.join(agent_trace_dir, "video_full_intent"))
 
                         # 清理

@@ -3,13 +3,58 @@ import numpy as np
 import json
 import cv2
 import os # 确保导入 os 模块
-os.environ["ARK_API_KEY"] = "1da99d32-75da-4384-b943-b2e240c2e8bb" # 设置 API Key
-client = OpenAI(
-    # 此为默认路径，您可根据业务所在地域进`行配置
-    base_url="https://ark.cn-beijing.volces.com/api/v3",
-    # 从环境变量中获取您的 API Key。此为默认方式，您可根据需要进行修改
-    api_key=os.environ.get("ARK_API_KEY"),
-)
+from dotenv import load_dotenv
+load_dotenv(override=True)  
+
+def load_model_config(config_path="model_config.json"):
+    """加载模型配置文件"""
+    try:
+        with open(config_path, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except FileNotFoundError:
+        print(f"模型配置文件 {config_path} 不存在，使用默认配置")
+        return None
+    except json.JSONDecodeError:
+        print(f"模型配置文件 {config_path} 格式错误")
+        return None
+
+
+def create_client(model_name="doubao", config_path="model_config.json"):
+    """根据模型名称创建OpenAI客户端"""
+    config = load_model_config(config_path)
+    
+    if config is None:
+        raise ValueError(f"无法加载模型配置文件 {config_path}")
+    
+    model_config = config["models"].get(model_name)
+    if model_config is None:
+        print(f"模型 {model_name} 配置不存在，使用默认模型")
+        model_name = config["default_model"]
+        model_config = config["models"][model_name]
+    key_name = model_config["api_key_env"]
+    # 从环境变量获取API密钥
+    api_key = os.environ.get(key_name)
+    if not api_key:
+        raise ValueError(f"环境变量 {key_name} 未设置")
+
+    client = OpenAI(
+        base_url=model_config["base_url"],
+        api_key=api_key
+    )
+    
+    return client, model_config["model_name"], model_config
+
+
+client = None
+current_model_name = None
+current_model_config = None
+
+def initialize_model(model_name="doubao",model_config_path="model_config.json"):
+    
+    global client, current_model_name, current_model_config
+    client, current_model_name, current_model_config = create_client(model_name,model_config_path)
+    print(f"Initialize model: {model_name} ({current_model_name})")
+
 
 
 # system_prompt_player = """
@@ -42,6 +87,13 @@ system_prompt_vehicle = """
     We provide you with the front view, side view and back view of a vehicle.
     Create a description of the main, distinct object with concise, up to 20 words. 
     Highlight its appearance,color,shape,style and structure.
+    Do not return content with a period.
+"""
+
+system_prompt_obj = """
+    We provide you with the front view, side view and top-down view of an object.
+    Create a description of the main, distinct object with concise, up to 20 words. 
+    Highlight its category, appearance,color and shape.
     Do not return content with a period.
 """
 
@@ -105,10 +157,10 @@ def image_captioning(image0,image1,image2):
     base64_image1 = encode_image_array(image1)
     base64_image2 = encode_image_array(image2)
     response = client.chat.completions.create(
-        model='doubao-1.5-vision-pro-250328', # 确保模型名称正确
-        max_tokens=300,
+        model=current_model_name, # 确保模型名称正确
+        max_tokens=10000,
         messages=[
-            {"role": "system", "content": system_prompt_vehicle},
+            {"role": "system", "content": system_prompt_obj},
             {"role": "user", "content": [
                 {
                 "type": "image_url",
@@ -134,19 +186,21 @@ def image_captioning(image0,image1,image2):
 if __name__ == "__main__":
     all_agent_types_data = {
         "player": [1,2,3,4,5,6,7,8,9,10,11,12,13,15,16, 17,19],
-        #"animal": [0, 1, 2, 3, 6, 10, 11, 12, 14, 15, 16, 19, 20, 21, 22, 23, 25, 26, 27],
+        "animal": [0, 1, 2, 3, 6, 10, 11, 12, 14, 15, 16, 19, 20, 21, 22, 23, 25, 26, 27],
         "animal":[16],
         "drone": [0],
         "car": ["BP_Hatchback_child_base_C","BP_Hatchback_child_extras_C","BP_Hatchback_child_police_C","BP_Hatchback_child_taxi_C","BP_Sedan_child_base_C","BP_Sedan_child_extras_C","BP_Sedan_child_police_C","BP_Sedan_child_taxi_C"],
-        "motorbike": [0,1,2,3,4,5,6,7,8] # 添加 motorbike 类型
+        "motorbike": [0,1,2,3,4,5,6,7,8],
+        "pickup_items": [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20]
     }
     #agent_type = "animal"
+    agent_type = "pickup_items"
     generated_features_data = {} # 用于存储所有生成的字幕
 
     # 选择要处理的 agent_type，或者可以遍历 all_agent_types_data.keys() 来处理所有类型
     # agent_types_to_process = ["player", "animal", "drone", "car", "motorbike"]
-    agent_types_to_process = ["car"] # 例如，只处理 player 类型
-
+    agent_types_to_process = ["pickup_items"] # 例如，只处理 player 类型
+    initialize_model("gemini_2.5_pro", "E:/EQA/unrealzoo_gym/example/solution/model_config.json")
     for agent_type in agent_types_to_process:
         if agent_type not in all_agent_types_data:
             print(f"Agent type {agent_type} not defined in all_agent_types_data. Skipping.")
@@ -188,12 +242,12 @@ if __name__ == "__main__":
                 generated_features_data[agent_type][id_val] = {"error": f"ERROR_PROCESSING:_{e}"}
 
 
-    output_dir = "./agent_caption/"
+    output_dir = "./agent_caption/pickup_items" 
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
         print(f"Created directory: {output_dir}")
 
-    output_json_path = os.path.join(output_dir, "agent_features.json") # Changed filename
+    output_json_path = os.path.join(output_dir,"agent_features.json") # Changed filename
     
     # 如果文件已存在，并且您想追加或合并，需要先读取现有数据
     existing_data = {}

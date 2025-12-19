@@ -34,7 +34,7 @@ class RandomAgent(object):
         self.count_steps = 0
         self.action = self.action_space.sample()
 
-    def act(self, observation, keep_steps=10):
+    def act(self, keep_steps=10):
         self.count_steps += 1
         if self.count_steps > keep_steps:
             self.action = self.action_space.sample()
@@ -503,10 +503,10 @@ if __name__ == '__main__':
     parser.add_argument("-n", '--nav-agent', dest='nav_agent', action='store_true', help='use nav agent to control the agents')
     parser.add_argument("-d", '--early-done', dest='early_done', default=-1, help='early_done when lost in n steps')
     parser.add_argument("-m", '--monitor', dest='monitor', action='store_true', help='auto_monitor')
-    parser.add_argument("--max_step", dest='max_step', type=int, default=5000, help='max steps to collect reachable points')
+    parser.add_argument("--max_step", dest='max_step', type=int, default=3000, help='max steps to collect reachable points')
     parser.add_argument("--save_path", dest='save_path', default=os.path.dirname(__file__), help='where to save the results')
 
-    args = parser.parse_args([])  # 使用空列表避免从命令行解析参数
+    args = parser.parse_args()  # 使用空列表避免从命令行解析参数
     env_name = args.env_name
     max_step = args.max_step
     # 为每个环境设置env_id

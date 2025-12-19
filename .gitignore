@@ -14,6 +14,8 @@ unrealzoo_gym/example/datacollection/
 unrealzoo_gym/example/GT_info/
 unrealzoo_gym/example/QA_Data/
 unrealzoo_gym/example/experiment_results/
+unrealzoo_gym/example/test_results/
+unrealzoo_gym/example/QA_data_sub/
 dinov3/
 unrealzoo_gym/example/obj_picker.py
 unrealzoo_gym/example/watch_dog.py
