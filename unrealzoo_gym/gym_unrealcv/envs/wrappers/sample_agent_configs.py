@@ -145,7 +145,7 @@ class SampleAgentConfigWrapper(Wrapper):
             env.num_agents = sum(agent_type_counts.values()) + len(env.player_list)
             sampled_agent, name_mapping_dict = self.agent_sampler.sample_with_specific_counts_no_repeat(agent_type_counts)
             # test sampling
-            env, agent_configs, camera_configs, sample_center,sample_radius = self.sample_agent_configs_test(env,sampled_agent, cam_id=0,vehicle_zones=vehicle_zones)
+            env, agent_configs, camera_configs, sample_center,sample_radius,recording_info = self.sample_agent_configs_test(env,sampled_agent, cam_id=0,vehicle_zones=vehicle_zones)
         else:
             num_agents = random.randint(self.min_total_agents, self.max_total_agents)
             sampled_agent, name_mapping_dict = self.agent_sampler.sample_agent_typid(agent_type_category=self.agent_category, agent_num=num_agents)
@@ -196,9 +196,10 @@ class SampleAgentConfigWrapper(Wrapper):
             self.set_population(env, env.num_agents)
 
         # show object
-        if self.obj_2_hide is not None:
-            env.unrealcv.set_show_objects(self.obj_2_hide)
+        # if self.obj_2_hide is not None:
+        #     env.unrealcv.set_show_objects(self.obj_2_hide)
         states,info_reset = self.env.reset(**kwargs) # Renamed 'info' to 'info_reset'
+        info_reset['recording_info'] = recording_info
         return states,info_reset
     
     def set_population(self, env,num_agents):
@@ -388,7 +389,9 @@ class SampleAgentConfigWrapper(Wrapper):
         side_frames_dir = os.path.join(frames_dir, "side_view")
         os.makedirs(tp_frames_dir, exist_ok=True)
         os.makedirs(side_frames_dir, exist_ok=True)
-
+        shared_status['frames_dir'] = frames_dir 
+        shared_status['tp_frames_dir'] = tp_frames_dir
+        shared_status['side_frames_dir'] = side_frames_dir
         
         print(f"[Recorder] 启动后台录制，帧保存至: {frames_dir}")
         
@@ -428,7 +431,8 @@ class SampleAgentConfigWrapper(Wrapper):
                 (w, h), baseline = cv2.getTextSize(line, font, font_scale, thickness)
                 current_y = y + i * (h + line_height_padding)
                 cv2.putText(img, line, (x, current_y), font, font_scale, color, thickness)
-
+        # tp_view = []
+        # side_view = []
         while not stop_event.is_set():
             try:
                 # 1. 获取原始图像
@@ -474,9 +478,12 @@ class SampleAgentConfigWrapper(Wrapper):
                         )
                     top_down_filename = os.path.join(tp_frames_dir, f"frame_{frame_idx:05d}.png")
                     side_view_filename = os.path.join(side_frames_dir, f"frame_{frame_idx:05d}.png")
+                    # shared_status['tp_view'].append(top_down_frame)
+                    # shared_status['side_view'].append(side_view_frame)
                     cv2.imwrite(top_down_filename, top_down_frame)
                     cv2.imwrite(side_view_filename, side_view_frame)
                     frame_idx += 1
+                    shared_status['last_frame_idx'] = frame_idx
 
             except Exception as e:
                 print(f"[Recorder] Error: {e}")
@@ -570,7 +577,13 @@ class SampleAgentConfigWrapper(Wrapper):
             'occupied_areas': [],
             'next_object': None,
             'tp_cam_id': None,
-            'side_cam_id': None
+            'side_cam_id': None,
+            'tp_view_index': 0,
+            'side_view_index': 0,
+            'last_frame_idx': 0,
+            'frames_dir' :None, 
+            'tp_frames_dir': None,
+            'side_frames_dir' : None
         }
         recorder_thread = None
 
@@ -624,6 +637,8 @@ class SampleAgentConfigWrapper(Wrapper):
                 with self.unreal_lock:
                     env.unrealcv.set_cam_location(side_cam_id, side_view_pose[:3])
                     env.unrealcv.set_cam_rotation(side_cam_id, side_view_pose[3:])
+                shared_status['tp_cam_pose'] = cam_pose_now
+                shared_status['side_cam_pose'] = side_view_pose
                 shared_status['tp_cam_id'] = tp_cam_id
                 shared_status['side_cam_id'] = side_cam_id
 
@@ -658,7 +673,7 @@ class SampleAgentConfigWrapper(Wrapper):
                     shared_status['next_object'] = next_obj_info
                     if i == 0:
                         shared_status['text'] = f"There are 5 persons and 3 cars.Please use them to construct a reasonable traffic scene."
-                        time.sleep(5.0)
+                        time.sleep(15.0)
                     shared_status['text'] = f"Now, consider the location of {agent_name_preview}"
                     sampled_data = self.agent_point_sampler.sample_single_object(
                         session_state, 
@@ -728,8 +743,16 @@ class SampleAgentConfigWrapper(Wrapper):
  
         if recorder_thread:
             shared_status['text'] = "All objects placed."
-            time.sleep(5.0)
+            time.sleep(15.0)
             stop_event.set()
             recorder_thread.join()
+        recording_info = {
+            'last_frame_idx': shared_status.get('last_frame_idx', 0),
+            'frames_dir': shared_status.get('frames_dir', ''),
+            'tp_frames_dir': shared_status.get('tp_frames_dir', ''),
+            'side_frames_dir': shared_status.get('side_frames_dir', ''),
+            'tp_cam_pose': shared_status.get('tp_cam_pose', []),
+            'side_cam_pose': shared_status.get('side_cam_pose', [])
+        }
 
-        return env, updated_configs, camera_configs, agent_sampling_center, agent_sampling_radius
+        return env, updated_configs, camera_configs, agent_sampling_center, agent_sampling_radius, recording_info

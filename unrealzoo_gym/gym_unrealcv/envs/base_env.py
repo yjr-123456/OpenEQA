@@ -281,13 +281,13 @@ class UnrealCv_base(gym.Env):
             #         self.unrealcv.set_appearance(obj, app_id)
             #         time.sleep(3.0)
             #         print(f"======set appearance for {obj}, app_id:{app_id}")
-            for i, obj in enumerate(self.target_list):
-                #self.unrealcv.set_obj_color(obj, self.agent_color[self.agents[obj]['color']])
-                animation = self.target_agents[obj]['animation']
-                if animation == 'None' or animation == 'stand':
-                    continue
-                elif animation == 'crouch' or animation == 'liedown':
-                    self.unrealcv.set_animation(obj, animation)
+            # for i, obj in enumerate(self.target_list):
+            #     #self.unrealcv.set_obj_color(obj, self.agent_color[self.agents[obj]['color']])
+            #     animation = self.target_agents[obj]['animation']
+            #     if animation == 'None' or animation == 'stand':
+            #         continue
+            #     elif animation == 'crouch' or animation == 'liedown':
+            #         self.unrealcv.set_animation(obj, animation)
                 # elif animation == 'pick_up':
                 #     batch_id = obj.split('_')[-1]  # get the batch id from the object name
                 #     loca = self.unrealcv.get_obj_location(obj)
@@ -770,15 +770,19 @@ class UnrealCv_base(gym.Env):
         self.unrealcv.set_obj_color(name, np.random.randint(0, 255, 3))
         self.unrealcv.set_random(name, 0)
         self.unrealcv.set_interval(self.interval, name)
-        self.unrealcv.set_obj_location(name, loca)
-        time.sleep(0.5)
-        self.unrealcv.set_phy(name, 0)
+        # self.unrealcv.set_obj_location(name, loca)
         # time.sleep(0.5)
-        self.unrealcv.set_obj_rotation(name, rot)
-        time.sleep(1)
+        # self.unrealcv.set_phy(name, 0)
+        # time.sleep(0.5)
+        # self.unrealcv.set_obj_rotation(name, rot)
+        # time.sleep(0.5)
+        # self.unrealcv.set_phy(name, 1)
+        time.sleep(0.5)
         if cur_agent_type not in ['car','motorbike']:
             app_id = self.target_agents[name]['app_id'] if app_id is None else app_id
             self.unrealcv.set_appearance(name, app_id)
+            # time.sleep(0.5)
+            # self.unrealcv.set_phy(name, 1)
         # transform action space
         action_spaces = [self.define_action_space(self.action_type, agent_info=self.agents[obj]) 
                                 for obj in self.player_list[:-1]]
