@@ -721,7 +721,7 @@ class UnrealCv_base(gym.Env):
 
         return info
 
-    def add_agent(self, name, loc, refer_agent):
+    def add_agent(self, name, loc, refer_agent, app_id=None):
         """
         Add a new agent to the environment.
 
@@ -773,11 +773,12 @@ class UnrealCv_base(gym.Env):
         self.unrealcv.set_obj_location(name, loca)
         time.sleep(0.5)
         self.unrealcv.set_phy(name, 0)
-        time.sleep(0.5)
+        # time.sleep(0.5)
         self.unrealcv.set_obj_rotation(name, rot)
         time.sleep(1)
         if cur_agent_type not in ['car','motorbike']:
-            self.unrealcv.set_appearance(name, self.target_agents[name]['app_id'])
+            app_id = self.target_agents[name]['app_id'] if app_id is None else app_id
+            self.unrealcv.set_appearance(name, app_id)
         # transform action space
         action_spaces = [self.define_action_space(self.action_type, agent_info=self.agents[obj]) 
                                 for obj in self.player_list[:-1]]

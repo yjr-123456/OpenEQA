@@ -41,7 +41,7 @@ class UnrealCvEQA_DATA(UnrealCvEQA_general):
                                     reset_type=reset_type)
         #self.info['tsdf_info'] = self.tsdf_info
         #self.info['explore_offset'] = self.explore_offset
-        self.name_mapping_dict = load_json_file("E:/EQA/unrealzoo_gym/example/agent_configs_sampler/agent_caption/agent_name.json")
+        self.name_mapping_dict = load_json_file("./agent_configs_sampler/agent_caption/agent_name.json")
         self.name_mapping = {}
 
 

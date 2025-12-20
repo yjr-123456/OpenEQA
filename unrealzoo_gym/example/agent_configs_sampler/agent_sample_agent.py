@@ -507,10 +507,10 @@ class AgentBasedSampler(GraphBasedSampler):
         # 基于物体类型的朝向策略
         if obj_type in ['car', 'motorbike']:
             # 车辆倾向于标准道路方向（0°, 45°, -45°, 135°, -135°, 180°）
-            standard_directions = [0, 45, -45, 135, -135, 180]
+            standard_directions = [0, 180]
             base_yaw = random.choice(standard_directions)
             # 添加小的随机偏差让朝向更自然
-            return base_yaw + random.uniform(-15, 15)
+            return base_yaw + random.uniform(-1, 1)
         
         elif obj_type == 'drone':
             # 无人机可以任意朝向，但偏好开阔方向

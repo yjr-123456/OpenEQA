@@ -437,7 +437,7 @@ class AgentBasedSamplerboost(AgentBasedSampler):
             with unreal_lock:
                 env.unrealcv.set_cam_location(cam_id, np.append(agent_sampling_center_pos[:2], agent_sampling_center_pos[2] + height))
                 env.unrealcv.set_cam_rotation(cam_id, [-90, 0, 0])
-        
+                cam_pose_now = env.unrealcv.get_pose(cam_id)
         self.cam_relative_height = height
         
         # 3. 获取图像和投影信息
@@ -491,6 +491,7 @@ class AgentBasedSamplerboost(AgentBasedSampler):
             'occupied_areas': [],
             'sampled_objects': [],
             'orginal_cam_pose': orginal_cam_pose,
+            'now_cam_pose': cam_pose_now,
             'agent_sampling_center_pos': agent_sampling_center_pos,
             'W': self.W, 'H': self.H,
             'kwargs': kwargs

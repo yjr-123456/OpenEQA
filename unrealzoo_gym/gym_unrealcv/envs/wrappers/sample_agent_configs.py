@@ -145,7 +145,7 @@ class SampleAgentConfigWrapper(Wrapper):
             env.num_agents = sum(agent_type_counts.values()) + len(env.player_list)
             sampled_agent, name_mapping_dict = self.agent_sampler.sample_with_specific_counts_no_repeat(agent_type_counts)
             # test sampling
-            env, agent_configs, camera_configs, sample_center,sample_radius = self.sample_agent_configs_test(env,sampled_agent, cam_id=1,vehicle_zones=vehicle_zones)
+            env, agent_configs, camera_configs, sample_center,sample_radius = self.sample_agent_configs_test(env,sampled_agent, cam_id=0,vehicle_zones=vehicle_zones)
         else:
             num_agents = random.randint(self.min_total_agents, self.max_total_agents)
             sampled_agent, name_mapping_dict = self.agent_sampler.sample_agent_typid(agent_type_category=self.agent_category, agent_num=num_agents)
@@ -380,54 +380,102 @@ class SampleAgentConfigWrapper(Wrapper):
         return env, updated_configs, camera_configs, agent_sampling_center, agent_sampling_radius
     
 
-    def _background_recorder(self, env, cam_id, stop_event, shared_status):        
+    def _background_recorder(self, env, stop_event, shared_status):        
         timestamp = int(time.time())
         frames_dir = os.path.join(self.save_dir, f"frames_{timestamp}")
         os.makedirs(frames_dir, exist_ok=True)
+        tp_frames_dir = os.path.join(frames_dir, "top_down_view")
+        side_frames_dir = os.path.join(frames_dir, "side_view")
+        os.makedirs(tp_frames_dir, exist_ok=True)
+        os.makedirs(side_frames_dir, exist_ok=True)
+
         
         print(f"[Recorder] 启动后台录制，帧保存至: {frames_dir}")
         
         frame_idx = 0
         # fps = 40.0 
         # frame_interval = 1.0 / fps
-        
+        def draw_text_with_wrapping(img, text, position, font, font_scale, color, thickness, line_height_padding=10):
+            x, y = position
+            img_width = img.shape[1]
+            max_width = img_width - x - 20  # 留出右边距
+            
+            words = text.split(' ')
+            lines = []
+            current_line = []
+            
+            # 简单的分词换行逻辑
+            for word in words:
+                current_line.append(word)
+                # 测试当前行宽度
+                (w, h), _ = cv2.getTextSize(' '.join(current_line), font, font_scale, thickness)
+                if w > max_width:
+                    # 如果超宽，把最后一个词移到下一行
+                    if len(current_line) > 1:
+                        current_line.pop()
+                        lines.append(' '.join(current_line))
+                        current_line = [word]
+                    else:
+                        # 如果单个词都超宽，强制换行
+                        lines.append(' '.join(current_line))
+                        current_line = []
+            
+            if current_line:
+                lines.append(' '.join(current_line))
+            
+            # 逐行绘制
+            for i, line in enumerate(lines):
+                (w, h), baseline = cv2.getTextSize(line, font, font_scale, thickness)
+                current_y = y + i * (h + line_height_padding)
+                cv2.putText(img, line, (x, current_y), font, font_scale, color, thickness)
+
         while not stop_event.is_set():
             try:
                 # 1. 获取原始图像
+                tp_cam_id = shared_status.get('tp_cam_id')
+                side_cam_id = shared_status.get('side_cam_id')
                 with self.unreal_lock:
-                    raw_img = env.unrealcv.read_image(cam_id, 'lit')
-                
-                if raw_img is not None:
+                    top_down_img = env.unrealcv.read_image(tp_cam_id, 'lit')
+                    side_view_img = env.unrealcv.read_image(side_cam_id, 'lit')
+                if top_down_img is not None and side_view_img is not None:
                     # 2. 获取可视化所需的数据
-                    img_points = shared_status.get('img_points')
-                    valid_mask = shared_status.get('valid_mask')
-                    depths = shared_status.get('depths')
-                    occupied_areas = shared_status.get('occupied_areas')
-                    next_object = shared_status.get('next_object')
+                    # img_points = shared_status.get('img_points')
+                    # valid_mask = shared_status.get('valid_mask')
+                    # depths = shared_status.get('depths')
+                    # occupied_areas = shared_status.get('occupied_areas')
+                    # next_object = shared_status.get('next_object')
                     
-                    final_frame = raw_img
-                    
+                    top_down_frame = top_down_img.copy()
+                    side_view_frame = side_view_img.copy()
                     # 3. 调用采样器的可视化函数
-                    if img_points is not None and valid_mask is not None:
-                        h, w = raw_img.shape[:2]
-                        final_frame = self.agent_point_sampler.visualize_projected_points_unreal_with_next_object(
-                            obs_rgb=raw_img,
-                            image_points=img_points,
-                            valid_mask=valid_mask,
-                            depths=depths,
-                            W=w, H=h,
-                            occupied_areas=occupied_areas,
-                            next_object=next_object
-                        )
+
+                    # if img_points is not None and valid_mask is not None:
+                    #     h, w = raw_img.shape[:2]
+                    #     final_frame = self.agent_point_sampler.visualize_projected_points_unreal_with_next_object(
+                    #         obs_rgb=raw_img,
+                    #         image_points=img_points,
+                    #         valid_mask=valid_mask,
+                    #         depths=depths,
+                    #         W=w, H=h,
+                    #         occupied_areas=None,
+                    #         next_object=next_object
+                    #     )
                     
                     # 4. 叠加状态文字
                     status_text = shared_status.get('text', '')
                     if status_text:
-                        cv2.putText(final_frame, status_text, (30, 50), cv2.FONT_HERSHEY_SIMPLEX, 
-                                    1.0, (0, 0, 255), 2)
-
-                    frame_filename = os.path.join(frames_dir, f"frame_{frame_idx:05d}.png")
-                    cv2.imwrite(frame_filename, final_frame)
+                        draw_text_with_wrapping(
+                            top_down_frame, status_text, (30, 50), 
+                            cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 255), 2
+                        )
+                        draw_text_with_wrapping(
+                            side_view_frame, status_text, (30, 50), 
+                            cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 255), 2
+                        )
+                    top_down_filename = os.path.join(tp_frames_dir, f"frame_{frame_idx:05d}.png")
+                    side_view_filename = os.path.join(side_frames_dir, f"frame_{frame_idx:05d}.png")
+                    cv2.imwrite(top_down_filename, top_down_frame)
+                    cv2.imwrite(side_view_filename, side_view_frame)
                     frame_idx += 1
 
             except Exception as e:
@@ -441,6 +489,64 @@ class SampleAgentConfigWrapper(Wrapper):
             # time.sleep(sleep_time)
             
         print(f"[Recorder] 录制结束。共保存 {frame_idx} 帧到 {frames_dir}")
+
+    def calculate_side_view_pose(self, center_point, top_down_cam_loc):
+        """
+        Calculate a side-view camera pose by rotating the top-down camera position 
+        90 degrees around the center point.
+        
+        Args:
+            center_point (list/array): [x, y, z] of the sampling center.
+            top_down_cam_loc (list/array): [x, y, z] of the current top-down camera.
+            
+        Returns:
+            list: [x, y, z, pitch, yaw, roll] for the side-view camera.
+        """
+        import math
+        import numpy as np
+
+        def calculate_look_at_rotation(source_loc, target_loc):
+            """
+            计算从 source_loc 看向 target_loc 所需的 UnrealCV 旋转 (Pitch, Yaw, Roll)
+            """
+            dx = target_loc[0] - source_loc[0]
+            dy = target_loc[1] - source_loc[1]
+            dz = target_loc[2] - source_loc[2]
+            
+            distance_xy = math.sqrt(dx*dx + dy*dy)
+            
+            # 计算 Yaw (水平旋转)
+            yaw = math.degrees(math.atan2(dy, dx))
+            
+            # 计算 Pitch (垂直旋转)
+            # 注意：在 Unreal 中，看向下方通常是负 Pitch，但在某些坐标系可能是正。
+            # atan2(dz, dist) 算出的是仰角，看向下方物体 dz 为负，结果为负。
+            pitch = math.degrees(math.atan2(dz, distance_xy))
+            
+            return [pitch, yaw, 0.0]
+
+        center = np.array(center_point[:3])
+        current_cam = np.array(top_down_cam_loc[:3])
+        
+        # 1. Calculate new location (Rotate 90 degrees around Z axis)
+        vec = current_cam - center
+        radius = np.linalg.norm(vec)
+        # Rotation matrix for 90 degrees around Z:
+        # x_new = -y_old
+        # y_new = x_old
+        side_view_height_offset = 300
+        new_x = vec[0] 
+        new_y = -vec[2] if vec[2] > 0 else vec[2] # 将高度变成 Y 轴负方向的距离
+        new_z = side_view_height_offset # 保持一个低高度
+        
+        rotated_vec = np.array([new_x, new_y, new_z])
+        
+        new_loc = center + rotated_vec
+        
+        # 2. Calculate rotation to look at center
+        rotation = calculate_look_at_rotation(new_loc, center)
+        
+        return [new_loc[0], new_loc[1], new_loc[2], rotation[0], rotation[1], rotation[2]]
 
     def sample_agent_configs_test(self, env, agent_configs, cam_id=1, cam_count=8, vehicle_zones=None):
         """
@@ -462,20 +568,26 @@ class SampleAgentConfigWrapper(Wrapper):
             'valid_mask': None,
             'depths': None,
             'occupied_areas': [],
-            'next_object': None
+            'next_object': None,
+            'tp_cam_id': None,
+            'side_cam_id': None
         }
         recorder_thread = None
 
         if record_demo:
             os.makedirs(self.save_dir, exist_ok=True)
-            video_path = os.path.join(self.save_dir, f"demo_generation_{int(time.time())}.mp4")
+            # video_path = os.path.join(self.save_dir, f"demo_generation_{int(time.time())}.mp4")
             
-            # 启动录制线程
-            recorder_thread = threading.Thread(
-                target=self._background_recorder,
-                args=(env, cam_id, stop_event, shared_status)
-            )
-            recorder_thread.start()
+            # spawn a camera
+            env.unrealcv.cam = env.unrealcv.get_camera_config()
+            # env.update_camera_assignments()
+            env.unrealcv.set_new_camera()
+            # env.unrealcv.cam = env.unrealcv.get_camera_config()
+            env.unrealcv.set_new_camera()
+            env.unrealcv.cam = env.unrealcv.get_camera_config()
+            env.update_camera_assignments()
+            tp_cam_id = env.vacant_cam_id[1]        
+            side_cam_id = env.vacant_cam_id[2]
         
         sampling_kwargs = {
             'normal_variance_threshold': self.normal_variance_threshold,
@@ -500,10 +612,27 @@ class SampleAgentConfigWrapper(Wrapper):
                     env=self.env.unwrapped,
                     agent_configs=agent_configs,
                     vehicle_zones=vehicle_zones,
-                    cam_id=cam_id,
+                    cam_id=tp_cam_id,
                     height=self.camera_height,
                     **sampling_kwargs
                 )
+                # 计算侧边相机位姿
+                center_point = session_state['agent_sampling_center_pos']
+                cam_pose_now = session_state['now_cam_pose']
+                side_view_pose = self.calculate_side_view_pose(center_point, cam_pose_now)
+                # 设置侧边相机
+                with self.unreal_lock:
+                    env.unrealcv.set_cam_location(side_cam_id, side_view_pose[:3])
+                    env.unrealcv.set_cam_rotation(side_cam_id, side_view_pose[3:])
+                shared_status['tp_cam_id'] = tp_cam_id
+                shared_status['side_cam_id'] = side_cam_id
+
+                recorder_thread = threading.Thread(
+                    target=self._background_recorder,
+                    args=(env,stop_event, shared_status)
+                )
+                recorder_thread.start()
+
                 if 'img_points' in session_state:
                     shared_status['img_points'] = session_state['img_points']
                 if 'depths' in session_state:
@@ -527,8 +656,10 @@ class SampleAgentConfigWrapper(Wrapper):
                         'rotation': [0, 0, 0] # 初始旋转，或者从 sampler 获取预设旋转
                     }
                     shared_status['next_object'] = next_obj_info
-                    shared_status['text'] = f"Thinking: {agent_name_preview}..."
-                    
+                    if i == 0:
+                        shared_status['text'] = f"There are 5 persons and 3 cars.Please use them to construct a reasonable traffic scene."
+                        time.sleep(5.0)
+                    shared_status['text'] = f"Now, consider the location of {agent_name_preview}"
                     sampled_data = self.agent_point_sampler.sample_single_object(
                         session_state, 
                         obj_info, 
@@ -540,23 +671,36 @@ class SampleAgentConfigWrapper(Wrapper):
                         # 在环境中摆放物体
                         agent_type = sampled_data["agent_type"]
                         agent_name = sampled_data["name"]
+                        app_id = sampled_data['app_id']
                         refer_agent = env.refer_agents[env.agent_configs[agent_type]['name'][0]]
                         if refer_agent['agent_type'] == 'car':
-                            refer_agent['class_name'] = sampled_data['type']
-                        agent_pose = sampled_data["position"] + sampled_data["rotation"]
+                            refer_agent['class_name'] = sampled_data['type'] 
+                        if agent_type == 'car':
+                            agent_pose = sampled_data["position"][:2] + [0] + sampled_data["rotation"]
+                        else:
+                            agent_pose = sampled_data["position"] + sampled_data["rotation"]
                         env.target_start.append(agent_pose)
                         with self.unreal_lock:
-                            env.agents[f'{agent_name}'] = env.add_agent(agent_name, agent_pose, refer_agent)
-                        
+                            env.agents[f'{agent_name}'] = env.add_agent(agent_name, agent_pose, refer_agent,app_id)
+                            env.unrealcv.cam = env.unrealcv.get_camera_config()
+                            env.update_camera_assignments()
+                            # 更新相机id
+                            tp_cam_id = env.vacant_cam_id[1]        
+                            side_cam_id = env.vacant_cam_id[2]
+                            env.unrealcv.set_cam_location(side_cam_id, side_view_pose[:3])
+                            env.unrealcv.set_cam_rotation(side_cam_id, side_view_pose[3:])
+                            env.unrealcv.set_cam_location(tp_cam_id, cam_pose_now[:3])
+                            env.unrealcv.set_cam_rotation(tp_cam_id, cam_pose_now[3:])
+                            shared_status['tp_cam_id'] = tp_cam_id
+                            shared_status['side_cam_id'] = side_cam_id
+
                         if 'valid_mask' in session_state:
                             shared_status['valid_mask'] = session_state['valid_mask'].copy()
                         if 'occupied_areas' in session_state:
                             shared_status['occupied_areas'] = session_state['occupied_areas']
                         
-                        shared_status['text'] = f"Placed: {sampled_data['name']}"
+                        # shared_status['text'] = f"Placed: {sampled_data['name']}"
                         time.sleep(0.5)                        
-                    
-                    
                     else:
                         print(f"物体 {obj_info[3]} 采样失败，跳过本次尝试。")
                         break 
@@ -577,12 +721,14 @@ class SampleAgentConfigWrapper(Wrapper):
                     agent_sampling_radius = results_dict['sampling_radius']
                     break
             except Exception as e:
-                print(e)
-                raise ValueError("采样过程中出现异常，跳过本次尝试。")
+                import traceback
+                traceback.print_exc()
+                raise ValueError("\n采样过程中出现异常：{e}，跳过本次尝试。")
+            
  
         if recorder_thread:
-            shared_status['text'] = "Done."
-            time.sleep(1.0)
+            shared_status['text'] = "All objects placed."
+            time.sleep(5.0)
             stop_event.set()
             recorder_thread.join()
 

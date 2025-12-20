@@ -340,8 +340,8 @@ if __name__ == '__main__':
     }
 
     all_type_ranges = {
-        'player': (2, 6),
-        'car': (1, 1),
+        'player': (5, 5),
+        'car': (3, 3),
         'drone': (0, 0),
         'animal': (0, 0),
         "robotdog": (0, 0),
